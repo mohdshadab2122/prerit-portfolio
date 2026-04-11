@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary-orange: #FF6B00;
+  --color-accent-blue: #0A5CE6;
+  --color-near-black: #0D0D0D;
+  --color-soft-grey: #F4F4F5;
+  
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+body {
+  background-color: var(--color-soft-grey);
+  color: var(--color-near-black);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+}
