@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { Search } from "lucide-react";
+import { useAppData } from "../Context/DataContext";
 import {
-  patentFamilies,
   defensivePublications,
   tradeSecrets,
 } from "../data/intellectualProperty";
@@ -10,27 +10,58 @@ const countries = ["ALL", "US", "DE", "CN", "EP"];
 
 export default function IntellectualProperty() {
   const [activeTab, setActiveTab] = useState("Patents");
+  const { data } = useAppData();
+  const patentFamilies = data?.patents || [];
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("ALL");
   const [page, setPage] = useState(1);
 
   const itemsPerPage = 10;
 
+  const stats = useMemo(() => {
+    let totalFamilies = patentFamilies.length;
+
+    let totalFilings = 0;
+    let grantedCount = 0;
+    let jurisdictions = new Set();
+
+    patentFamilies.forEach((family) => {
+      (family.members || []).forEach((m: any) => {
+        totalFilings++;
+
+        if (m.status?.toLowerCase() === "grant") {
+          grantedCount++;
+        }
+
+        jurisdictions.add(m.jurisdiction);
+      });
+    });
+
+    return {
+      totalFamilies,
+      totalFilings,
+      grantedCount,
+      jurisdictions: jurisdictions.size,
+    };
+  }, [patentFamilies]);
+
   // 🔥 FILTER
   const filtered = useMemo(() => {
     if (activeTab === "Patents") {
       return patentFamilies.filter((family) => {
         const matchSearch =
-          family.familyTitle.toLowerCase().includes(search.toLowerCase()) ||
-          family.inventors
+          (family.familyTitle || "")
+            .toLowerCase()
+            .includes(search.toLowerCase()) ||
+          (family.inventors || [])
             .join(" ")
             .toLowerCase()
             .includes(search.toLowerCase());
 
         const matchCountry =
           country === "ALL" ||
-          family.members.some(
-            (m) =>
+          (family.members || []).some(
+            (m: any) =>
               m.jurisdiction === country ||
               (country === "EP" && m.jurisdiction === "WO"),
           );
@@ -52,13 +83,13 @@ export default function IntellectualProperty() {
     }
 
     return [];
-  }, [search, country, activeTab]);
+  }, [search, country, activeTab, patentFamilies]);
 
   const paginated = filtered.slice(
     (page - 1) * itemsPerPage,
     page * itemsPerPage,
   );
-
+  console.log("STEP 7: PAGINATED 👉", paginated);
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   useEffect(() => {
@@ -90,7 +121,8 @@ export default function IntellectualProperty() {
                 Across Jurisdictions
               </p>
               <div className="text-3xl font-semibold tracking-tight">
-                83<span className="text-[#FF6B00]">+</span>
+                {stats.totalFamilies}
+                <span className="text-[#FF6B00]">+</span>
               </div>
               <p className="text-xs text-gray-500 mt-2 tracking-wide">
                 Patent Families
@@ -103,7 +135,8 @@ export default function IntellectualProperty() {
                 US · DE · CN · EP
               </p>
               <div className="text-3xl font-semibold tracking-tight">
-                220<span className="text-[#FF6B00]">+</span>
+                {stats.totalFilings}
+                <span className="text-[#FF6B00]">+</span>
               </div>
               <p className="text-xs text-gray-500 mt-2 tracking-wide">
                 Total Filings
@@ -116,7 +149,8 @@ export default function IntellectualProperty() {
                 Confirmed by Office
               </p>
               <div className="text-3xl font-semibold tracking-tight">
-                70<span className="text-[#FF6B00]">+</span>
+                {stats.grantedCount}
+                <span className="text-[#FF6B00]">+</span>
               </div>
               <p className="text-xs text-gray-500 mt-2 tracking-wide">
                 Granted Patents
@@ -128,7 +162,9 @@ export default function IntellectualProperty() {
               <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Global Coverage
               </p>
-              <div className="text-3xl font-semibold tracking-tight">4</div>
+              <div className="text-3xl font-semibold tracking-tight">
+                {stats.jurisdictions}
+              </div>
               <p className="text-xs text-gray-500 mt-2 tracking-wide">
                 Jurisdictions
               </p>
@@ -277,7 +313,7 @@ export default function IntellectualProperty() {
                   ))}
 
                   <div className="text-[13px]">
-                    {family.inventors.map((inv, idx) => (
+                    {family.inventors.map((inv: any, idx: any) => (
                       <span key={idx}>
                         {inv.toLowerCase() === "prerit pramod" ? (
                           <span className="font-semibold">Prerit Pramod</span>
@@ -375,4 +411,3 @@ export default function IntellectualProperty() {
     </div>
   );
 }
- 

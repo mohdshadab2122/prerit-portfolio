@@ -1,18 +1,24 @@
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Linkedin, Mail, FileText, ExternalLink, GraduationCap } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Link, Outlet, useLocation } from "react-router-dom";
+import {
+  Linkedin,
+  Mail,
+  FileText,
+  ExternalLink,
+  GraduationCap,
+} from "lucide-react";
+import { motion } from "motion/react";
 
 export default function Layout() {
   const location = useLocation();
 
   const navLinks = [
-    { name: 'Home', path: '/' },
+    { name: "Home", path: "/" },
     { name: "Education", path: "/education" },
-    { name: 'Experience', path: '/experience' },
-    { name: 'Publications', path: '/publications' },
-    { name: 'Intellectual Property', path: '/intellectual-property' },
-    { name: 'Awards & Recognitions', path: '/awards' },
-    { name: 'Contact', path: '/contact' },
+    { name: "Experience", path: "/experience" },
+    { name: "Publications", path: "/publications" },
+    { name: "Intellectual Property", path: "/intellectual-property" },
+    { name: "Awards & Recognitions", path: "/awards" },
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -23,7 +29,7 @@ export default function Layout() {
           <Link to="/" className="text-xl font-bold tracking-tight">
             PRERIT PRAMOD
           </Link>
-          
+
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
@@ -31,8 +37,8 @@ export default function Layout() {
                 to={link.path}
                 className={`text-sm font-medium transition-colors ${
                   location.pathname === link.path
-                    ? 'text-primary-orange'
-                    : 'text-near-black/70 hover:text-near-black'
+                    ? "text-primary-orange"
+                    : "text-near-black/70 hover:text-near-black"
                 }`}
               >
                 {link.name}
@@ -61,21 +67,41 @@ export default function Layout() {
       <footer className="bg-near-black text-white py-16">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold tracking-tight mb-2">PRERIT PRAMOD</h2>
-            <p className="text-white/60 text-lg italic">"Think deeper. Build bolder. Learn without limits."</p>
+            <h2 className="text-2xl font-bold tracking-tight mb-2">
+              PRERIT PRAMOD
+            </h2>
+            <p className="text-white/60 text-lg italic">
+              "Think deeper. Build bolder. Learn without limits."
+            </p>
           </div>
-          
+
           <div className="flex items-center gap-6">
-            <a href="#" className="text-white/60 hover:text-primary-orange transition-colors" aria-label="LinkedIn">
+            <a
+              href="#"
+              className="text-white/60 hover:text-primary-orange transition-colors"
+              aria-label="LinkedIn"
+            >
               <Linkedin className="w-6 h-6" />
             </a>
-            <a href="#" className="text-white/60 hover:text-primary-orange transition-colors" aria-label="Google Scholar">
+            <a
+              href="#"
+              className="text-white/60 hover:text-primary-orange transition-colors"
+              aria-label="Google Scholar"
+            >
               <GraduationCap className="w-6 h-6" />
             </a>
-            <a href="#" className="text-white/60 hover:text-primary-orange transition-colors" aria-label="Email">
+            <a
+              href="#"
+              className="text-white/60 hover:text-primary-orange transition-colors"
+              aria-label="Email"
+            >
               <Mail className="w-6 h-6" />
             </a>
-            <a href="#" className="text-white/60 hover:text-primary-orange transition-colors" aria-label="Resume">
+            <a
+              href="#"
+              className="text-white/60 hover:text-primary-orange transition-colors"
+              aria-label="Resume"
+            >
               <FileText className="w-6 h-6" />
             </a>
           </div>

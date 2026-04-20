@@ -3,17 +3,25 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
-import Home from './pages/Home';
-import Education from './pages/Education';
-import Experience from './pages/Experience';
-import Publications from './pages/Publications';
-import Awards from './pages/Awards';
-import IntellectualProperty from './pages/IntellectualProperty';
-import Contact from './pages/Contact';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Education from "./pages/Education";
+import Experience from "./pages/Experience";
+import Publications from "./pages/Publications";
+import Awards from "./pages/Awards";
+import IntellectualProperty from "./pages/IntellectualProperty";
+import Contact from "./pages/Contact";
+import { useAppData } from "./Context/DataContext";
+import Loader from "./components/Loader";
 
 export default function App() {
+  const { loading } = useAppData();
+
+  if (loading) {
+    return <Loader />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
@@ -23,7 +31,10 @@ export default function App() {
           <Route path="experience" element={<Experience />} />
           <Route path="/publications" element={<Publications />} />
           <Route path="awards" element={<Awards />} />
-          <Route path="/intellectual-property" element={<IntellectualProperty />} />
+          <Route
+            path="/intellectual-property"
+            element={<IntellectualProperty />}
+          />
           <Route path="contact" element={<Contact />} />
         </Route>
       </Routes>
