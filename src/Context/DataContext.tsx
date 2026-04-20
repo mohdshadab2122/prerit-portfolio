@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 type AppDataType = {
   patents: any[];
+  defensivePublications: any[];
+  tradeSecrets: any[];
 };
 
 const DataContext = createContext<{
@@ -10,32 +12,50 @@ const DataContext = createContext<{
 } | null>(null);
 
 export const DataProvider = ({ children }: { children: React.ReactNode }) => {
-    const [data, setData] = useState<AppDataType | null>(null);
+  const [data, setData] = useState<AppDataType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const cached = localStorage.getItem("appData");
 
     if (cached) {
-      // ✅ CACHE HIT
-      setData(JSON.parse(cached));
-      setLoading(false);
-    } else {
-      fetchAllData();
+      const parsed = JSON.parse(cached);
+
+      if (!parsed.timestamp || !parsed.data) {
+        localStorage.removeItem("appData");
+      } else {
+        const isExpired = Date.now() - parsed.timestamp > 1 * 60 * 60 * 1000; // 1 hour
+
+        if (!isExpired) {
+          setData(parsed.data);
+          setLoading(false);
+          return;
+        }
+      }
     }
+
+    fetchAllData();
   }, []);
 
   const fetchAllData = async () => {
     try {
-      const res = await fetch(
-        "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=patents",
-      );
+      const [patentsRes, defensiveRes, tradeRes] = await Promise.all([
+        fetch(
+          "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=patents",
+        ),
+        fetch(
+          "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=defensive_publications",
+        ),
+        fetch(
+          "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=trade_secrets",
+        ),
+      ]);
 
-      const text = await res.text();
-      const json = JSON.parse(text);
-
-      // 🔥 FORMAT DATA (IMPORTANT)
-      const formattedPatents = json.patents.map((row: any) => ({
+      const patentsJson = JSON.parse(await patentsRes.text());
+      const defensiveJson = JSON.parse(await defensiveRes.text());
+      const tradeJson = JSON.parse(await tradeRes.text());
+      // 🔥 PATENTS FORMAT
+      const formattedPatents = patentsJson.patents.map((row: any) => ({
         familyTitle: row.usTitle || row.deTitle || row.cnTitle || row.epTitle,
 
         members: [
@@ -82,12 +102,41 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
           : [],
       }));
 
+      // 🔥 DEFENSIVE PUBLICATIONS FORMAT
+      const formattedDefensive = defensiveJson.defensivePublications.map(
+        (row: any) => ({
+          title: row.title,
+          number: row.number?.replace(/[, ]/g, ""),
+          date: row.date,
+          status: row.status,
+          inventors: row.inventors
+            ? row.inventors.split(",").map((i: string) => i.trim())
+            : [],
+        }),
+      );
+
+      const formattedTradeSecrets = tradeJson.tradeSecrets.map((row: any) => ({
+        title: row.title,
+        date: row.date,
+        inventors: row.inventors
+          ? row.inventors.split(",").map((i: string) => i.trim())
+          : [],
+      }));
+
       const finalData = {
         patents: formattedPatents,
+        defensivePublications: formattedDefensive,
+        tradeSecrets: formattedTradeSecrets,
       };
 
-      // ✅ SAVE CACHE
-      localStorage.setItem("appData", JSON.stringify(finalData));
+      // ✅ CACHE SAVE
+      localStorage.setItem(
+        "appData",
+        JSON.stringify({
+          data: finalData,
+          timestamp: Date.now(),
+        }),
+      );
 
       setData(finalData);
       setLoading(false);

@@ -1,10 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { useAppData } from "../Context/DataContext";
-import {
-  defensivePublications,
-  tradeSecrets,
-} from "../data/intellectualProperty";
 
 const countries = ["ALL", "US", "DE", "CN", "EP"];
 
@@ -12,11 +8,15 @@ export default function IntellectualProperty() {
   const [activeTab, setActiveTab] = useState("Patents");
   const { data } = useAppData();
   const patentFamilies = data?.patents || [];
+  const defensivePublications = data?.defensivePublications || [];
+  const tradeSecrets = data?.tradeSecrets || [];
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState("ALL");
   const [page, setPage] = useState(1);
 
   const itemsPerPage = 10;
+
+  console.log("RAW TRADE SECRETS 👉", tradeSecrets);
 
   const stats = useMemo(() => {
     let totalFamilies = patentFamilies.length;
@@ -83,7 +83,14 @@ export default function IntellectualProperty() {
     }
 
     return [];
-  }, [search, country, activeTab, patentFamilies]);
+  }, [
+    search,
+    country,
+    activeTab,
+    patentFamilies,
+    defensivePublications,
+    tradeSecrets,
+  ]);
 
   const paginated = filtered.slice(
     (page - 1) * itemsPerPage,
@@ -368,7 +375,7 @@ export default function IntellectualProperty() {
                 key={i}
                 className="grid grid-cols-[2fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB]"
               >
-                <div>{t.title}</div>
+                <div className="break-words pr-6">{t.title}</div>
                 <div>{t.date}</div>
                 <div>{t.inventors.join(", ")}</div>
               </div>
@@ -411,4 +418,3 @@ export default function IntellectualProperty() {
     </div>
   );
 }
- 
