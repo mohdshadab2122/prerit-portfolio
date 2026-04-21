@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, Building2, Briefcase, Minus, Plus } from 'lucide-react';
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { ChevronDown, Building2, Briefcase, Minus, Plus } from "lucide-react";
+import { useAppData } from "../Context/DataContext";
 
 interface Role {
   title: string;
@@ -21,244 +22,6 @@ interface Company {
   roles: Role[];
 }
 
-const companies: Company[] = [
-  {
-    name: "Inspired Innovation LLC",
-    logo: "/logos/InspiredInnovation.png",
-    website: "https://inspiredinnovation.in/",
-    tenure: "August 2025 – Present",
-    duration: "8 mos",
-    summary: (
-      <>
-        <p>
-          <strong>Inspired Innovation LLC</strong> is an engineering-led innovation and technology consulting venture focused on advanced product development, research-driven engineering services, control systems, robotics, electric mobility, and intellectual property creation.
-        </p>
-
-        <p className="mt-4">
-          <strong>Prerit Pramod</strong> leads the strategic and technical direction of the organization as Founder & Chief Executive Officer, building innovation programs, defining engineering solutions, and shaping multidisciplinary technical initiatives across emerging technology domains.
-        </p>
-      </>
-    ),
-    roles: [
-      {
-        title: "Founder & Chief Executive Officer",
-        type: "Full Time",
-        tenure: "August 2025 – Present",
-        duration: "8 mos",
-        dept: "Engineering Services & Technology Consulting",
-        details: [
-          "Established a global engineering consulting and innovation-led technology business.",
-          "Built technical programs across electric mobility, control systems, robotics, and product strategy.",
-          "Led cross-disciplinary research, engineering feasibility, and commercialization planning.",
-          "Directed innovation strategy and technical execution across advanced domains."
-        ]
-      }
-    ]
-  },
-  {
-    name: "MicroVision, Inc.",
-    logo: "/logos/Microvision.png",
-    website: "https://microvision.com/",
-    tenure: "February 2025 – July 2025",
-    duration: "2 yrs 6 mos",
-    summary: (
-      <>
-        <p>
-          <strong>MicroVision, Inc.</strong> is a technology company known for advanced sensing, intelligent systems, and engineering-led product development in high-performance technology environments.
-        </p>
-
-        <p className="mt-4">
-          <strong>Prerit Pramod</strong> contributed across engineering leadership roles in control systems, systems engineering, and software-focused development, supporting architecture, execution, and technical coordination for advanced engineering programs.
-        </p>
-      </>
-    ),
-    roles: [
-      {
-        title: "Associate Director",
-        type: "Full Time",
-        tenure: "April 2025 – July 2025",
-        duration: "4 mos",
-        dept: "Control Systems, Systems & Software Engineering",
-        details: [
-          "Led systems and control engineering efforts across software and embedded product programs.",
-          "Supported technical architecture, systems integration, and engineering coordination.",
-          "Contributed to system-level execution and engineering maturity for advanced technology programs."
-        ]
-      },
-      {
-        title: "Engineering Manager",
-        type: "Full Time",
-        tenure: "February 2023 – April 2025",
-        duration: "2 yrs 3 mos",
-        dept: "Control Systems, Digital Design Engineering",
-        details: [
-          "Managed engineering execution for control systems and digital design activities.",
-          "Helped coordinate cross-functional engineering tasks and structured development workflows.",
-          "Supported technical implementation and systems-oriented engineering delivery."
-        ]
-      }
-    ]
-  },
-  {
-    name: "Nexteer Automotive Corporation",
-    logo: "/logos/Nexteer.jpg",
-    website: "https://www.nexteer.com/",
-    tenure: "February 2013 – February 2023",
-    duration: "10 yrs",
-    summary: (
-      <>
-        <p>
-          <strong>Nexteer Automotive Corporation</strong> is a global automotive technology company specializing in motion control, steering systems, electric motor technologies, sensing, embedded systems, and advanced mobility solutions.
-        </p>
-
-        <p className="mt-4">
-          <strong>Prerit Pramod</strong> progressed through multiple engineering and leadership roles over a decade, contributing to control systems, electric motor drives, sensing technologies, advanced engineering programs, and future-focused mobility innovation initiatives.
-        </p>
-      </>
-    ),
-    roles: [
-      {
-        title: "Engineering Manager",
-        type: "Full Time",
-        tenure: "April 2020 – February 2023",
-        duration: "2 yrs 11 mos",
-        dept: "Motion Control Systems & Software, Advanced Engineering",
-        details: [
-          "Led control systems engineering team responsible for real-time embedded algorithms and advanced transportation applications.",
-          "Defined system-level control and algorithmic architecture across multi-domain engineering problems.",
-          "Helped shape commercialization roadmap for autonomous and advanced vehicle technologies.",
-          "Collaborated across teams to ensure system safety, requirements integrity, and technical feasibility."
-        ]
-      },
-      {
-        title: "Senior Engineering Supervisor",
-        type: "Full Time",
-        tenure: "January 2017 – March 2020",
-        duration: "3 yrs 3 mos",
-        dept: "Electric Motor Drives, Research & Development",
-        details: [
-          "Established and led electric motor drives research and development efforts.",
-          "Built globally distributed engineering capability across technical domains and geographies.",
-          "Managed technical leadership, hiring, mentoring, personnel supervision, and strategic engineering planning.",
-          "Directed product innovation and advanced motion control development initiatives."
-        ]
-      },
-      {
-        title: "Team Leader",
-        type: "Full Time",
-        tenure: "July 2016 – December 2016",
-        duration: "6 mos",
-        dept: "Motion Control & Sensing, Core Product Engineering",
-        details: [
-          "Led technical execution across motion control and sensing engineering activities.",
-          "Supported engineering planning and product development coordination.",
-          "Contributed to system-level product engineering initiatives."
-        ]
-      },
-      {
-        title: "Systems Engineer",
-        type: "Full Time",
-        tenure: "April 2014 – June 2016",
-        duration: "2 yrs 3 mos",
-        dept: "Motion Control & Sensing, Core Product Engineering",
-        details: [
-          "Worked on system design, validation, and development of motion control and sensing functions.",
-          "Supported model-based design and embedded systems engineering workflows.",
-          "Contributed to architecture and technical development activities."
-        ]
-      },
-      {
-        title: "Applications Engineer",
-        type: "Full Time",
-        tenure: "February 2013 – March 2014",
-        duration: "1 yr 2 mos",
-        dept: "Motion Control & Sensing, Applications Product Engineering",
-        details: [
-          "Supported application engineering for motion control and sensing products.",
-          "Worked on validation, calibration, and deployment-related technical tasks.",
-          "Assisted product engineering and technical support functions."
-        ]
-      },
-      {
-        title: "Engineering Intern",
-        type: "Internship",
-        tenure: "May 2012 – August 2012",
-        duration: "4 mos",
-        dept: "Motion Control & Sensing, Applications Product Engineering",
-        details: [
-          "Supported technical analysis, testing, and engineering validation work.",
-          "Contributed to early-stage automotive product engineering tasks.",
-          "Built foundational experience in motion control systems."
-        ]
-      }
-    ]
-  },
-  {
-    name: "University of Michigan",
-    logo: "/logos/UniversityofMichigan.jpg",
-    website: "https://umich.edu/",
-    tenure: "September 2012 – December 2012",
-    duration: "4 mos",
-    summary: (
-      <>
-        <p>
-          <strong>University of Michigan</strong> is a globally recognized academic and research institution with strong leadership in engineering, technology, and scientific education.
-        </p>
-
-        <p className="mt-4">
-          <strong>Prerit Pramod</strong> supported undergraduate engineering education in electrical circuits and systems, contributing to technical learning, academic guidance, and engineering fundamentals development.
-        </p>
-      </>
-    ),
-    roles: [
-      {
-        title: "Graduate Student Instructor",
-        type: "Academic",
-        tenure: "September 2012 – December 2012",
-        duration: "4 mos",
-        dept: "Electrical Engineering & Computer Science Department",
-        details: [
-          "Taught undergraduate content in electrical circuits, systems, and engineering applications.",
-          "Helped students understand engineering fundamentals through structured instruction.",
-          "Supported academic delivery and technical learning."
-        ]
-      }
-    ]
-  },
-  {
-    name: "Indian Oil Corporation Limited",
-    logo: "/logos/IndianOil.jpg",
-    website: "https://iocl.com/",
-    tenure: "September 2010 – August 2011",
-    duration: "1 yr",
-    summary: (
-      <>
-        <p>
-          <strong>Indian Oil Corporation Limited</strong> is one of India’s largest integrated energy companies, operating across refining, petroleum products, supply chain systems, and industrial operations.
-        </p>
-
-        <p className="mt-4">
-          <strong>Prerit Pramod</strong> worked within refinery and marketing-linked technical workflows, supporting operational execution, quality control, and process-oriented industrial systems exposure.
-        </p>
-      </>
-    ),
-    roles: [
-      {
-        title: "Operations Officer",
-        type: "Full Time",
-        tenure: "September 2010 – August 2011",
-        duration: "1 yr",
-        dept: "Petroleum Refinery Marketing Division",
-        details: [
-          "Supervised technical and operations personnel in refinery-related workflows.",
-          "Supported quality control and supply chain operations.",
-          "Gained industrial systems and process engineering experience."
-        ]
-      }
-    ]
-  }
-];
-
 const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -268,13 +31,13 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
       {!isLast && (
         <div className="absolute left-[9px] top-6 bottom-[-25px] w-[1.5px] bg-[#E5E7EB]" />
       )}
-      
+
       {/* Role Node Marker */}
       <div className="absolute left-0 top-[2px] w-[20px] h-[20px] flex items-center justify-center">
         <div className="w-2.5 h-2.5 rounded-full border-2 border-[#0A5CE6] bg-white z-10" />
       </div>
 
-      <div 
+      <div
         onClick={() => setIsExpanded(!isExpanded)}
         className="cursor-pointer group"
       >
@@ -290,9 +53,7 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
                 {role.type}
               </span>
 
-              <span className="text-sm text-[#0D0D0D]/45">
-                {role.duration}
-              </span>
+              <span className="text-sm text-[#0D0D0D]/45">{role.duration}</span>
             </div>
 
             <span className="text-[10px] font-mono text-[#0D0D0D]/40 uppercase tracking-widest md:text-right">
@@ -303,12 +64,12 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
           {/* Department */}
           <div className="mt-1.5">
             <span className="text-sm font-medium text-[#0D0D0D]/60 leading-relaxed">
-              {role.dept.split(',')[0]}
-              {role.dept.includes(',') && (
+              {role.dept.split(",")[0]}
+              {role.dept.includes(",") && (
                 <>
-                  {','}{' '}
+                  {","}{" "}
                   <span className="italic text-[#0D0D0D]/55">
-                    {role.dept.split(',').slice(1).join(',').trim()}
+                    {role.dept.split(",").slice(1).join(",").trim()}
                   </span>
                 </>
               )}
@@ -320,7 +81,7 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
           {isExpanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden"
@@ -328,7 +89,10 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
               <div className="bg-white border border-[#E5E7EB] rounded-lg p-5 mt-3">
                 <ul className="space-y-3">
                   {role.details.map((detail, i) => (
-                    <li key={i} className="text-sm text-[#0D0D0D]/70 flex items-start gap-3 leading-relaxed">
+                    <li
+                      key={i}
+                      className="text-sm text-[#0D0D0D]/70 flex items-start gap-3 leading-relaxed"
+                    >
                       <div className="w-1.5 h-1.5 rounded-full bg-[#0A5CE6]/30 mt-2 flex-shrink-0" />
                       {detail}
                     </li>
@@ -343,13 +107,18 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
   );
 };
 
-const CompanySection = ({ company, isLast }: { company: Company; isLast: boolean }) => {
+const CompanySection = ({
+  company,
+  isLast,
+}: {
+  company: Company;
+  isLast: boolean;
+}) => {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
   return (
     <div className="relative">
       {/* Level 1: Main Company Thread Line */}
-      
 
       {/* Company Node Marker */}
       <div className="absolute left-0 top-8 w-6 h-6 flex items-center justify-center z-20">
@@ -360,7 +129,7 @@ const CompanySection = ({ company, isLast }: { company: Company; isLast: boolean
 
       <div className="ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-8">
         {/* Company Header */}
-        <div 
+        <div
           onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
           className="group cursor-pointer mb-6"
         >
@@ -372,10 +141,13 @@ const CompanySection = ({ company, isLast }: { company: Company; isLast: boolean
                   {company.name}
                 </h3>
 
-                <div className="flex flex-wrap items-center gap-4 mt-2">
+                <div className="flex flex-wrap items-center gap-3 mt-2">
                   <span className="text-xs font-mono text-[#0D0D0D]/40 uppercase tracking-[0.2em]">
                     {company.tenure}
                   </span>
+
+                  <span className="w-[3.2px] h-[3.2px] rounded-full bg-[#0D0D0D]/40 inline-block align-middle"></span>
+
                   <span className="text-xs font-mono text-[#0D0D0D]/45 uppercase tracking-[0.2em]">
                     {company.duration}
                   </span>
@@ -404,7 +176,7 @@ const CompanySection = ({ company, isLast }: { company: Company; isLast: boolean
           {isSummaryExpanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden"
@@ -423,8 +195,8 @@ const CompanySection = ({ company, isLast }: { company: Company; isLast: boolean
           <div className="pl-0">
             {company.roles.map((role, idx) => (
               <div key={idx} className="mb-8 last:mb-0">
-                <RoleNode 
-                  role={role} 
+                <RoleNode
+                  role={role}
                   isLast={idx === company.roles.length - 1}
                 />
               </div>
@@ -437,6 +209,222 @@ const CompanySection = ({ company, isLast }: { company: Company; isLast: boolean
 };
 
 export default function Experience() {
+  const { data, loading } = useAppData();
+
+  if (loading) return <div>Loading...</div>;
+
+  const raw = data?.experiences || [];
+
+  const getDriveImage = (link: string) => {
+    if (!link) return null;
+
+    const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (!match) return null;
+
+    const fileId = match[1];
+
+    // 🔥 CHANGE HERE: 'drive.google.com' ki jagah 'googleusercontent.com' use kar rahe hain
+    // Ye iframe aur ad-blockers me fail nahi hota
+    return `https://lh3.googleusercontent.com/d/${fileId}`;
+  };
+
+  const groupByCompany = (data: any[]) => {
+    const map: any = {};
+
+    data.forEach((item) => {
+      if (!map[item.company]) {
+        map[item.company] = {
+          name: item.company,
+          logo:
+            Array.isArray(item.mediaLinks) && item.mediaLinks.length > 0
+              ? getDriveImage(item.mediaLinks[0])
+              : null,
+          website: item.externalLinks?.[0] || "#",
+          roles: [],
+          periods: [],
+          location: item.location,
+          companyDesc: item.companyDesc,
+          contribution: item.contribution,
+        };
+      }
+      console.log("MEDIA LINKS RAW:", item.mediaLinks);
+      console.log("ITEM:", item.company, item.mediaLinks);
+      map[item.company].roles.push(item);
+      map[item.company].periods.push(item.period);
+    });
+
+    return Object.values(map);
+  };
+
+  const calcDuration = (period: string) => {
+    if (!period) return "";
+
+    const parts = period.replace("–", "-").split("-");
+    if (parts.length < 2) return "";
+
+    const start = new Date(parts[0].trim());
+    const end = parts[1].toLowerCase().includes("present")
+      ? new Date()
+      : new Date(parts[1].trim());
+
+    const months =
+      (end.getFullYear() - start.getFullYear()) * 12 +
+      (end.getMonth() - start.getMonth());
+
+    const years = Math.floor(months / 12);
+    const rem = months % 12;
+
+    return `${years ? years + " yrs " : ""}${rem} mos`;
+  };
+
+  const getStartDate = (period: string) => {
+    if (!period) return 0;
+
+    const clean = period.replace("–", "-"); // dash fix
+    const start = clean.split("-")[0].trim();
+
+    return new Date(start + " 1").getTime();
+  };
+
+  const stats = useMemo(() => {
+    if (!raw.length) return null;
+
+    // total roles
+    const totalRoles = raw.length;
+
+    // unique companies
+    const companiesSet = new Set(raw.map((r: any) => r.company));
+    const totalCompanies = companiesSet.size;
+
+    // leadership roles
+    const leadershipRoles = raw.filter((r: any) =>
+      /manager|director|lead|ceo|founder/i.test(r.role),
+    ).length;
+
+    // total experience years
+    // ✅ NEW SAFE LOGIC
+
+    const parseStart = (period: string) => {
+      const clean = period.replace("–", "-");
+      const start = clean.split("-")[0]?.trim();
+      return new Date(start + " 1").getTime();
+    };
+
+    const parseEnd = (period: string) => {
+      const clean = period.replace("–", "-");
+      const end = clean.split("-")[1]?.trim();
+
+      if (!end) return Date.now();
+
+      if (end.toLowerCase().includes("present")) {
+        return Date.now(); // ✅ multiple present handled
+      }
+
+      return new Date(end + " 1").getTime();
+    };
+
+    const startDates = raw
+      .map((r: any) => parseStart(r.period))
+      .filter(Boolean);
+    const endDates = raw.map((r: any) => parseEnd(r.period));
+
+    // safety
+    if (!startDates.length || !endDates.length) {
+      return {
+        totalRoles,
+        totalCompanies,
+        leadershipRoles,
+        totalYears: 0,
+      };
+    }
+
+    const minStart = Math.min(...startDates);
+    const maxEnd = Math.max(...endDates);
+
+    const totalMonths =
+      (new Date(maxEnd).getFullYear() - new Date(minStart).getFullYear()) * 12 +
+      (new Date(maxEnd).getMonth() - new Date(minStart).getMonth());
+
+    const totalYears = Math.floor(totalMonths / 12);
+
+    return {
+      totalRoles,
+      totalCompanies,
+      leadershipRoles,
+      totalYears,
+    };
+  }, [raw]);
+
+  const companies = groupByCompany(raw)
+    .map((company: any) => {
+      // ✅ roles latest first
+      const rolesSorted = [...company.roles].sort(
+        (a: any, b: any) => getStartDate(b.period) - getStartDate(a.period),
+      );
+
+      // ✅ latest role (top)
+      const latestRole = rolesSorted[0];
+
+      // ✅ earliest role (bottom)
+      const earliestRole = rolesSorted[rolesSorted.length - 1];
+
+      const start = earliestRole.period.replace("–", "-").split("-")[0].trim();
+      const endRaw = latestRole.period.replace("–", "-").split("-")[1]?.trim();
+
+      const end = endRaw?.toLowerCase().includes("present")
+        ? "Present"
+        : endRaw;
+
+      const tenure = `${start} – ${end}`;
+
+      return {
+        name: company.name,
+        logo: company.logo,
+        website: company.website,
+
+        // ✅ location + tenure
+        tenure: `${company.location} • ${tenure}`,
+
+        duration: calcDuration(`${start} - ${end}`),
+
+        summary: (
+          <>
+            <p>
+              <strong>{company.name}</strong>{" "}
+              {company.companyDesc?.replace(company.name, "").trim()}
+            </p>
+
+            <p className="mt-4">
+              <strong>Prerit Pramod</strong>{" "}
+              {company.contribution?.replace("Prerit Pramod", "").trim()}
+            </p>
+          </>
+        ),
+
+        roles: rolesSorted.map((r: any) => ({
+          title: r.role,
+          type: r.type,
+          tenure: r.period,
+          duration: calcDuration(r.period),
+          dept:
+            r.team && r.department
+              ? `${r.team}, ${r.department}`
+              : r.team || r.department || "",
+          details: r.roleDesc
+            ? r.roleDesc
+                .split("\\")
+                .map((d: string) => d.trim())
+                .filter(Boolean)
+            : [],
+        })),
+
+        // 🔥 IMPORTANT: store latest start date for sorting
+        _latest: getStartDate(latestRole.period),
+      };
+    })
+    // ✅ FINAL SORT (यह सबसे important है)
+    .sort((a: any, b: any) => b._latest - a._latest);
+
   return (
     <div className="w-full bg-white min-h-screen py-32 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
       <div className="max-w-5xl mx-auto">
@@ -451,8 +439,64 @@ export default function Experience() {
             EXPERIENCE
           </h1>
           <p className="text-xl md:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
-            A visual map of engineering leadership, research, and product innovation across two levels of progression.
+            A visual map of engineering leadership, research, and product
+            innovation across two levels of progression.
           </p>
+
+          {stats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 mt-12">
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                  Total Experience
+                </p>
+                <div className="text-3xl font-semibold tracking-tight">
+                  {stats.totalYears}
+                  <span className="text-[#FF6B00]">+</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                  Years
+                </p>
+              </div>
+
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                  Organizations
+                </p>
+                <div className="text-3xl font-semibold tracking-tight">
+                  {stats.totalCompanies}
+                  <span className="text-[#FF6B00]">+</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                  Companies
+                </p>
+              </div>
+
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                  Roles
+                </p>
+                <div className="text-3xl font-semibold tracking-tight">
+                  {stats.totalRoles}
+                  <span className="text-[#FF6B00]">+</span>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                  Positions Held
+                </p>
+              </div>
+
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                  Leadership
+                </p>
+                <div className="text-3xl font-semibold tracking-tight">
+                  {stats.leadershipRoles}
+                </div>
+                <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                  Leadership Roles
+                </p>
+              </div>
+            </div>
+          )}
         </motion.div>
 
         {/* Timeline Section */}
@@ -468,8 +512,8 @@ export default function Experience() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="relative"
             >
-              <CompanySection 
-                company={company} 
+              <CompanySection
+                company={company}
                 isLast={index === companies.length - 1}
               />
             </motion.div>

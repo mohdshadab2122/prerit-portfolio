@@ -4,6 +4,7 @@ type AppDataType = {
   patents: any[];
   defensivePublications: any[];
   tradeSecrets: any[];
+  experiences: any[]; // ✅ ADD THIS
 };
 
 const DataContext = createContext<{
@@ -39,21 +40,26 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchAllData = async () => {
     try {
-      const [patentsRes, defensiveRes, tradeRes] = await Promise.all([
-        fetch(
-          "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=patents",
-        ),
-        fetch(
-          "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=defensive_publications",
-        ),
-        fetch(
-          "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=trade_secrets",
-        ),
-      ]);
+      const [patentsRes, defensiveRes, tradeRes, experienceRes] =
+        await Promise.all([
+          fetch(
+            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=patents",
+          ),
+          fetch(
+            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=defensive_publications",
+          ),
+          fetch(
+            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=trade_secrets",
+          ),
+          fetch(
+            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=experience",
+          ),
+        ]);
 
       const patentsJson = JSON.parse(await patentsRes.text());
       const defensiveJson = JSON.parse(await defensiveRes.text());
       const tradeJson = JSON.parse(await tradeRes.text());
+      const experienceJson = JSON.parse(await experienceRes.text());
       // 🔥 PATENTS FORMAT
       const formattedPatents = patentsJson.patents.map((row: any) => ({
         familyTitle: row.usTitle || row.deTitle || row.cnTitle || row.epTitle,
@@ -123,10 +129,28 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
           : [],
       }));
 
+      const formattedExperiences = experienceJson.experiences.map(
+        (row: any) => ({
+          company: row.company,
+          role: row.role,
+          type: row.type,
+          period: row.period,
+          location: row.location,
+          team: row.team,
+          department: row.department,
+          roleDesc: row.roleDesc,
+          companyDesc: row.companyDesc,
+          contribution: row.contribution,
+          externalLinks: row.externalLinks,
+          mediaLinks: Array.isArray(row.mediaLinks) ? row.mediaLinks : [],
+        }),
+      );
+
       const finalData = {
         patents: formattedPatents,
         defensivePublications: formattedDefensive,
         tradeSecrets: formattedTradeSecrets,
+        experiences: formattedExperiences,
       };
 
       // ✅ CACHE SAVE
