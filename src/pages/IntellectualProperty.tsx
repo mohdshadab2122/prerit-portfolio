@@ -213,10 +213,10 @@ export default function IntellectualProperty() {
                     setCountry(c);
                     setPage(1);
                   }}
-                  className={`px-4 py-2 text-sm border rounded-md ${
+                  className={`px-4 py-2 text-sm border rounded-md transition-all duration-200 ${
                     country === c
-                      ? "border-[#FF6B00] text-[#FF6B00]"
-                      : "border-[#E5E7EB] text-gray-500"
+                      ? "border-[#FF6B00] text-[#FF6B00] bg-[#FFF4EB]"
+                      : "border-[#E5E7EB] text-gray-500 hover:border-[#FF6B00] hover:text-[#FF6B00] hover:bg-[#FFF4EB]"
                   }`}
                 >
                   {c === "EP" ? "EP & WO" : c}
@@ -277,7 +277,9 @@ export default function IntellectualProperty() {
               return (
                 <div
                   key={i}
-                  className="grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-5 border-b border-[#E5E7EB]"
+                  className={`grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-5 border-b border-[#E5E7EB] ${
+                    i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                  } hover:bg-[#ECECEF] transition-colors duration-200`}
                 >
                   <div>{(page - 1) * itemsPerPage + i + 1}</div>
 
@@ -300,16 +302,32 @@ export default function IntellectualProperty() {
                           <div className="text-[13px] whitespace-nowrap">
                             {m.number}
                           </div>
-                          <div className="text-[10px] text-[#FF6B00]">
-                            {m.status}
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {/* STATUS BADGE */}
+                            <span
+                              className={`text-[10px] px-2 py-[2px] rounded-md font-medium ${
+                                m.status?.toLowerCase() === "grant"
+                                  ? "bg-[#FFF4EB] text-[#FF6B00]"
+                                  : "bg-[#EEF2FF] text-[#2563EB]"
+                              }`}
+                            >
+                              {m.status}
+                            </span>
+
+                            {/* DATE */}
+                            {m.date && (
+                              <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                                {m.date}
+                              </span>
+                            )}
                           </div>
                           {m.link && (
                             <a
                               href={m.link}
                               target="_blank"
-                              className="text-[11px] text-blue-600 hover:underline"
+                              className="inline-block mt-1 text-[10px] px-2 py-[2px] border border-[#E5E7EB] rounded-md hover:bg-gray-100"
                             >
-                              PDF
+                              View PDF
                             </a>
                           )}
                         </>
@@ -350,7 +368,9 @@ export default function IntellectualProperty() {
             {paginated.map((p: any, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[2fr_1fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB]"
+                className={`grid grid-cols-[2fr_1fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] ${
+                  i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                } hover:bg-[#ECECEF] transition-colors duration-200`}
               >
                 <div>{p.title}</div>
                 <div>{p.number}</div>
@@ -373,7 +393,9 @@ export default function IntellectualProperty() {
             {paginated.map((t: any, i) => (
               <div
                 key={i}
-                className="grid grid-cols-[2fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB]"
+                className={`grid grid-cols-[2fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] ${
+                  i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                } hover:bg-[#ECECEF] transition-colors duration-200`}
               >
                 <div className="break-words pr-6">{t.title}</div>
                 <div>{t.date}</div>
@@ -386,7 +408,7 @@ export default function IntellectualProperty() {
           {/* PREV */}
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm"
+            className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
           >
             Prev
           </button>
@@ -396,10 +418,10 @@ export default function IntellectualProperty() {
             <button
               key={i}
               onClick={() => setPage(i + 1)}
-              className={`px-3 py-1 text-sm rounded-md ${
+              className={`px-3 py-1 text-sm rounded-md transition-all duration-200 ${
                 page === i + 1
                   ? "bg-black text-white"
-                  : "border border-[#E5E7EB] text-gray-600"
+                  : "border border-[#E5E7EB] text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
               }`}
             >
               {i + 1}
@@ -409,7 +431,7 @@ export default function IntellectualProperty() {
           {/* NEXT */}
           <button
             onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm"
+            className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
           >
             Next
           </button>

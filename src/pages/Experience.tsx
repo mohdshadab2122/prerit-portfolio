@@ -127,7 +127,7 @@ const CompanySection = ({
         </div>
       </div>
 
-      <div className="ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-8">
+      <div className="ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] hover:border-[#D1D5DB]">
         {/* Company Header */}
         <div
           onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
@@ -137,7 +137,7 @@ const CompanySection = ({
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
               {/* Left Side */}
               <div>
-                <h3 className="text-2xl md:text-3xl font-bold text-[#0D0D0D] tracking-tight group-hover:text-[#FF6B00] transition-colors">
+                <h3 className="text-2xl md:text-3xl font-bold text-[#0D0D0D] tracking-tight group-hover:text-[#FF6B00] transition-colors duration-300">
                   {company.name}
                 </h3>
 

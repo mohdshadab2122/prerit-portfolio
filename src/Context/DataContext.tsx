@@ -4,7 +4,8 @@ type AppDataType = {
   patents: any[];
   defensivePublications: any[];
   tradeSecrets: any[];
-  experiences: any[]; // ✅ ADD THIS
+  experiences: any[];
+  education: any[];
 };
 
 const DataContext = createContext<{
@@ -40,7 +41,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchAllData = async () => {
     try {
-      const [patentsRes, defensiveRes, tradeRes, experienceRes] =
+      const [patentsRes, defensiveRes, tradeRes, experienceRes, educationRes] =
         await Promise.all([
           fetch(
             "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=patents",
@@ -54,12 +55,16 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
           fetch(
             "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=experience",
           ),
+          fetch(
+            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=education",
+          ),
         ]);
 
       const patentsJson = JSON.parse(await patentsRes.text());
       const defensiveJson = JSON.parse(await defensiveRes.text());
       const tradeJson = JSON.parse(await tradeRes.text());
       const experienceJson = JSON.parse(await experienceRes.text());
+      const educationJson = JSON.parse(await educationRes.text());
       // 🔥 PATENTS FORMAT
       const formattedPatents = patentsJson.patents.map((row: any) => ({
         familyTitle: row.usTitle || row.deTitle || row.cnTitle || row.epTitle,
@@ -146,11 +151,29 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         }),
       );
 
+      const formattedEducation = educationJson.education.map((row: any) => ({
+        university: row.university,
+        college: row.college,
+        degree: row.degree,
+        specialization: row.specialization,
+        year: row.year,
+        location: row.location,
+        gpa: row.gpa,
+
+        universityDesc: row.universityDesc,
+        preritDesc: row.preritDesc,
+        degreeDesc: row.degreeDesc,
+
+        mediaLinks: Array.isArray(row.mediaLinks) ? row.mediaLinks : [],
+        externalLinks: row.externalLinks,
+      }));
+
       const finalData = {
         patents: formattedPatents,
         defensivePublications: formattedDefensive,
         tradeSecrets: formattedTradeSecrets,
         experiences: formattedExperiences,
+        education: formattedEducation,
       };
 
       // ✅ CACHE SAVE
