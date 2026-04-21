@@ -123,7 +123,7 @@ export default function IntellectualProperty() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
             {/* CARD 1 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Across Jurisdictions
               </p>
@@ -137,7 +137,7 @@ export default function IntellectualProperty() {
             </div>
 
             {/* CARD 2 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                 US · DE · CN · EP
               </p>
@@ -151,7 +151,7 @@ export default function IntellectualProperty() {
             </div>
 
             {/* CARD 3 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Confirmed by Office
               </p>
@@ -165,7 +165,7 @@ export default function IntellectualProperty() {
             </div>
 
             {/* CARD 4 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Global Coverage
               </p>

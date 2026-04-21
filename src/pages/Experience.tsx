@@ -433,7 +433,7 @@ export default function Experience() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-32"
+          className="mb-20"
         >
           <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-none">
             EXPERIENCE
@@ -445,7 +445,7 @@ export default function Experience() {
 
           {stats && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 mt-12">
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                   Total Experience
                 </p>
@@ -458,7 +458,7 @@ export default function Experience() {
                 </p>
               </div>
 
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                   Organizations
                 </p>
@@ -471,7 +471,7 @@ export default function Experience() {
                 </p>
               </div>
 
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                   Roles
                 </p>
@@ -484,7 +484,7 @@ export default function Experience() {
                 </p>
               </div>
 
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white">
+              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
                   Leadership
                 </p>
