@@ -6,6 +6,9 @@ type AppDataType = {
   tradeSecrets: any[];
   experiences: any[];
   education: any[];
+  publicationConferences: any[];
+  publicationJournals: any[];
+  publicationPreprints: any[];
 };
 
 const DataContext = createContext<{
@@ -54,6 +57,11 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       const tradeJson = { tradeSecrets: json.tradeSecrets };
       const experienceJson = { experiences: json.experiences };
       const educationJson = { education: json.education };
+      const publicationJson = {
+        publicationConferences: json.publicationConferences,
+      };
+      const journalsJson = { publicationJournals: json.publicationJournals };
+      const preprintsJson = { publicationPreprints: json.publicationPreprints };
       // 🔥 PATENTS FORMAT
       const formattedPatents = patentsJson.patents.map((row: any) => ({
         familyTitle: row.usTitle || row.deTitle || row.cnTitle || row.epTitle,
@@ -157,12 +165,44 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         externalLinks: row.externalLinks,
       }));
 
+      const formattedPublications = publicationJson.publicationConferences.map(
+        (row: any) => ({
+          title: row.title,
+          organization: row.organization,
+          event: row.event,
+          year: row.year,
+          link: row.externalLinks?.[0] || "",
+        }),
+      );
+
+      const formattedJournals = journalsJson.publicationJournals.map(
+        (row: any) => ({
+          title: row.title,
+          organization: row.organization,
+          division: row.division,
+          year: row.year,
+          link: row.externalLinks?.[0] || "",
+        }),
+      );
+
+      const formattedPreprints = preprintsJson.publicationPreprints.map(
+        (row: any) => ({
+          platform: row.platform,
+          date: row.date,
+          title: row.title,
+          link: row.externalLinks?.[0] || "",
+        }),
+      );
+
       const finalData = {
         patents: formattedPatents,
         defensivePublications: formattedDefensive,
         tradeSecrets: formattedTradeSecrets,
         experiences: formattedExperiences,
         education: formattedEducation,
+        publicationConferences: formattedPublications,
+        publicationJournals: formattedJournals,
+        publicationPreprints: formattedPreprints,
       };
 
       // ✅ CACHE SAVE

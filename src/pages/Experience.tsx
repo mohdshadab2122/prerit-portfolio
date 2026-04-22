@@ -237,8 +237,8 @@ export default function Experience() {
           name: item.company,
           logo:
             Array.isArray(item.mediaLinks) && item.mediaLinks.length > 0
-              ? getDriveImage(item.mediaLinks[0])
-              : null,
+              ? getDriveImage(item.mediaLinks[0]) || "/fallback.png"
+              : "/fallback.png",
           website: item.externalLinks?.[0] || "#",
           roles: [],
           periods: [],

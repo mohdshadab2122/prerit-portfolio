@@ -371,23 +371,25 @@ export default function IntellectualProperty() {
         {/* DEFENSIVE PUBLICATIONS */}
         {activeTab === "Defensive Publications" && (
           <div className="mt-10 border border-[#E5E7EB] rounded-xl">
-            <div className="grid grid-cols-[2fr_1fr_1fr_2fr] px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
+            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_2fr] px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
               <div>Title</div>
               <div>Number</div>
               <div>Status</div>
+              <div>Date</div> {/* ✅ ADD */}
               <div>Inventors</div>
             </div>
 
             {paginated.map((p: any, i) => (
               <div
                 key={i}
-                className={`grid grid-cols-[2fr_1fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] ${
+                className={`grid grid-cols-[2fr_1fr_1fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] ${
                   i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
                 } hover:bg-[#ECECEF] transition-colors duration-200`}
               >
                 <div>{p.title}</div>
                 <div>{p.number}</div>
                 <div>{p.status}</div>
+                <div>{formatDate(p.date)}</div>
                 <div>{p.inventors.join(", ")}</div>
               </div>
             ))}
