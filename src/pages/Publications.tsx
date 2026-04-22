@@ -14,7 +14,7 @@ type PublicationCategory = "Conferences" | "Journals" | "Preprints";
 interface Publication {
   category: PublicationCategory;
   title: string;
-  year?: string;
+  year: string;
   organization: string;
   venue: string;
   externalLink?: string;
@@ -109,6 +109,7 @@ export default function Publications() {
           title: item.title,
           organization: item.platform,
           venue: "",
+          year: "",
           externalLink: item.link,
           date: item.date,
         })) || []),
@@ -129,15 +130,16 @@ export default function Publications() {
       );
     })
     .sort((a, b) => {
-      if (Number(b.year) !== Number(a.year)) {
-        return Number(b.year) - Number(a.year);
-      }
-
+      // ✅ first priority: date (newest first)
       if (a.date && b.date) {
         return new Date(b.date).getTime() - new Date(a.date).getTime();
       }
 
-      return 0;
+      // ✅ fallback: year
+      const yearA = Number(a.year) || 0;
+      const yearB = Number(b.year) || 0;
+
+      return yearB - yearA;
     });
 
   if (loading || !data) {
