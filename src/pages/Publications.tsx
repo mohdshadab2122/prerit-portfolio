@@ -254,13 +254,6 @@ export default function Publications() {
             </span>{" "}
             {activeCategory.toLowerCase()}
           </div>
-
-          <div className="hidden md:flex items-center gap-2 text-[#0D0D0D]/30">
-            <BookOpen className="w-4 h-4" />
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em]">
-              Research Portfolio Archive
-            </span>
-          </div>
         </div>
 
         {/* Publications List */}

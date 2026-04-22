@@ -336,9 +336,13 @@ export default function IntellectualProperty() {
                           </div>
                           {m.link && (
                             <a
-                              href={m.link}
+                              href={m.link} // Ab ye direct string hogi
                               target="_blank"
+                              rel="noopener noreferrer"
                               className="inline-block mt-1 text-[10px] px-2 py-[2px] border border-[#E5E7EB] rounded-md hover:bg-gray-100"
+                              onClick={(e) =>
+                                console.log("Opening Link:", m.link)
+                              } // Debugging ke liye
                             >
                               View PDF
                             </a>

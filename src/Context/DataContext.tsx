@@ -63,9 +63,45 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       const journalsJson = { publicationJournals: json.publicationJournals };
       const preprintsJson = { publicationPreprints: json.publicationPreprints };
       // 🔥 PATENTS FORMAT
+      // Ek helper function banayein fetchAllData ke upar
+      // Ek helper function banayein fetchAllData ke upar
+      const getValidLink = (pdfData: any) => {
+        if (!pdfData) return "";
+
+        let linksArray: string[] = [];
+
+        // Agar AppScript ne single string bheji hai jisme enters (\n) ya commas hain
+        if (typeof pdfData === "string") {
+          linksArray = pdfData.split(/[\n,; ]+/).filter(Boolean);
+        }
+        // Agar pehle se array hai
+        else if (Array.isArray(pdfData)) {
+          linksArray = pdfData;
+        }
+
+        if (linksArray.length > 0) {
+          // Sabse pehle woh link dhundo jisme 'http' aur '.pdf' dono ho
+          const cleanLink = linksArray.find(
+            (l: string) =>
+              typeof l === "string" &&
+              l.startsWith("http") &&
+              l.includes(".pdf"),
+          );
+          if (cleanLink) return cleanLink.trim();
+
+          // Agar .pdf wala nahi mila toh koi bhi http wala link
+          const fallback = linksArray.find(
+            (l: string) => typeof l === "string" && l.startsWith("http"),
+          );
+          return fallback ? fallback.trim() : "";
+        }
+
+        return "";
+      };
+
+      // Phir apne mapping mein isko aise use karein:
       const formattedPatents = patentsJson.patents.map((row: any) => ({
         familyTitle: row.usTitle || row.deTitle || row.cnTitle || row.epTitle,
-
         members: [
           row.usNumber &&
             row.usNumber !== "-" && {
@@ -74,7 +110,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
               date: row.usDate,
               title: row.usTitle,
               status: row.usStatus,
-              link: row.usPdf?.[0],
+              link: getValidLink(row.usPdf), // ✅ Cleaned Link
             },
           row.deNumber &&
             row.deNumber !== "-" && {
@@ -83,7 +119,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
               date: row.deDate,
               title: row.deTitle,
               status: row.deStatus,
-              link: row.dePdf?.[0],
+              link: getValidLink(row.dePdf), // ✅ Cleaned Link
             },
           row.cnNumber &&
             row.cnNumber !== "-" && {
@@ -92,7 +128,7 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
               date: row.cnDate,
               title: row.cnTitle,
               status: row.cnStatus,
-              link: row.cnPdf?.[0],
+              link: getValidLink(row.cnPdf), // ✅ Cleaned Link
             },
           row.epNumber &&
             row.epNumber !== "-" && {
@@ -101,10 +137,9 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
               date: row.epDate,
               title: row.epTitle,
               status: row.epStatus,
-              link: row.epPdf?.[0],
+              link: getValidLink(row.epPdf), // ✅ Cleaned Link
             },
         ].filter(Boolean),
-
         inventors: row.inventors
           ? row.inventors.split(",").map((i: string) => i.trim())
           : [],
