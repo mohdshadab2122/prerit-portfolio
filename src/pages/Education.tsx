@@ -23,6 +23,7 @@ interface EducationItem {
   duration: string;
   summary: React.ReactNode;
   degrees: Degree[];
+  location: string;
 }
 
 const DegreeNode = ({
@@ -71,10 +72,6 @@ const DegreeNode = ({
             <span className="text-sm font-medium text-[#0D0D0D]/60 leading-relaxed">
               {degree.specialization}
             </span>
-          </div>
-
-          <div className="text-xs text-[#0D0D0D]/40 uppercase tracking-[0.15em]">
-            {degree.city}, {degree.country}
           </div>
         </div>
 
@@ -145,10 +142,11 @@ const EducationSection = ({
 
                 <div className="flex flex-wrap items-center gap-4 mt-2">
                   <span className="text-xs font-mono text-[#0D0D0D]/40 uppercase tracking-[0.2em]">
-                    {item.tenure}
+                    {item.location}
                   </span>
-                  <span className="text-xs font-mono text-[#0D0D0D]/45 uppercase tracking-[0.2em]">
-                    {item.duration}
+
+                  <span className="text-xs font-mono text-[#0D0D0D]/40 uppercase tracking-[0.2em]">
+                    {item.tenure}
                   </span>
                 </div>
               </div>
@@ -245,7 +243,7 @@ export default function Education() {
         : "/fallback.png",
 
     website: item.externalLinks?.[0] || "#",
-
+    location: item.location,
     tenure: formatMonthYear(item.year),
     duration: "Completed",
 
