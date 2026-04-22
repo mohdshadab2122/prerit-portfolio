@@ -41,30 +41,19 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchAllData = async () => {
     try {
-      const [patentsRes, defensiveRes, tradeRes, experienceRes, educationRes] =
-        await Promise.all([
-          fetch(
-            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=patents",
-          ),
-          fetch(
-            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=defensive_publications",
-          ),
-          fetch(
-            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=trade_secrets",
-          ),
-          fetch(
-            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=experience",
-          ),
-          fetch(
-            "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=education",
-          ),
-        ]);
+      const res = await fetch(
+        "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec?page=all",
+      );
 
-      const patentsJson = JSON.parse(await patentsRes.text());
-      const defensiveJson = JSON.parse(await defensiveRes.text());
-      const tradeJson = JSON.parse(await tradeRes.text());
-      const experienceJson = JSON.parse(await experienceRes.text());
-      const educationJson = JSON.parse(await educationRes.text());
+      const json = await res.json();
+
+      const patentsJson = { patents: json.patents };
+      const defensiveJson = {
+        defensivePublications: json.defensivePublications,
+      };
+      const tradeJson = { tradeSecrets: json.tradeSecrets };
+      const experienceJson = { experiences: json.experiences };
+      const educationJson = { education: json.education };
       // 🔥 PATENTS FORMAT
       const formattedPatents = patentsJson.patents.map((row: any) => ({
         familyTitle: row.usTitle || row.deTitle || row.cnTitle || row.epTitle,
