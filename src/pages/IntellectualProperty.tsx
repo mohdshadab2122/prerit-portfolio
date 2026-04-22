@@ -4,6 +4,19 @@ import { useAppData } from "../Context/DataContext";
 
 const countries = ["ALL", "US", "DE", "CN", "EP"];
 
+// Imports ke theek neeche add karein
+const formatDate = (dateStr: string) => {
+  if (!dateStr || dateStr === "-") return dateStr;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr; // Agar parsing fail ho, toh original string return karein
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 export default function IntellectualProperty() {
   const [activeTab, setActiveTab] = useState("Patents");
   const { data } = useAppData();
@@ -317,7 +330,7 @@ export default function IntellectualProperty() {
                             {/* DATE */}
                             {m.date && (
                               <span className="text-[10px] text-gray-400 whitespace-nowrap">
-                                {m.date}
+                                {formatDate(m.date)}
                               </span>
                             )}
                           </div>
@@ -398,7 +411,7 @@ export default function IntellectualProperty() {
                 } hover:bg-[#ECECEF] transition-colors duration-200`}
               >
                 <div className="break-words pr-6">{t.title}</div>
-                <div>{t.date}</div>
+                <div>{formatDate(t.date)}</div>
                 <div>{t.inventors.join(", ")}</div>
               </div>
             ))}
