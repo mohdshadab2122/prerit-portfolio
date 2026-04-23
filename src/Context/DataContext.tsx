@@ -9,6 +9,8 @@ type AppDataType = {
   publicationConferences: any[];
   publicationJournals: any[];
   publicationPreprints: any[];
+  awards: any[];
+  recognitions: any[];
 };
 
 const DataContext = createContext<{
@@ -62,6 +64,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
       };
       const journalsJson = { publicationJournals: json.publicationJournals };
       const preprintsJson = { publicationPreprints: json.publicationPreprints };
+      const awardsJson = { awards: json.awards };
+      const recognitionsJson = { recognitions: json.recognitions };
       // 🔥 PATENTS FORMAT
       // Ek helper function banayein fetchAllData ke upar
       // Ek helper function banayein fetchAllData ke upar
@@ -229,6 +233,23 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         }),
       );
 
+      const formattedAwards = (awardsJson.awards || []).map((row: any) => ({
+        year: row.year,
+        organization: row.organization,
+        title: row.title,
+        summary: row.summary,
+        description: row.description,
+      }));
+
+      const formattedRecognitions = (recognitionsJson.recognitions || []).map(
+        (row: any) => ({
+          organization: row.organization,
+          title: row.title,
+          summary: row.summary,
+          description: row.description,
+        }),
+      );
+
       const finalData = {
         patents: formattedPatents,
         defensivePublications: formattedDefensive,
@@ -238,6 +259,8 @@ export const DataProvider = ({ children }: { children: React.ReactNode }) => {
         publicationConferences: formattedPublications,
         publicationJournals: formattedJournals,
         publicationPreprints: formattedPreprints,
+        awards: formattedAwards,
+        recognitions: formattedRecognitions,
       };
 
       // ✅ CACHE SAVE
