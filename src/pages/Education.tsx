@@ -316,7 +316,7 @@ export default function Education() {
         </motion.div>
 
         <div className="relative flex flex-col gap-12">
-          <div className="absolute left-[11px] top-8 h-[calc(100%-280px)] w-[2.2px] bg-[#E5E7EB] " />
+          <div className="absolute left-[11px] top-8 h-[calc(100%-250px)] w-[2.2px] bg-[#E5E7EB] " />
           {educationData.map((item, index) => (
             <motion.div
               key={index}
