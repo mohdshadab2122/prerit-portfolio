@@ -290,48 +290,50 @@ export default function Education() {
   }));
 
   return (
-    <div className="w-full bg-white min-h-screen py-32 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
+    <div className="w-full bg-white min-h-screen pt-12 pb-16 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-20"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-none">
-            EDUCATION
-          </h1>
-          <p className="text-xl md:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
-            Academic milestones that shaped the engineering, systems, and
-            research foundation behind the journey.
-          </p>
+        <div className="pt-12 pb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-20"
+          >
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-none">
+              EDUCATION
+            </h1>
+            <p className="text-xl md:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
+              Academic milestones that shaped the engineering, systems, and
+              research foundation behind the journey.
+            </p>
 
-          <div className="mt-10 flex items-center gap-4">
-            <div className="h-[1px] w-12 bg-[#0A5CE6]" />
-            <span className="text-xs uppercase tracking-[0.2em] text-[#0D0D0D]/40">
-              Academic Background
-            </span>
-            <div className="h-[1px] flex-1 bg-[#E5E7EB]" />
+            <div className="mt-10 flex items-center gap-4">
+              <div className="h-[1px] w-12 bg-[#0A5CE6]" />
+              <span className="text-xs uppercase tracking-[0.2em] text-[#0D0D0D]/40">
+                Academic Background
+              </span>
+              <div className="h-[1px] flex-1 bg-[#E5E7EB]" />
+            </div>
+          </motion.div>
+
+          <div className="relative flex flex-col gap-12">
+            <div className="absolute left-[11px] top-8 h-[calc(100%-250px)] w-[2.2px] bg-[#E5E7EB] " />
+            {educationData.map((item, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative"
+              >
+                <EducationSection
+                  item={item}
+                  isLast={index === educationData.length - 1}
+                />
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
-
-        <div className="relative flex flex-col gap-12">
-          <div className="absolute left-[11px] top-8 h-[calc(100%-250px)] w-[2.2px] bg-[#E5E7EB] " />
-          {educationData.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative"
-            >
-              <EducationSection
-                item={item}
-                isLast={index === educationData.length - 1}
-              />
-            </motion.div>
-          ))}
         </div>
       </div>
     </div>

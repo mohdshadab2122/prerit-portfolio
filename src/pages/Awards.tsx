@@ -108,10 +108,10 @@ export default function Awards() {
     .reverse();
   if (loading || !data) return <div>Loading...</div>;
   return (
-    <div className="w-full min-h-screen bg-white py-28 px-6">
+    <div className="w-full min-h-screen bg-white pt-12 pb-16 px-6">
       <div className="max-w-6xl mx-auto">
         {/* HEADER */}
-        <div className="mb-16">
+        <div className="pt-12 pb-12">
           <h1 className="text-5xl md:text-7xl font-bold text-[#0D0D0D]">
             AWARDS & <span className="text-[#FF6B00]">RECOGNITIONS</span>
           </h1>

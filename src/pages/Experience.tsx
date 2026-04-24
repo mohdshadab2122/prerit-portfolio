@@ -426,98 +426,100 @@ export default function Experience() {
     .sort((a: any, b: any) => b._latest - a._latest);
 
   return (
-    <div className="w-full bg-white min-h-screen py-32 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
+    <div className="w-full bg-white min-h-screen pt-12 pb-16 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
       <div className="max-w-5xl mx-auto">
-        {/* Header Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mb-20"
-        >
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-none">
-            EXPERIENCE
-          </h1>
-          <p className="text-xl md:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
-            A visual map of engineering leadership, research, and product
-            innovation across two levels of progression.
-          </p>
+        <div className="pt-12 pb-12">
+          {/* Header Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-20"
+          >
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-none">
+              EXPERIENCE
+            </h1>
+            <p className="text-xl md:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
+              A visual map of engineering leadership, research, and product
+              innovation across two levels of progression.
+            </p>
 
-          {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 mt-12">
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
-                  Total Experience
-                </p>
-                <div className="text-3xl font-semibold tracking-tight">
-                  {stats.totalYears}
-                  <span className="text-[#FF6B00]">+</span>
+            {stats && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16 mt-12">
+                <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                  <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                    Total Experience
+                  </p>
+                  <div className="text-3xl font-semibold tracking-tight">
+                    {stats.totalYears}
+                    <span className="text-[#FF6B00]">+</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                    Years
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 tracking-wide">
-                  Years
-                </p>
-              </div>
 
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
-                  Organizations
-                </p>
-                <div className="text-3xl font-semibold tracking-tight">
-                  {stats.totalCompanies}
-                  <span className="text-[#FF6B00]">+</span>
+                <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                  <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                    Organizations
+                  </p>
+                  <div className="text-3xl font-semibold tracking-tight">
+                    {stats.totalCompanies}
+                    <span className="text-[#FF6B00]">+</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                    Companies
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 tracking-wide">
-                  Companies
-                </p>
-              </div>
 
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
-                  Roles
-                </p>
-                <div className="text-3xl font-semibold tracking-tight">
-                  {stats.totalRoles}
-                  <span className="text-[#FF6B00]">+</span>
+                <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                  <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                    Roles
+                  </p>
+                  <div className="text-3xl font-semibold tracking-tight">
+                    {stats.totalRoles}
+                    <span className="text-[#FF6B00]">+</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                    Positions Held
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 tracking-wide">
-                  Positions Held
-                </p>
-              </div>
 
-              <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
-                  Leadership
-                </p>
-                <div className="text-3xl font-semibold tracking-tight">
-                  {stats.leadershipRoles}
+                <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                  <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+                    Leadership
+                  </p>
+                  <div className="text-3xl font-semibold tracking-tight">
+                    {stats.leadershipRoles}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 tracking-wide">
+                    Leadership Roles
+                  </p>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 tracking-wide">
-                  Leadership Roles
-                </p>
               </div>
-            </div>
-          )}
-        </motion.div>
+            )}
+          </motion.div>
 
-        {/* Timeline Section */}
-        {/* Timeline Section */}
-        <div className="relative flex flex-col gap-12">
-          <div className="absolute left-[11px] top-8 bottom-54 w-[2px] bg-[#E5E7EB]" />
-          {companies.map((company, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative"
-            >
-              <CompanySection
-                company={company}
-                isLast={index === companies.length - 1}
-              />
-            </motion.div>
-          ))}
+          {/* Timeline Section */}
+          {/* Timeline Section */}
+          <div className="relative flex flex-col gap-12">
+            <div className="absolute left-[11px] top-8 bottom-54 w-[2px] bg-[#E5E7EB]" />
+            {companies.map((company, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative"
+              >
+                <CompanySection
+                  company={company}
+                  isLast={index === companies.length - 1}
+                />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

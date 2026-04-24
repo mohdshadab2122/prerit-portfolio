@@ -146,7 +146,7 @@ export default function Publications() {
     return <div className="p-10 text-center">Loading...</div>;
   }
   return (
-    <div className="w-full bg-white min-h-screen py-32 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
+    <div className="w-full bg-white min-h-screen pt-12 pb-16 px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
       <div className="max-w-6xl mx-auto">
         <div className="pt-12 pb-12">
           {/* HEADING */}
