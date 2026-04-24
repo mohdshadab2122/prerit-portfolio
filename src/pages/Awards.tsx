@@ -97,6 +97,11 @@ export default function Awards() {
       ]
     : [];
 
+  const allItems = mappedData
+    .filter((item) => item.title && item.title.trim() !== "")
+    .slice()
+    .reverse();
+
   const filtered = mappedData
     .filter((i) => i.category === active)
     .slice()
@@ -116,6 +121,26 @@ export default function Awards() {
             technical contributions across engineering, research, and
             innovation.
           </p>
+
+          <div className="mt-10 mb-12 marquee-wrapper">
+            {/* Gradient edges */}
+            <div className="absolute left-0 top-0 h-full w-20 bg-gradient-to-r from-white to-transparent z-10" />
+            <div className="absolute right-0 top-0 h-full w-20 bg-gradient-to-l from-white to-transparent z-10" />
+
+            <div className="marquee gap-6">
+              {[...allItems, ...allItems].map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 px-5 py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap"
+                >
+                  <span className="text-sm font-medium text-[#0D0D0D] flex items-center gap-2">
+                    <span>{item.category === "Awards" ? "🏆" : "⭐"}</span>
+                    {item.title}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* TABS */}

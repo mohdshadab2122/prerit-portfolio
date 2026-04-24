@@ -95,7 +95,7 @@ export default function Home() {
                 <a
                   href={home.links.linkedin}
                   target="_blank"
-                  className="inline-flex items-center gap-2 bg-[#0D0D0D] text-white px-6 py-3 rounded-xl"
+                  className="inline-flex items-center gap-2 bg-[#0D0D0D] text-white px-6 py-3 rounded-xl hover:opacity-90 hover:shadow-md hover:-translate-y-[1px] transition-all duration-200"
                 >
                   LinkedIn <ExternalLink className="w-4 h-4" />
                 </a>
@@ -105,7 +105,7 @@ export default function Home() {
                 <a
                   href={home.links.scholar}
                   target="_blank"
-                  className="inline-flex items-center gap-2 border px-6 py-3 rounded-xl"
+                  className="inline-flex items-center gap-2 border border-[#E5E7EB] px-6 py-3 rounded-xl hover:bg-[#F4F4F5] hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200"
                 >
                   Google Scholar <ExternalLink className="w-4 h-4" />
                 </a>
@@ -115,7 +115,7 @@ export default function Home() {
                 <a
                   href={home.links.patents}
                   target="_blank"
-                  className="inline-flex items-center gap-2 border px-6 py-3 rounded-xl"
+                  className="inline-flex items-center gap-2 border border-[#E5E7EB] px-6 py-3 rounded-xl hover:bg-[#F4F4F5] hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200"
                 >
                   Google Patents <FileText className="w-4 h-4" />
                 </a>
@@ -173,7 +173,7 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.45, delay: index * 0.08 }}
-                  className="p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-[#F4F4F5] transition-colors group"
+                  className="p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
                 >
                   {title && (
                     <h3 className="text-[16px] md:text-[18px] font-bold uppercase tracking-[0.08em] text-[#0D0D0D] mb-4">
@@ -224,7 +224,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.08 }}
-                    className="p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-[#F4F4F5] transition-colors group"
+                    className="p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
                   >
                     <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#FF6B00] mb-4">
                       {exp.period}
@@ -286,7 +286,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.08 }}
-                    className="bg-white border border-[#E5E7EB] rounded-2xl p-7 hover:bg-[#FAFAFA] transition-colors"
+                    className="bg-white border border-[#E5E7EB] rounded-2xl p-7 hover:bg-[#FAFAFA] hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#FF6B00] mb-3">
                       {pub.year || pub.date}
@@ -336,7 +336,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.08 }}
-                    className="p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-[#F4F4F5] transition-colors"
+                    className="p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#FF6B00] mb-4">
                       {edu.year}
@@ -411,7 +411,7 @@ export default function Home() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.45, delay: index * 0.08 }}
-                    className="bg-white p-8 rounded-2xl border border-[#E5E7EB]"
+                    className="bg-white p-8 rounded-2xl border border-[#E5E7EB] hover:bg-[#FAFAFA] hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                   >
                     <div className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#FF6B00] mb-3">
                       {award.year}
