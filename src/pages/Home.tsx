@@ -124,8 +124,18 @@ export default function Home() {
 
             {/* Inline Stats */}
             {home.achievements && (
-              <div className="mt-10 text-sm text-[#0D0D0D]/60">
-                {home.achievements}
+              <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#0D0D0D]/60">
+                {home.achievements
+                  .split(",")
+                  .map((item: string, index: number) => (
+                    <div key={index} className="flex items-center gap-4">
+                      <span>{item.trim()}</span>
+
+                      {index !== home.achievements.split(",").length - 1 && (
+                        <span className="w-1.5 h-1.5 bg-[#0D0D0D]/30 rounded-full" />
+                      )}
+                    </div>
+                  ))}
               </div>
             )}
           </motion.div>
