@@ -412,7 +412,7 @@ export default function Experience() {
               : r.team || r.department || "",
           details: r.roleDesc
             ? r.roleDesc
-                .split("\\")
+                .split(/\r?\n/) // 🔥 universal line break handler
                 .map((d: string) => d.trim())
                 .filter(Boolean)
             : [],

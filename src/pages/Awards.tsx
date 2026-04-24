@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown } from 'lucide-react';
+import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { ChevronDown } from "lucide-react";
 import { useAppData } from "../Context/DataContext";
-type Category = 'Awards' | 'Recognitions';
+type Category = "Awards" | "Recognitions";
 
 interface Item {
   category: Category;
@@ -13,17 +13,14 @@ interface Item {
   description: string;
 }
 
-const tabs: Category[] = ['Awards', 'Recognitions'];
+const tabs: Category[] = ["Awards", "Recognitions"];
 
 const Card = ({ item }: { item: Item }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="border border-[#E5E7EB] rounded-3xl p-7 md:p-8 bg-[#F4F4F5] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-      <div
-        onClick={() => setOpen(!open)}
-        className="cursor-pointer"
-      >
+      <div onClick={() => setOpen(!open)} className="cursor-pointer">
         <div className="flex justify-between items-start gap-4">
           <div>
             <h3 className="text-xl font-semibold text-[#0D0D0D]">
@@ -40,9 +37,7 @@ const Card = ({ item }: { item: Item }) => {
               )}
             </div>
 
-            <p className="mt-3 text-sm text-[#0D0D0D]/65">
-              {item.summary}
-            </p>
+            <p className="mt-3 text-sm text-[#0D0D0D]/65">{item.summary}</p>
           </div>
 
           <motion.div
@@ -58,7 +53,7 @@ const Card = ({ item }: { item: Item }) => {
           {open && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               className="overflow-hidden"
             >
@@ -76,42 +71,40 @@ const Card = ({ item }: { item: Item }) => {
 };
 
 export default function Awards() {
-
   const { data, loading } = useAppData();
-  const [active, setActive] = useState<Category>('Awards');
+  const [active, setActive] = useState<Category>("Awards");
 
   const mappedData: Item[] = data
-  ? [
-      // AWARDS
-      ...(data.awards || []).map((item: any) => ({
-        category: "Awards" as Category,
-        title: item.title,
-        organization: item.organization,
-        year: item.year,
-        summary: item.summary,
-        description: item.description
-      })),
+    ? [
+        // AWARDS
+        ...(data.awards || []).map((item: any) => ({
+          category: "Awards" as Category,
+          title: item.title,
+          organization: item.organization,
+          year: item.year,
+          summary: item.summary,
+          description: item.description,
+        })),
 
-      // RECOGNITIONS
-      ...(data.recognitions || []).map((item: any) => ({
-        category: "Recognitions" as Category,
-        title: item.title,
-        organization: item.organization,
-        summary: item.summary,
-        description: item.description
-      })),
-    ]
-  : [];
+        // RECOGNITIONS
+        ...(data.recognitions || []).map((item: any) => ({
+          category: "Recognitions" as Category,
+          title: item.title,
+          organization: item.organization,
+          summary: item.summary,
+          description: item.description,
+        })),
+      ]
+    : [];
 
   const filtered = mappedData
-  .filter((i) => i.category === active)
-  .slice()
-  .reverse();
+    .filter((i) => i.category === active)
+    .slice()
+    .reverse();
   if (loading || !data) return <div>Loading...</div>;
   return (
     <div className="w-full min-h-screen bg-white py-28 px-6">
       <div className="max-w-6xl mx-auto">
-
         {/* HEADER */}
         <div className="mb-16">
           <h1 className="text-5xl md:text-7xl font-bold text-[#0D0D0D]">
@@ -119,7 +112,9 @@ export default function Awards() {
           </h1>
 
           <p className="mt-4 text-xl text-[#0D0D0D]/50 max-w-3xl">
-            A curated record of professional honors, industry recognition, and technical contributions across engineering, research, and innovation.
+            A curated record of professional honors, industry recognition, and
+            technical contributions across engineering, research, and
+            innovation.
           </p>
         </div>
 
@@ -131,8 +126,8 @@ export default function Awards() {
               onClick={() => setActive(tab)}
               className={`px-6 py-3 rounded-full text-sm font-medium transition-all ${
                 active === tab
-                  ? 'bg-black text-white'
-                  : 'bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]'
+                  ? "bg-black text-white"
+                  : "bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]"
               }`}
             >
               {tab}
@@ -146,7 +141,6 @@ export default function Awards() {
             <Card key={item.title} item={item} />
           ))}
         </div>
-
       </div>
     </div>
   );
