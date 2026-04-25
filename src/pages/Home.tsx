@@ -75,7 +75,7 @@ if (!data) return null;
 
             <h1 className="text-5xl md:text-7xl xl:text-8xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-[0.9]">
               {(() => {
-                const words = home.name?.split(" ") || [];
+                const words = home.name?.toUpperCase().split(" ") || [];
 
                 if (words.length === 2) {
                   return (
