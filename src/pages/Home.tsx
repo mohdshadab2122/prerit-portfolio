@@ -74,8 +74,33 @@ if (!data) return null;
             )}
 
             <h1 className="text-5xl md:text-7xl xl:text-8xl font-bold tracking-tighter text-[#0D0D0D] mb-6 leading-[0.9]">
-              PRERIT <br />
-              <span className="text-[#FF6B00]">PRAMOD</span>
+              {(() => {
+                const words = home.name?.split(" ") || [];
+
+                if (words.length === 2) {
+                  return (
+                    <>
+                      <span>{words[0]}</span>
+                      <br />
+                      <span className="text-[#FF6B00]">{words[1]}</span>
+                    </>
+                  );
+                }
+
+                if (words.length >= 3) {
+                  return (
+                    <>
+                      <span>{words[0]} {words[1]}</span>
+                      <br />
+                      <span className="text-[#FF6B00]">
+                        {words.slice(2).join(" ")}
+                      </span>
+                    </>
+                  );
+                }
+
+                return <span>{home.name}</span>;
+              })()}
             </h1>
 
             {home.domain && (
