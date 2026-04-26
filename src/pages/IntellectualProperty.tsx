@@ -4,12 +4,10 @@ import { useAppData } from "../Context/DataContext";
 
 const countries = ["ALL", "US", "DE", "CN", "EP"];
 
-// Imports ke theek neeche add karein
 const formatDate = (dateStr: string) => {
   if (!dateStr || dateStr === "-") return dateStr;
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr; // Agar parsing fail ho, toh original string return karein
-
+  if (isNaN(date.getTime())) return dateStr;
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -33,7 +31,6 @@ export default function IntellectualProperty() {
 
   const stats = useMemo(() => {
     let totalFamilies = patentFamilies.length;
-
     let totalFilings = 0;
     let grantedCount = 0;
     let jurisdictions = new Set();
@@ -41,11 +38,7 @@ export default function IntellectualProperty() {
     patentFamilies.forEach((family) => {
       (family.members || []).forEach((m: any) => {
         totalFilings++;
-
-        if (m.status?.toLowerCase() === "grant") {
-          grantedCount++;
-        }
-
+        if (m.status?.toLowerCase() === "grant") grantedCount++;
         jurisdictions.add(m.jurisdiction);
       });
     });
@@ -58,7 +51,6 @@ export default function IntellectualProperty() {
     };
   }, [patentFamilies]);
 
-  // 🔥 FILTER
   const filtered = useMemo(() => {
     if (activeTab === "Patents") {
       return patentFamilies.filter((family) => {
@@ -70,7 +62,6 @@ export default function IntellectualProperty() {
             .join(" ")
             .toLowerCase()
             .includes(search.toLowerCase());
-
         const matchCountry =
           country === "ALL" ||
           (family.members || []).some(
@@ -78,23 +69,19 @@ export default function IntellectualProperty() {
               m.jurisdiction === country ||
               (country === "EP" && m.jurisdiction === "WO"),
           );
-
         return matchSearch && matchCountry;
       });
     }
-
     if (activeTab === "Defensive Publications") {
       return defensivePublications.filter((p) =>
         p.title.toLowerCase().includes(search.toLowerCase()),
       );
     }
-
     if (activeTab === "Formal Trade Secrets") {
       return tradeSecrets.filter((t) =>
         t.title.toLowerCase().includes(search.toLowerCase()),
       );
     }
-
     return [];
   }, [
     search,
@@ -116,83 +103,91 @@ export default function IntellectualProperty() {
     setPage(1);
   }, [search, country, activeTab]);
 
+  // Helper to get member by jurisdiction
+  const getMember = (family: any, j: string) => {
+    if (j === "EP") {
+      return (
+        family.members.find((m: any) => m.jurisdiction === "EP") ||
+        family.members.find((m: any) => m.jurisdiction === "WO")
+      );
+    }
+    return family.members.find((m: any) => m.jurisdiction === j);
+  };
+
   return (
     <div className="bg-white min-h-screen">
-      <div className="max-w-[1400px] mx-auto px-6 pt-12 pb-16">
-        {/* HEADER */}
-        <div className="pt-12 pb-12">
-          {/* HEADING */}
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none mb-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 md:pb-16">
+        {/* ─── HEADER ─── */}
+        <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+          {/* Heading */}
+          <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-none mb-5 md:mb-8">
             INTELLECTUAL <span className="text-[#FF6B00]">PROPERTY</span>
           </h1>
 
-          {/* DESCRIPTION */}
-          <p className="text-xl md:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-12">
+          {/* Description */}
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-8 md:mb-12">
             A structured portfolio of patent families, defensive publications,
             and formal trade secrets spanning motion control, power electronics,
             electric drive systems, steer-by-wire, and advanced embedded
             engineering.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-            {/* CARD 1 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+          {/* ─── Stats Cards ─── */}
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-16">
+            <div className="border border-[#E5E7EB] rounded-lg p-3 md:p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <p className="text-[10px] md:text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Across Jurisdictions
               </p>
-              <div className="text-3xl font-semibold tracking-tight">
+              <div className="text-2xl md:text-3xl font-semibold tracking-tight">
                 {stats.totalFamilies}
                 <span className="text-[#FF6B00]">+</span>
               </div>
-              <p className="text-xs text-gray-500 mt-2 tracking-wide">
+              <p className="text-[10px] md:text-xs text-gray-500 mt-2 tracking-wide">
                 Patent Families
               </p>
             </div>
 
-            {/* CARD 2 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+            <div className="border border-[#E5E7EB] rounded-lg p-3 md:p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <p className="text-[10px] md:text-xs tracking-widest text-gray-400 uppercase mb-2">
                 US · DE · CN · EP
               </p>
-              <div className="text-3xl font-semibold tracking-tight">
+              <div className="text-2xl md:text-3xl font-semibold tracking-tight">
                 {stats.totalFilings}
                 <span className="text-[#FF6B00]">+</span>
               </div>
-              <p className="text-xs text-gray-500 mt-2 tracking-wide">
+              <p className="text-[10px] md:text-xs text-gray-500 mt-2 tracking-wide">
                 Total Filings
               </p>
             </div>
 
-            {/* CARD 3 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+            <div className="border border-[#E5E7EB] rounded-lg p-3 md:p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <p className="text-[10px] md:text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Confirmed by Office
               </p>
-              <div className="text-3xl font-semibold tracking-tight">
+              <div className="text-2xl md:text-3xl font-semibold tracking-tight">
                 {stats.grantedCount}
                 <span className="text-[#FF6B00]">+</span>
               </div>
-              <p className="text-xs text-gray-500 mt-2 tracking-wide">
+              <p className="text-[10px] md:text-xs text-gray-500 mt-2 tracking-wide">
                 Granted Patents
               </p>
             </div>
 
-            {/* CARD 4 */}
-            <div className="border border-[#E5E7EB] rounded-lg p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <p className="text-xs tracking-widest text-gray-400 uppercase mb-2">
+            <div className="border border-[#E5E7EB] rounded-lg p-3 md:p-4 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              <p className="text-[10px] md:text-xs tracking-widest text-gray-400 uppercase mb-2">
                 Global Coverage
               </p>
-              <div className="text-3xl font-semibold tracking-tight">
+              <div className="text-2xl md:text-3xl font-semibold tracking-tight">
                 {stats.jurisdictions}
               </div>
-              <p className="text-xs text-gray-500 mt-2 tracking-wide">
+              <p className="text-[10px] md:text-xs text-gray-500 mt-2 tracking-wide">
                 Jurisdictions
               </p>
             </div>
           </div>
 
-          {/* SUB TABS */}
-          <div className="flex gap-3">
+          {/* ─── Sub Tabs — scrollable on mobile ─── */}
+          <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1 scrollbar-hide">
             {["Patents", "Defensive Publications", "Formal Trade Secrets"].map(
               (tab) => (
                 <button
@@ -202,7 +197,7 @@ export default function IntellectualProperty() {
                     setSearch("");
                     setPage(1);
                   }}
-                  className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+                  className={`px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
                     activeTab === tab
                       ? "bg-black text-white"
                       : "bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]"
@@ -215,10 +210,10 @@ export default function IntellectualProperty() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-12">
-          {/* 🔥 COUNTRY FILTER */}
+        {/* ─── Filter + Search Row ─── */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 md:mb-12">
           {activeTab === "Patents" && (
-            <div className="flex gap-2 flex-wrap mt-4 mb-6">
+            <div className="flex gap-2 flex-wrap">
               {countries.map((c) => (
                 <button
                   key={c}
@@ -226,7 +221,7 @@ export default function IntellectualProperty() {
                     setCountry(c);
                     setPage(1);
                   }}
-                  className={`px-4 py-2 text-sm border rounded-md transition-all duration-200 ${
+                  className={`px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm border rounded-md transition-all duration-200 ${
                     country === c
                       ? "border-[#FF6B00] text-[#FF6B00] bg-[#FFF4EB]"
                       : "border-[#E5E7EB] text-gray-500 hover:border-[#FF6B00] hover:text-[#FF6B00] hover:bg-[#FFF4EB]"
@@ -238,11 +233,12 @@ export default function IntellectualProperty() {
             </div>
           )}
 
-          {/* 🔍 SEARCH */}
-          <div className="relative w-[320px]">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+          <div
+            className={`relative ${activeTab !== "Patents" ? "w-full sm:w-[320px]" : "w-full sm:w-[280px] md:w-[320px]"}`}
+          >
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
             <input
-              className="w-full border border-[#E5E7EB] rounded-full pl-10 pr-4 py-2 bg-white focus:outline-none focus:ring-0 focus:border-[#E5E7EB]"
+              className="w-full border border-[#E5E7EB] rounded-full pl-10 pr-4 py-2 bg-white text-sm focus:outline-none focus:ring-0 focus:border-[#E5E7EB]"
               placeholder={
                 activeTab === "Patents"
                   ? "Search patents..."
@@ -256,67 +252,66 @@ export default function IntellectualProperty() {
           </div>
         </div>
 
-        {/* PATENTS */}
+        {/* ══════════════════════════════════════
+            PATENTS
+        ══════════════════════════════════════ */}
         {activeTab === "Patents" && (
-          <div className="mt-4 border border-[#E5E7EB] rounded-xl overflow-hidden">
-            <div className="grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
-              <div>#</div>
-              <div>Title</div>
-              <div>USA</div>
-              <div>Germany</div>
-              <div>China</div>
-              <div>Europe & World</div>
-              <div>Inventors</div>
-            </div>
+          <>
+            {/* ── Mobile / Tablet Card View (hidden on lg+) ── */}
+            <div className="lg:hidden space-y-3 mt-4">
+              {paginated.map((family: any, i) => {
+                const us = getMember(family, "US");
+                const de = getMember(family, "DE");
+                const cn = getMember(family, "CN");
+                const ep = getMember(family, "EP");
 
-            {paginated.map((family: any, i) => {
-              const get = (j: string) => {
-                if (j === "EP") {
-                  return (
-                    family.members.find((m: any) => m.jurisdiction === "EP") ||
-                    family.members.find((m: any) => m.jurisdiction === "WO")
-                  );
-                }
-                return family.members.find((m: any) => m.jurisdiction === j);
-              };
+                const displayTitle =
+                  country === "ALL"
+                    ? us?.title ||
+                      de?.title ||
+                      cn?.title ||
+                      ep?.title ||
+                      family.familyTitle
+                    : getMember(family, country)?.title || family.familyTitle;
 
-              const us = get("US");
-              const de = get("DE");
-              const cn = get("CN");
-              const ep = get("EP");
+                const jurisdictionRows: [string, any][] = [
+                  ["US", us],
+                  ["DE", de],
+                  ["CN", cn],
+                  ["EP / WO", ep],
+                ];
 
-              const grants = family.members.length;
+                return (
+                  <div
+                    key={i}
+                    className={`border border-[#E5E7EB] rounded-xl p-4 ${
+                      i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                    }`}
+                  >
+                    {/* Title row */}
+                    <div className="flex gap-2 mb-3">
+                      <span className="text-xs text-gray-400 font-mono mt-0.5 shrink-0">
+                        {(page - 1) * itemsPerPage + i + 1}.
+                      </span>
+                      <p className="text-sm font-medium text-[#0D0D0D] leading-snug">
+                        {displayTitle}
+                      </p>
+                    </div>
 
-              return (
-                <div
-                  key={i}
-                  className={`grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-5 border-b border-[#E5E7EB] ${
-                    i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
-                  } hover:bg-[#ECECEF] transition-colors duration-200`}
-                >
-                  <div>{(page - 1) * itemsPerPage + i + 1}</div>
-
-                  <div className="text-[13px] pr-4">
-                    {(() => {
-                      const selected =
-                        country === "ALL" ? us || de || cn || ep : get(country);
-
-                      return selected?.title || family.familyTitle;
-                    })()}
-                  </div>
-
-                  {[us, de, cn, ep].map((m, idx) => (
-                    <div
-                      key={idx}
-                      className="text-sm leading-tight pr-3 min-w-0"
-                    >
-                      {m ? (
-                        <>
-                          <div className="text-[13px] whitespace-nowrap">
-                            {m.number}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            {/* STATUS BADGE */}
+                    {/* Jurisdiction rows */}
+                    <div className="space-y-2 mb-3 pl-5">
+                      {jurisdictionRows.map(([label, m]) =>
+                        m ? (
+                          <div
+                            key={label}
+                            className="flex items-start gap-2 flex-wrap"
+                          >
+                            <span className="text-[10px] font-mono font-bold text-gray-400 w-10 mt-[3px] shrink-0">
+                              {label}
+                            </span>
+                            <span className="text-xs font-mono text-[#0D0D0D]">
+                              {m.number}
+                            </span>
                             <span
                               className={`text-[10px] px-2 py-[2px] rounded-md font-medium ${
                                 m.status?.toLowerCase() === "grant"
@@ -326,105 +321,278 @@ export default function IntellectualProperty() {
                             >
                               {m.status}
                             </span>
-
-                            {/* DATE */}
                             {m.date && (
-                              <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                              <span className="text-[10px] text-gray-400">
                                 {formatDate(m.date)}
                               </span>
                             )}
+                            {m.link && (
+                              <a
+                                href={m.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] px-2 py-[2px] border border-[#E5E7EB] rounded-md hover:bg-gray-100 bg-white"
+                              >
+                                View PDF
+                              </a>
+                            )}
                           </div>
-                          {m.link && (
-                            <a
-                              href={m.link} // Ab ye direct string hogi
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-block mt-1 text-[10px] px-2 py-[2px] border border-[#E5E7EB] rounded-md hover:bg-gray-100"
-                              onClick={(e) =>
-                                console.log("Opening Link:", m.link)
-                              } // Debugging ke liye
-                            >
-                              View PDF
-                            </a>
-                          )}
-                        </>
-                      ) : (
-                        "-"
+                        ) : null,
                       )}
                     </div>
-                  ))}
 
-                  <div className="text-[13px]">
-                    {family.inventors.map((inv: any, idx: any) => (
-                      <span key={idx}>
-                        {inv.toLowerCase() === "prerit pramod" ? (
-                          <span className="font-semibold">Prerit Pramod</span>
-                        ) : (
-                          inv
-                        )}
-                        {idx !== family.inventors.length - 1 && ", "}
-                      </span>
-                    ))}
+                    {/* Inventors */}
+                    <div className="pl-5 text-xs text-gray-500">
+                      <span className="font-medium">Inventors: </span>
+                      {family.inventors.map((inv: string, idx: number) => (
+                        <span key={idx}>
+                          {inv.toLowerCase() === "prerit pramod" ? (
+                            <span className="font-semibold text-[#0D0D0D]">
+                              Prerit Pramod
+                            </span>
+                          ) : (
+                            inv
+                          )}
+                          {idx !== family.inventors.length - 1 && ", "}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+
+            {/* ── Desktop Table View (hidden below lg) ── */}
+            <div className="hidden lg:block mt-4 border border-[#E5E7EB] rounded-xl overflow-hidden">
+              {/* Header row */}
+              <div className="grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
+                <div>#</div>
+                <div>Title</div>
+                <div>USA</div>
+                <div>Germany</div>
+                <div>China</div>
+                <div>Europe & World</div>
+                <div>Inventors</div>
+              </div>
+
+              {paginated.map((family: any, i) => {
+                const us = getMember(family, "US");
+                const de = getMember(family, "DE");
+                const cn = getMember(family, "CN");
+                const ep = getMember(family, "EP");
+
+                return (
+                  <div
+                    key={i}
+                    className={`grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-5 border-b border-[#E5E7EB] ${
+                      i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                    } hover:bg-[#ECECEF] transition-colors duration-200`}
+                  >
+                    <div>{(page - 1) * itemsPerPage + i + 1}</div>
+
+                    <div className="text-[13px] pr-4">
+                      {(() => {
+                        const selected =
+                          country === "ALL"
+                            ? us || de || cn || ep
+                            : getMember(family, country);
+                        return selected?.title || family.familyTitle;
+                      })()}
+                    </div>
+
+                    {[us, de, cn, ep].map((m, idx) => (
+                      <div
+                        key={idx}
+                        className="text-sm leading-tight pr-3 min-w-0"
+                      >
+                        {m ? (
+                          <>
+                            <div className="text-[13px] whitespace-nowrap">
+                              {m.number}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                              <span
+                                className={`text-[10px] px-2 py-[2px] rounded-md font-medium ${
+                                  m.status?.toLowerCase() === "grant"
+                                    ? "bg-[#FFF4EB] text-[#FF6B00]"
+                                    : "bg-[#EEF2FF] text-[#2563EB]"
+                                }`}
+                              >
+                                {m.status}
+                              </span>
+                              {m.date && (
+                                <span className="text-[10px] text-gray-400 whitespace-nowrap">
+                                  {formatDate(m.date)}
+                                </span>
+                              )}
+                            </div>
+                            {m.link && (
+                              <a
+                                href={m.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block mt-1 text-[10px] px-2 py-[2px] border border-[#E5E7EB] rounded-md hover:bg-gray-100"
+                                onClick={() =>
+                                  console.log("Opening Link:", m.link)
+                                }
+                              >
+                                View PDF
+                              </a>
+                            )}
+                          </>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                    ))}
+
+                    <div className="text-[13px]">
+                      {family.inventors.map((inv: any, idx: any) => (
+                        <span key={idx}>
+                          {inv.toLowerCase() === "prerit pramod" ? (
+                            <span className="font-semibold">Prerit Pramod</span>
+                          ) : (
+                            inv
+                          )}
+                          {idx !== family.inventors.length - 1 && ", "}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
 
-        {/* DEFENSIVE PUBLICATIONS */}
+        {/* ══════════════════════════════════════
+            DEFENSIVE PUBLICATIONS
+        ══════════════════════════════════════ */}
         {activeTab === "Defensive Publications" && (
-          <div className="mt-10 border border-[#E5E7EB] rounded-xl">
-            <div className="grid grid-cols-[2fr_1fr_1fr_1fr_2fr] px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
-              <div>Title</div>
-              <div>Number</div>
-              <div>Status</div>
-              <div>Date</div> {/* ✅ ADD */}
-              <div>Inventors</div>
+          <>
+            {/* Mobile Card View (hidden on md+) */}
+            <div className="md:hidden mt-4 space-y-3">
+              {paginated.map((p: any, i) => (
+                <div
+                  key={i}
+                  className={`border border-[#E5E7EB] rounded-xl p-4 ${
+                    i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                  }`}
+                >
+                  <p className="text-sm font-medium text-[#0D0D0D] mb-2 leading-snug">
+                    {p.title}
+                  </p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <span>
+                      <span className="font-medium text-gray-600">Number:</span>{" "}
+                      {p.number}
+                    </span>
+                    <span>
+                      <span className="font-medium text-gray-600">Status:</span>{" "}
+                      {p.status}
+                    </span>
+                    <span>
+                      <span className="font-medium text-gray-600">Date:</span>{" "}
+                      {formatDate(p.date)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    <span className="font-medium text-gray-600">
+                      Inventors:
+                    </span>{" "}
+                    {p.inventors.join(", ")}
+                  </p>
+                </div>
+              ))}
             </div>
 
-            {paginated.map((p: any, i) => (
-              <div
-                key={i}
-                className={`grid grid-cols-[2fr_1fr_1fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] ${
-                  i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
-                } hover:bg-[#ECECEF] transition-colors duration-200`}
-              >
-                <div>{p.title}</div>
-                <div>{p.number}</div>
-                <div>{p.status}</div>
-                <div>{formatDate(p.date)}</div>
-                <div>{p.inventors.join(", ")}</div>
+            {/* Tablet + Desktop Table View (hidden below md) */}
+            <div className="hidden md:block mt-10 border border-[#E5E7EB] rounded-xl">
+              <div className="grid grid-cols-[2fr_1fr_1fr_1fr_2fr] px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
+                <div>Title</div>
+                <div>Number</div>
+                <div>Status</div>
+                <div>Date</div>
+                <div>Inventors</div>
               </div>
-            ))}
-          </div>
+
+              {paginated.map((p: any, i) => (
+                <div
+                  key={i}
+                  className={`grid grid-cols-[2fr_1fr_1fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] text-sm ${
+                    i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                  } hover:bg-[#ECECEF] transition-colors duration-200`}
+                >
+                  <div>{p.title}</div>
+                  <div>{p.number}</div>
+                  <div>{p.status}</div>
+                  <div>{formatDate(p.date)}</div>
+                  <div>{p.inventors.join(", ")}</div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
-        {/* TRADE SECRETS */}
+        {/* ══════════════════════════════════════
+            TRADE SECRETS
+        ══════════════════════════════════════ */}
         {activeTab === "Formal Trade Secrets" && (
-          <div className="mt-10 border border-[#E5E7EB] rounded-xl">
-            <div className="grid grid-cols-[2fr_1fr_2fr] px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
-              <div>Title</div>
-              <div>Date</div>
-              <div>Inventors</div>
+          <>
+            {/* Mobile Card View (hidden on sm+) */}
+            <div className="sm:hidden mt-4 space-y-3">
+              {paginated.map((t: any, i) => (
+                <div
+                  key={i}
+                  className={`border border-[#E5E7EB] rounded-xl p-4 ${
+                    i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                  }`}
+                >
+                  <p className="text-sm font-medium text-[#0D0D0D] mb-2 leading-snug break-words">
+                    {t.title}
+                  </p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <span>
+                      <span className="font-medium text-gray-600">Date:</span>{" "}
+                      {formatDate(t.date)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">
+                    <span className="font-medium text-gray-600">
+                      Inventors:
+                    </span>{" "}
+                    {t.inventors.join(", ")}
+                  </p>
+                </div>
+              ))}
             </div>
 
-            {paginated.map((t: any, i) => (
-              <div
-                key={i}
-                className={`grid grid-cols-[2fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] ${
-                  i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
-                } hover:bg-[#ECECEF] transition-colors duration-200`}
-              >
-                <div className="break-words pr-6">{t.title}</div>
-                <div>{formatDate(t.date)}</div>
-                <div>{t.inventors.join(", ")}</div>
+            {/* Tablet + Desktop Table View (hidden below sm) */}
+            <div className="hidden sm:block mt-10 border border-[#E5E7EB] rounded-xl">
+              <div className="grid grid-cols-[2fr_1fr_2fr] px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
+                <div>Title</div>
+                <div>Date</div>
+                <div>Inventors</div>
               </div>
-            ))}
-          </div>
+
+              {paginated.map((t: any, i) => (
+                <div
+                  key={i}
+                  className={`grid grid-cols-[2fr_1fr_2fr] px-6 py-4 border-b border-[#E5E7EB] text-sm ${
+                    i % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
+                  } hover:bg-[#ECECEF] transition-colors duration-200`}
+                >
+                  <div className="break-words pr-6">{t.title}</div>
+                  <div>{formatDate(t.date)}</div>
+                  <div>{t.inventors.join(", ")}</div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
-        <div className="flex justify-center items-center gap-2 mt-8">
-          {/* PREV */}
+
+        {/* ─── Pagination ─── */}
+        <div className="flex justify-center items-center gap-1.5 md:gap-2 mt-8 flex-wrap">
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
             className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
@@ -432,7 +600,6 @@ export default function IntellectualProperty() {
             Prev
           </button>
 
-          {/* PAGE NUMBERS */}
           {[...Array(totalPages)].map((_, i) => (
             <button
               key={i}
@@ -447,7 +614,6 @@ export default function IntellectualProperty() {
             </button>
           ))}
 
-          {/* NEXT */}
           <button
             onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
             className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
