@@ -44,7 +44,7 @@ export default function Layout() {
               <Link
                 key={link.path}
                 to={link.path}
-                className={`text-[11px] xl:text-sm font-medium transition-colors whitespace-nowrap ${
+                className={`text-[13px] xl:text-sm font-medium transition-colors whitespace-nowrap ${
                   location.pathname === link.path
                     ? "text-primary-orange"
                     : "text-near-black/70 hover:text-near-black"
@@ -62,7 +62,7 @@ export default function Layout() {
               href="https://inspiredinnovation.in/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:inline-flex items-center gap-1.5 xl:gap-2 bg-near-black text-white px-3 xl:px-5 py-2 xl:py-2.5 text-[11px] xl:text-sm font-medium hover:bg-near-black/90 transition-colors whitespace-nowrap"
+              className="hidden lg:inline-flex items-center gap-1.5 xl:gap-2 bg-near-black text-white px-3 xl:px-5 py-2 xl:py-2.5 text-[13px] xl:text-sm font-medium hover:bg-near-black/90 transition-colors whitespace-nowrap"
             >
               Visit Business Site
               <ExternalLink className="w-3 h-3 xl:w-4 xl:h-4" />
