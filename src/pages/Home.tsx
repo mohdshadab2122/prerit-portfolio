@@ -65,94 +65,125 @@ export default function Home() {
       {/* ══════════════════════════════════
           HERO  ─ bg: white
       ══════════════════════════════════ */}
-      <section className="relative pt-8 md:pt-10 lg:pt-14 pb-8 md:pb-10 lg:pb-12 px-4 md:px-6 overflow-hidden bg-white">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-8 md:gap-10 lg:gap-14 items-center">
-          {/* Left */}
+      {/* ══════════════════════════════════
+          HERO  ─ Redesigned (Light Theme, Dynamic Font)
+      ══════════════════════════════════ */}
+      <section className="relative pt-12 md:pt-16 lg:pt-20 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white border-b border-[#E5E7EB]/50">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
+          {/* Left Side - Typography & Content */}
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="flex flex-col"
           >
+            {/* Top Tags */}
             {home.tags?.length > 0 && (
-              <p className="text-[10px] md:text-[11px] font-mono uppercase tracking-[0.35em] text-[#FF6B00] mb-4 md:mb-5">
+              <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.25em] text-[#FF6B00] mb-5">
                 {home.tags.join(" • ")}
               </p>
             )}
 
-            <h1 className="text-5xl sm:text-6xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tighter text-[#0D0D0D] mb-4 md:mb-6 leading-[0.9]">
-              {(() => {
-                const words = home.name?.toUpperCase().split(" ") || [];
-                if (words.length === 2)
-                  return (
-                    <>
-                      <span>{words[0]}</span>
-                      <br />
-                      <span className="text-[#FF6B00]">{words[1]}</span>
-                    </>
-                  );
-                if (words.length >= 3)
-                  return (
-                    <>
-                      <span>
-                        {words[0]} {words[1]}
-                      </span>
-                      <br />
-                      <span className="text-[#FF6B00]">
-                        {words.slice(2).join(" ")}
-                      </span>
-                    </>
-                  );
-                return <span>{home.name}</span>;
-              })()}
-            </h1>
+            {/* Massive Name with Dynamic Sizing */}
+            {(() => {
+              const nameStr = home.name || "";
+              const nameLen = nameStr.length;
 
+              // Font size classes based on name length
+              let fontSizeClass =
+                "text-6xl sm:text-7xl md:text-[80px] lg:text-[100px]"; // Default (e.g. "Prerit Pramod" - 13 chars)
+
+              if (nameLen >= 20) {
+                fontSizeClass =
+                  "text-4xl sm:text-5xl md:text-[50px] lg:text-[60px]"; // Very long names
+              } else if (nameLen >= 14) {
+                fontSizeClass =
+                  "text-5xl sm:text-6xl md:text-[65px] lg:text-[85px]"; // Medium long (e.g. "Pramod Kumar Gupta" - 18 chars)
+              }
+
+              return (
+                <h1
+                  className={`font-black tracking-tighter text-[#0D0D0D] mb-6 leading-[0.85] uppercase break-words w-full ${fontSizeClass}`}
+                >
+                  {(() => {
+                    const words = nameStr.toUpperCase().split(" ") || [];
+                    if (words.length === 2)
+                      return (
+                        <>
+                          <span className="block">{words[0]}</span>
+                          <span className="block text-[#FF6B00]">
+                            {words[1]}
+                          </span>
+                        </>
+                      );
+                    if (words.length >= 3)
+                      return (
+                        <>
+                          <span className="block">
+                            {words[0]} {words[1]}
+                          </span>
+                          <span className="block text-[#FF6B00]">
+                            {words.slice(2).join(" ")}
+                          </span>
+                        </>
+                      );
+                    return <span>{nameStr}</span>;
+                  })()}
+                </h1>
+              );
+            })()}
+
+            {/* Subtitle / Domain */}
             {home.domain && (
-              <h2 className="text-lg md:text-xl lg:text-2xl font-medium text-[#0D0D0D]/80 mb-5 md:mb-7 tracking-tight">
+              <h2 className="text-xl md:text-2xl font-bold text-[#0D0D0D]/70 mb-4 tracking-tight">
                 {home.domain}
               </h2>
             )}
 
+            {/* Short Bio */}
             {home.shortBio && (
-              <p className="text-base md:text-lg text-[#0D0D0D]/60 mb-7 md:mb-9 max-w-2xl leading-relaxed">
+              <p className="text-base md:text-lg text-[#0D0D0D]/60 mb-8 md:mb-10 max-w-2xl leading-relaxed font-medium">
                 {home.shortBio}
               </p>
             )}
 
-            <div className="flex flex-wrap gap-3 md:gap-4">
+            {/* Links / Buttons */}
+            <div className="flex flex-wrap gap-3 md:gap-4 mb-8 md:mb-12">
               {home.links?.linkedin && (
                 <a
                   href={home.links.linkedin}
                   target="_blank"
-                  className="inline-flex items-center gap-2 bg-[#0D0D0D] text-white px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-xl hover:opacity-90 hover:shadow-md hover:-translate-y-[1px] transition-all duration-200"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 border-2 border-[#E5E7EB] px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-bold text-[#0D0D0D] rounded-[14px] hover:border-[#0D0D0D] hover:bg-[#F4F4F5] transition-all duration-200"
                 >
-                  LinkedIn{" "}
-                  <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  LinkedIn <ExternalLink className="w-4 h-4" />
                 </a>
               )}
               {home.links?.scholar && (
                 <a
                   href={home.links.scholar}
                   target="_blank"
-                  className="inline-flex items-center gap-2 border border-[#E5E7EB] px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-xl hover:bg-[#F4F4F5] hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 border-2 border-[#E5E7EB] px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-bold text-[#0D0D0D] rounded-[14px] hover:border-[#0D0D0D] hover:bg-[#F4F4F5] transition-all duration-200"
                 >
-                  Google Scholar{" "}
-                  <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  Google Scholar <ExternalLink className="w-4 h-4" />
                 </a>
               )}
               {home.links?.patents && (
                 <a
                   href={home.links.patents}
                   target="_blank"
-                  className="inline-flex items-center gap-2 border border-[#E5E7EB] px-4 md:px-6 py-2.5 md:py-3 text-sm md:text-base rounded-xl hover:bg-[#F4F4F5] hover:shadow-sm hover:-translate-y-[1px] transition-all duration-200"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 border-2 border-[#E5E7EB] px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-bold text-[#0D0D0D] rounded-[14px] hover:border-[#0D0D0D] hover:bg-[#F4F4F5] transition-all duration-200"
                 >
-                  Google Patents{" "}
-                  <FileText className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                  Google Patents <FileText className="w-4 h-4" />
                 </a>
               )}
             </div>
 
+            {/* Bottom Stats (Achievements) */}
             {home.achievements && (
-              <div className="mt-7 md:mt-10 flex flex-wrap items-center gap-x-3 md:gap-x-4 gap-y-2 text-xs md:text-sm text-[#0D0D0D]/50">
+              <div className="flex flex-wrap items-center gap-x-3 md:gap-x-4 gap-y-2 text-sm md:text-base font-bold text-[#0D0D0D]/60 tracking-wide">
                 {home.achievements
                   .split(",")
                   .map((item: string, index: number) => (
@@ -162,7 +193,7 @@ export default function Home() {
                     >
                       <span>{item.trim()}</span>
                       {index !== home.achievements.split(",").length - 1 && (
-                        <span className="w-1.5 h-1.5 bg-[#0D0D0D]/25 rounded-full" />
+                        <span className="w-1.5 h-1.5 bg-[#FF6B00] rounded-full opacity-80" />
                       )}
                     </div>
                   ))}
@@ -170,21 +201,20 @@ export default function Home() {
             )}
           </motion.div>
 
-          {/* Right — Photo */}
+          {/* Right Side - Rectangular Photo Card */}
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="relative"
+            className="flex justify-center lg:justify-end"
           >
-            <div className="flex justify-center lg:justify-end lg:pr-12">
-              <div className="w-56 h-56 sm:w-72 sm:h-72 md:w-[340px] md:h-[340px] lg:w-[380px] lg:h-[380px] xl:w-[480px] xl:h-[480px] rounded-full overflow-hidden border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.08)]">
-                <img
-                  src={getDriveImage(home.photo) || "/fallback.png"}
-                  alt="Prerit Pramod"
-                  className="w-full h-full object-cover object-[center_top]"
-                />
-              </div>
+            <div className="w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[440px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-[#E5E7EB] bg-[#F4F4F5] shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative group">
+              <img
+                src={getDriveImage(home.photo) || "/fallback.png"}
+                alt={home.name}
+                className="w-full h-full object-cover object-[center_top] transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </div>
           </motion.div>
         </div>
