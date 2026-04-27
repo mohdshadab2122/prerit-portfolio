@@ -68,6 +68,9 @@ export default function Home() {
       {/* ══════════════════════════════════
           HERO  ─ Redesigned (Light Theme, Dynamic Font)
       ══════════════════════════════════ */}
+      {/* ══════════════════════════════════
+          HERO  ─ Redesigned (Light Theme, Dynamic Font, Mobile Order Fixed)
+      ══════════════════════════════════ */}
       <section className="relative pt-12 md:pt-16 lg:pt-12 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white border-b border-[#E5E7EB]/50">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
           {/* Left Side - Typography & Content */}
@@ -91,19 +94,22 @@ export default function Home() {
 
               // Font size classes based on name length
               let fontSizeClass =
-                "text-6xl sm:text-7xl md:text-[80px] lg:text-[100px]"; // Default (e.g. "Prerit Pramod" - 13 chars)
+                "text-6xl sm:text-7xl md:text-[80px] lg:text-[100px]"; // Default
 
               if (nameLen >= 20) {
                 fontSizeClass =
                   "text-4xl sm:text-5xl md:text-[50px] lg:text-[60px]"; // Very long names
               } else if (nameLen >= 14) {
                 fontSizeClass =
-                  "text-5xl sm:text-6xl md:text-[65px] lg:text-[85px]"; // Medium long (e.g. "Pramod Kumar Gupta" - 18 chars)
+                  "text-5xl sm:text-6xl md:text-[65px] lg:text-[85px]"; // Medium long
               }
 
               return (
                 <h1
-                  className={`font-black tracking-tighter text-[#0D0D0D] mb-6 leading-[0.85] uppercase break-words w-full ${fontSizeClass}`}
+                  className={`font-black tracking-tighter text-[#0D0D0D] leading-[0.85] uppercase break-words w-full ${fontSizeClass} ${
+                    /* Mobile image beech me aayegi isliye margin bottom conditionally adjust kiya hai */
+                    "mb-6 lg:mb-6"
+                  }`}
                 >
                   {(() => {
                     const words = nameStr.toUpperCase().split(" ") || [];
@@ -132,6 +138,16 @@ export default function Home() {
                 </h1>
               );
             })()}
+
+            {/* 🔥 MOBILE IMAGE: Shows ONLY on mobile/tablet, positioned right after the Name 🔥 */}
+            <div className="block lg:hidden w-full max-w-[320px] sm:max-w-[400px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-[#E5E7EB] bg-[#F4F4F5] shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative group mb-8 mx-auto">
+              <img
+                src={getDriveImage(home.photo) || "/fallback.png"}
+                alt={home.name}
+                className="w-full h-full object-cover object-[center_top]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+            </div>
 
             {/* Subtitle / Domain */}
             {home.domain && (
@@ -201,12 +217,12 @@ export default function Home() {
             )}
           </motion.div>
 
-          {/* Right Side - Rectangular Photo Card */}
+          {/* Right Side - Rectangular Photo Card (DESKTOP ONLY) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.15 }}
-            className="flex justify-center lg:justify-end"
+            className="hidden lg:flex justify-center lg:justify-end"
           >
             <div className="w-full max-w-[320px] sm:max-w-[400px] lg:max-w-[440px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-[#E5E7EB] bg-[#F4F4F5] shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative group">
               <img
