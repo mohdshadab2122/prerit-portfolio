@@ -154,7 +154,7 @@ export default function Home() {
                   href={home.links.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 border-2 border-[#E5E7EB] px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-bold text-[#0D0D0D] rounded-[14px] hover:border-[#0D0D0D] hover:bg-[#F4F4F5] transition-all duration-200"
+                  className="inline-flex items-center gap-2 bg-[#0D0D0D] border-2 border-[#0D0D0D] px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base font-bold text-white rounded-[14px] hover:bg-black/80 hover:border-black/0 transition-all duration-200 shadow-sm"
                 >
                   LinkedIn <ExternalLink className="w-4 h-4" />
                 </a>
