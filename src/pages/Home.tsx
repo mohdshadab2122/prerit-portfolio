@@ -68,7 +68,7 @@ export default function Home() {
       {/* ══════════════════════════════════
           HERO  ─ Redesigned (Light Theme, Dynamic Font)
       ══════════════════════════════════ */}
-      <section className="relative pt-12 md:pt-16 lg:pt-20 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white border-b border-[#E5E7EB]/50">
+      <section className="relative pt-12 md:pt-16 lg:pt-14 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white border-b border-[#E5E7EB]/50">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
           {/* Left Side - Typography & Content */}
           <motion.div
