@@ -10,10 +10,15 @@ import {
   X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { useAppData } from "../Context/DataContext";
 
 export default function Layout() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { data } = useAppData();
+
+  const homeData = data?.home?.[0];
+  const links = homeData?.links || {};
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -23,6 +28,25 @@ export default function Layout() {
     { name: "Intellectual Property", path: "/intellectual-property" },
     { name: "Awards & Recognitions", path: "/awards" },
     { name: "Contact", path: "/contact" },
+  ];
+
+  // ── Mail entry hata di — ab wo <Link> se render hoga neeche ──
+  const socialLinks = [
+    {
+      href: links.linkedin || "#",
+      icon: <Linkedin className="w-5 h-5 lg:w-6 lg:h-6" />,
+      label: "LinkedIn",
+    },
+    {
+      href: links.scholar || "#",
+      icon: <GraduationCap className="w-5 h-5 lg:w-6 lg:h-6" />,
+      label: "Google Scholar",
+    },
+    {
+      href: links.patents || "#",
+      icon: <FileText className="w-5 h-5 lg:w-6 lg:h-6" />,
+      label: "Google Patents",
+    },
   ];
 
   return (
@@ -38,7 +62,7 @@ export default function Layout() {
             PRERIT PRAMOD
           </Link>
 
-          {/* Desktop Nav — visible on lg (1024px) and above */}
+          {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-3 xl:gap-8">
             {navLinks.map((link) => (
               <Link
@@ -132,7 +156,7 @@ export default function Layout() {
 
       {/* Footer */}
       <footer className="bg-near-black text-white py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
           <div className="text-center md:text-left">
             <h2 className="text-xl lg:text-2xl font-bold tracking-tight mb-2">
               PRERIT PRAMOD
@@ -143,34 +167,28 @@ export default function Layout() {
           </div>
 
           <div className="flex items-center gap-5 lg:gap-6">
-            <a
-              href="#"
+            {/* LinkedIn, Scholar, Patents — external links */}
+            {socialLinks.map((s) => (
+              <a
+                key={s.label}
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-primary-orange transition-colors"
+                aria-label={s.label}
+              >
+                {s.icon}
+              </a>
+            ))}
+
+            {/* Mail icon — Contact page pe redirect */}
+            <Link
+              to="/contact"
               className="text-white/60 hover:text-primary-orange transition-colors"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="w-5 h-5 lg:w-6 lg:h-6" />
-            </a>
-            <a
-              href="#"
-              className="text-white/60 hover:text-primary-orange transition-colors"
-              aria-label="Google Scholar"
-            >
-              <GraduationCap className="w-5 h-5 lg:w-6 lg:h-6" />
-            </a>
-            <a
-              href="#"
-              className="text-white/60 hover:text-primary-orange transition-colors"
-              aria-label="Email"
+              aria-label="Contact"
             >
               <Mail className="w-5 h-5 lg:w-6 lg:h-6" />
-            </a>
-            <a
-              href="#"
-              className="text-white/60 hover:text-primary-orange transition-colors"
-              aria-label="Resume"
-            >
-              <FileText className="w-5 h-5 lg:w-6 lg:h-6" />
-            </a>
+            </Link>
           </div>
         </div>
       </footer>
