@@ -1,11 +1,35 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import { useAppData } from "../Context/DataContext";
 
+/*
+ * Awards page
+ *
+ * DataContext exposes awards and recognitions as two separate arrays. This page
+ * converts them into one shared item model, uses tabs to choose which group is
+ * displayed, and keeps a marquee of all titled items above the list.
+ */
+
 type Category = "Awards" | "Recognitions";
 
-interface Item {
+interface RawAward {
+  title?: string;
+  organization?: string;
+  year?: string;
+  summary?: string;
+  description?: string;
+}
+
+interface RawRecognition {
+  title?: string;
+  organization?: string;
+  summary?: string;
+  description?: string;
+}
+
+// Shared UI shape used by cards, tabs, and the marquee.
+interface AwardItem {
   category: Category;
   title: string;
   organization: string;
@@ -14,14 +38,80 @@ interface Item {
   description: string;
 }
 
-const tabs: Category[] = ["Awards", "Recognitions"];
+const TABS: Category[] = ["Awards", "Recognitions"];
 
-const Card = ({ item }: { item: Item }) => {
+// Converts separate source arrays into one typed list while preserving category
+// labels for filtering and marquee badges.
+const buildAwardItems = (data: {
+  awards?: RawAward[];
+  recognitions?: RawRecognition[];
+}): AwardItem[] => [
+  ...(data.awards?.map((item) => ({
+    category: "Awards" as Category,
+    title: item.title || "",
+    organization: item.organization || "",
+    year: item.year,
+    summary: item.summary || "",
+    description: item.description || "",
+  })) || []),
+  ...(data.recognitions?.map((item) => ({
+    category: "Recognitions" as Category,
+    title: item.title || "",
+    organization: item.organization || "",
+    summary: item.summary || "",
+    description: item.description || "",
+  })) || []),
+];
+
+// Marquee skips untitled records, then reverses the list to match the original
+// newest-first visual behavior.
+const getMarqueeItems = (items: AwardItem[]) =>
+  items
+    .filter((item) => item.title && item.title.trim() !== "")
+    .slice()
+    .reverse();
+
+// The tab list uses the same reverse behavior as the original component.
+const getFilteredItems = (items: AwardItem[], active: Category) =>
+  items
+    .filter((item) => item.category === active)
+    .slice()
+    .reverse();
+
+const LoadingState = () => <div>Loading...</div>;
+
+const TabButton = ({
+  tab,
+  active,
+  onClick,
+}: {
+  tab: Category;
+  active: Category;
+  onClick: (tab: Category) => void;
+}) => (
+  <button
+    onClick={() => onClick(tab)}
+    className={`px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm font-medium transition-all ${
+      active === tab
+        ? "bg-black text-white"
+        : "bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]"
+    }`}
+  >
+    {tab}
+  </button>
+);
+
+// One expandable award/recognition card. The summary is always visible, while
+// the longer description is revealed on click.
+const AwardCard = ({ item }: { item: AwardItem }) => {
   const [open, setOpen] = useState(false);
 
   return (
     <div className="border border-[#E5E7EB] rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-7 lg:p-8 bg-[#F4F4F5] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-      <div onClick={() => setOpen(!open)} className="cursor-pointer">
+      <div
+        onClick={() => setOpen((current) => !current)}
+        className="cursor-pointer"
+      >
         <div className="flex justify-between items-start gap-3 md:gap-4">
           <div className="flex-1 min-w-0">
             <h3 className="text-base sm:text-lg md:text-xl font-semibold text-[#0D0D0D] leading-snug">
@@ -32,7 +122,7 @@ const Card = ({ item }: { item: Item }) => {
               <span>{item.organization}</span>
               {item.year && (
                 <>
-                  <span className="opacity-40">•</span>
+                  <span className="opacity-40">{"\u2022"}</span>
                   <span>{item.year}</span>
                 </>
               )}
@@ -73,116 +163,110 @@ const Card = ({ item }: { item: Item }) => {
   );
 };
 
+const AwardsHeader = () => (
+  <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#0D0D0D] tracking-tighter leading-none">
+        AWARDS & <span className="text-[#FF6B00]">RECOGNITIONS</span>
+      </h1>
+
+      <p className="mt-3 md:mt-4 text-base sm:text-lg md:text-xl text-[#0D0D0D]/50 max-w-3xl leading-relaxed font-light">
+        A curated record of professional honors, industry recognition, and
+        technical contributions across engineering, research, and innovation.
+      </p>
+    </motion.div>
+  </div>
+);
+
+// The marquee is decorative but data-driven. Duplicating the array creates a
+// seamless loop when paired with the existing marquee CSS.
+const AwardsMarquee = ({ items }: { items: AwardItem[] }) => (
+  <div className="mt-8 md:mt-10 mb-8 md:mb-12 marquee-wrapper">
+    <div className="absolute left-0 top-0 h-full w-12 md:w-20 bg-gradient-to-r from-white to-transparent z-10" />
+    <div className="absolute right-0 top-0 h-full w-12 md:w-20 bg-gradient-to-l from-white to-transparent z-10" />
+
+    <div className="marquee gap-3 md:gap-6">
+      {[...items, ...items].map((item, index) => (
+        <div
+          key={`${item.category}-${item.title}-${index}`}
+          className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap"
+        >
+          <span className="text-xs md:text-sm font-medium text-[#0D0D0D] flex items-center gap-1.5 md:gap-2">
+            <span>{item.category === "Awards" ? "\u{1F3C6}" : "\u2B50"}</span>
+            {item.title}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const AwardsTabs = ({
+  active,
+  onTabChange,
+}: {
+  active: Category;
+  onTabChange: (tab: Category) => void;
+}) => (
+  <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
+    {TABS.map((tab) => (
+      <TabButton key={tab} tab={tab} active={active} onClick={onTabChange} />
+    ))}
+  </div>
+);
+
+const AwardsList = ({ items }: { items: AwardItem[] }) => (
+  <div className="space-y-3 md:space-y-5">
+    {items.map((item) => (
+      <motion.div
+        key={item.title}
+        initial={{ opacity: 0, y: 14 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.35 }}
+      >
+        <AwardCard item={item} />
+      </motion.div>
+    ))}
+  </div>
+);
+
+// Entry point: normalize awards/recognitions, derive the marquee and active tab
+// lists, then compose the page.
 export default function Awards() {
   const { data, loading } = useAppData();
   const [active, setActive] = useState<Category>("Awards");
 
-  const mappedData: Item[] = data
-    ? [
-        ...(data.awards || []).map((item: any) => ({
-          category: "Awards" as Category,
-          title: item.title,
-          organization: item.organization,
-          year: item.year,
-          summary: item.summary,
-          description: item.description,
-        })),
-        ...(data.recognitions || []).map((item: any) => ({
-          category: "Recognitions" as Category,
-          title: item.title,
-          organization: item.organization,
-          summary: item.summary,
-          description: item.description,
-        })),
-      ]
-    : [];
+  const mappedData = useMemo(
+    () =>
+      data
+        ? buildAwardItems({
+            awards: data.awards as RawAward[],
+            recognitions: data.recognitions as RawRecognition[],
+          })
+        : [],
+    [data],
+  );
 
-  const allItems = mappedData
-    .filter((item) => item.title && item.title.trim() !== "")
-    .slice()
-    .reverse();
+  const marqueeItems = useMemo(() => getMarqueeItems(mappedData), [mappedData]);
+  const filteredItems = useMemo(
+    () => getFilteredItems(mappedData, active),
+    [active, mappedData],
+  );
 
-  const filtered = mappedData
-    .filter((i) => i.category === active)
-    .slice()
-    .reverse();
-
-  if (loading || !data) return <div>Loading...</div>;
+  if (loading || !data) return <LoadingState />;
 
   return (
-    <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans selection:bg-[#0A5CE6]/10 selection:text-[#0A5CE6]">
+    <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
-        {/* HEADER */}
-        <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#0D0D0D] tracking-tighter leading-none">
-              AWARDS & <span className="text-[#FF6B00]">RECOGNITIONS</span>
-            </h1>
-
-            <p className="mt-3 md:mt-4 text-base sm:text-lg md:text-xl text-[#0D0D0D]/50 max-w-3xl leading-relaxed font-light">
-              A curated record of professional honors, industry recognition, and
-              technical contributions across engineering, research, and
-              innovation.
-            </p>
-          </motion.div>
-
-          {/* MARQUEE */}
-          <div className="mt-8 md:mt-10 mb-8 md:mb-12 marquee-wrapper">
-            {/* Gradient edges */}
-            <div className="absolute left-0 top-0 h-full w-12 md:w-20 bg-gradient-to-r from-white to-transparent z-10" />
-            <div className="absolute right-0 top-0 h-full w-12 md:w-20 bg-gradient-to-l from-white to-transparent z-10" />
-
-            <div className="marquee gap-3 md:gap-6">
-              {[...allItems, ...allItems].map((item, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap"
-                >
-                  <span className="text-xs md:text-sm font-medium text-[#0D0D0D] flex items-center gap-1.5 md:gap-2">
-                    <span>{item.category === "Awards" ? "🏆" : "⭐"}</span>
-                    {item.title}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* TABS */}
-        <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActive(tab)}
-              className={`px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm font-medium transition-all ${
-                active === tab
-                  ? "bg-black text-white"
-                  : "bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* GRID */}
-        <div className="space-y-3 md:space-y-5">
-          {filtered.map((item) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.35 }}
-            >
-              <Card item={item} />
-            </motion.div>
-          ))}
-        </div>
+        <AwardsHeader />
+        <AwardsMarquee items={marqueeItems} />
+        <AwardsTabs active={active} onTabChange={setActive} />
+        <AwardsList items={filteredItems} />
       </div>
     </div>
   );
