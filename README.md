@@ -1,4 +1,4 @@
-# Prerit Pramod - Engineering Leader Portfolio
+# Prerit Pramod - Portfolio
 
 Personal portfolio website for Prerit Pramod, an engineering executive, inventor, founder, and technology leader. The site presents professional experience, education, publications, patents, awards, recognitions, and contact information through a fast React-based frontend backed by spreadsheet-driven content.
 
