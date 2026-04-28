@@ -63,7 +63,7 @@ interface PatentStats {
   jurisdictions: number;
 }
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 20;
 const FEATURED_INVENTOR = "prerit pramod";
 
 // Data-driven navigation definitions keep button rendering simple.
