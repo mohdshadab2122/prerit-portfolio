@@ -1,122 +1,170 @@
-# Prerit Pramod — Portfolio Website
+# Prerit Pramod - Engineering Leader Portfolio
 
-Personal portfolio website for **Prerit Pramod** — Founder & CEO of Inspired Innovation LLC, engineering executive, and inventor with 225+ patents across power electronics, autonomous systems, and deep technology.
+Personal portfolio website for Prerit Pramod, an engineering executive, inventor, founder, and technology leader. The site presents professional experience, education, publications, patents, awards, recognitions, and contact information through a fast React-based frontend backed by spreadsheet-driven content.
 
-🌐 **Live Site:** [preritpramod.com](https://www.preritpramod.com)
+Live website: https://www.preritpramod.com
 
----
+## Overview
+
+This website is built as a modern single-page React application. It uses reusable page components, shared layout/navigation, and a centralized data context so portfolio content can be loaded consistently across the site.
+
+The portfolio is designed to highlight:
+
+- Engineering leadership and executive experience
+- Academic background and education history
+- Patents, defensive publications, and trade secrets
+- Publications across conferences, journals, and preprints
+- Awards, honors, and recognitions
+- Contact form integration for visitor inquiries
 
 ## Tech Stack
 
-- **React 19** + **TypeScript**
-- **Vite 6** — build tool & dev server
-- **Tailwind CSS v4** — utility-first styling
-- **React Router DOM v6** — client-side routing
-- **Motion v12** — animations (Framer Motion successor)
-- **Lucide React** — icons
-
----
+- React 19
+- TypeScript
+- Vite 6
+- Tailwind CSS 4
+- React Router DOM
+- Motion
+- Lucide React
+- Google Apps Script and Google Sheets for portfolio data
 
 ## Pages
 
-| Route                    | Page                                                    |
-| ------------------------ | ------------------------------------------------------- |
-| `/`                      | Home — hero, stats, and section previews                |
-| `/experience`            | Interactive two-level career timeline                   |
-| `/education`             | Academic background timeline                            |
-| `/publications`          | Searchable publications archive                         |
-| `/intellectual-property` | Patent families, defensive publications & trade secrets |
-| `/awards`                | Awards & recognitions                                   |
-| `/contact`               | Contact form                                            |
+| Page                  | Route                    | Purpose                                                                           |
+| --------------------- | ------------------------ | --------------------------------------------------------------------------------- |
+| Home                  | `/`                      | Landing page with profile summary, domain focus, achievements, and featured links |
+| Education             | `/education`             | Academic background, degree details, institutions, and related links              |
+| Experience            | `/experience`            | Professional roles, companies, responsibilities, and contributions                |
+| Publications          | `/publications`          | Conferences, journals, and preprints with category filtering                      |
+| Awards                | `/awards`                | Awards and recognitions with structured presentation                              |
+| Intellectual Property | `/intellectual-property` | Patents, defensive publications, and trade secrets                                |
+| Contact               | `/contact`               | Contact form and professional profile links                                       |
 
----
+## Data Flow
 
-## Getting Started
+Portfolio content is managed outside the React app and served through a Google Apps Script API.
 
-**Prerequisites:** Node.js v18+, Git
+1. Content is stored in Google Sheets.
+2. Apps Script reads published rows from each sheet.
+3. The frontend fetches the API response through `DataContext`.
+4. Data is cached in browser storage to reduce repeat API calls.
+5. Each page consumes only the section of data it needs.
 
-```bash
-# Clone the repo
-git clone https://github.com/mohdshadab2122/prerit-portfolio.git
-cd prerit-portfolio
+This keeps the website content easy to update without changing frontend code for every content edit.
 
-# Install dependencies
-npm install
+## Important Files
 
-# Set up environment variables
-cp .env.example .env
-# Add your VITE_CONTACT_FORM_URL in .env
+```text
+src/
+  App.tsx                       Application routes
+  main.tsx                      React entry point
+  index.css                     Global styles and Tailwind setup
 
-# Start dev server
-npm run dev
+  components/
+    Layout.tsx                  Shared navigation, header, and page shell
+    Loader.tsx                  Loading state component
+
+  Context/
+    DataContext.tsx             Central data fetching, formatting, caching, and app data provider
+
+  pages/
+    Home.tsx                    Home page
+    Education.tsx               Education page
+    Experience.tsx              Experience page
+    Publications.tsx            Publications page
+    Awards.tsx                  Awards and recognitions page
+    IntellectualProperty.tsx    Patents, publications, and trade secrets page
+    Contact.tsx                 Contact page and contact form handling
+
+public/
+  _redirects                    SPA routing fallback for static hosting
+  prerit.jpg                    Public profile image
 ```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
 
 ## Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the project root when running locally.
 
 ```env
-VITE_CONTACT_FORM_URL=your_google_apps_script_url_here
+VITE_CONTACT_FORM_URL=your_contact_form_endpoint
 ```
 
-| Variable                | Description                                      |
-| ----------------------- | ------------------------------------------------ |
-| `VITE_CONTACT_FORM_URL` | Google Apps Script endpoint for the contact form |
+`VITE_CONTACT_FORM_URL` is used by the contact page to submit form data. The portfolio data endpoint is configured in the app data layer.
 
----
+## Getting Started
 
-## Scripts
+Install dependencies:
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run preview  # Preview production build locally
-npm run lint     # TypeScript type check
-npm run clean    # Remove /dist folder
+npm install
 ```
 
----
+Start the development server:
 
-## Deployment
-
-This project is deployed on **Netlify** via continuous deployment from this GitHub repository.
-
-- Every push to `main` triggers an automatic build and deploy
-- Build command: `npm run build`
-- Publish directory: `dist`
-- The `public/_redirects` file ensures all routes are handled correctly by React Router on Netlify
-
----
-
-## Project Structure
-
-```
-prerit-portfolio/
-├── public/
-│   ├── _redirects          # Netlify routing rule
-│   ├── prerit.jpg          # Profile photo
-│   └── logos/              # Company & university logos
-└── src/
-    ├── components/
-    │   └── Layout.tsx       # Shared navbar + footer
-    ├── pages/
-    │   ├── Home.tsx
-    │   ├── Experience.tsx
-    │   ├── Education.tsx
-    │   ├── Publications.tsx
-    │   ├── IntellectualProperty.tsx
-    │   ├── Awards.tsx
-    │   └── Contact.tsx
-    └── data/
-        └── intellectualProperty.ts  # Patent & IP data
+```bash
+npm run dev
 ```
 
----
+Create a production build:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
+Run lint checks:
+
+```bash
+npm run lint
+```
+
+## Available Scripts
+
+| Script            | Description                                              |
+| ----------------- | -------------------------------------------------------- |
+| `npm run dev`     | Starts the Vite development server                       |
+| `npm run build`   | Builds the production application                        |
+| `npm run preview` | Serves the production build locally                      |
+| `npm run lint`    | Runs ESLint checks                                       |
+| `npm run clean`   | Removes generated build artifacts and dependency folders |
+
+## Deployment Notes
+
+The app is a client-side React SPA, so production hosting must route all page requests back to `index.html`.
+
+- `public/_redirects` supports Netlify-style SPA fallback.
+- `vercel.json` can be used for Vercel rewrites when deploying to Vercel.
+- Make sure all required environment variables are configured in the hosting dashboard.
+- After changing Apps Script or spreadsheet schema, clear Apps Script cache and browser local storage if stale content appears.
+
+## Content Maintenance
+
+Most portfolio updates should be made in the connected Google Sheets source. Keep publish flags accurate so only approved rows are shown on the public website.
+
+When adding a new content section:
+
+1. Add the sheet and published columns in Google Sheets.
+2. Update the Apps Script page configuration.
+3. Extend `DataContext.tsx` types and parsing logic.
+4. Create or update the relevant React page component.
+5. Build and lint before deployment.
+
+## Validation
+
+Before publishing changes, run:
+
+```bash
+npm run lint
+npm run build
+```
+
+These checks confirm that the TypeScript code compiles and the production bundle can be generated successfully.
 
 ## License
 
-This project is private. All content, design, and intellectual property belong to Prerit Pramod.
+This is a private portfolio project. All website content, profile data, images, and intellectual property references belong to Prerit Pramod unless otherwise noted.
