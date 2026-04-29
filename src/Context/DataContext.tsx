@@ -585,11 +585,29 @@ const formatHome = (rows: ApiHomeRow[]): HomeProfile[] =>
     photo: firstLink(row.photo),
   }));
 
-// Fetches every endpoint in parallel, then formats each response into the shape
-// expected by the page components.
-const fetchPortfolioData = async (): Promise<AppDataType> => {
+const createEmptyAppData = (home: HomeProfile[] = []): AppDataType => ({
+  patents: [],
+  defensivePublications: [],
+  tradeSecrets: [],
+  experiences: [],
+  education: [],
+  publicationConferences: [],
+  publicationJournals: [],
+  publicationPreprints: [],
+  awards: [],
+  recognitions: [],
+  home,
+});
+
+const fetchHomeData = async (): Promise<HomeProfile[]> => {
+  const homeJson = await fetchPage<HomeResponse>("home");
+  return formatHome(asArray(homeJson.home));
+};
+
+// Home loads first for perceived speed. The heavier portfolio sections are
+// fetched afterwards and merged into the already-rendered Home shell.
+const fetchPortfolioSections = async (): Promise<Omit<AppDataType, "home">> => {
   const [
-    homeJson,
     awardsJson,
     recognitionsJson,
     experienceJson,
@@ -601,7 +619,6 @@ const fetchPortfolioData = async (): Promise<AppDataType> => {
     defensiveJson,
     tradeJson,
   ] = await Promise.all([
-    fetchPage<HomeResponse>("home"),
     fetchPage<AwardsResponse>("awards"),
     fetchPage<RecognitionsResponse>("recognitions"),
     fetchPage<ExperienceResponse>("experience"),
@@ -633,7 +650,6 @@ const fetchPortfolioData = async (): Promise<AppDataType> => {
     ),
     awards: formatAwards(asArray(awardsJson.awards)),
     recognitions: formatRecognitions(asArray(recognitionsJson.recognitions)),
-    home: formatHome(asArray(homeJson.home)),
   };
 };
 
@@ -642,6 +658,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const cachedData = readCachedData();
     if (cachedData) {
       setData(cachedData);
@@ -651,17 +669,41 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     const loadData = async () => {
       try {
-        const freshData = await fetchPortfolioData();
-        writeCachedData(freshData);
-        setData(freshData);
+        const home = await fetchHomeData();
+        if (cancelled) return;
+
+        const initialData = createEmptyAppData(home);
+        setData(initialData);
+        setLoading(false);
+
+        try {
+          const sections = await fetchPortfolioSections();
+          if (cancelled) return;
+
+          const completeData = {
+            ...sections,
+            home,
+          };
+
+          writeCachedData(completeData);
+          setData(completeData);
+        } catch (sectionError) {
+          console.error("BACKGROUND DATA FETCH ERROR:", sectionError);
+        }
       } catch (err) {
         console.error("DATA FETCH ERROR:", err);
-      } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setData(createEmptyAppData());
+          setLoading(false);
+        }
       }
     };
 
     void loadData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (

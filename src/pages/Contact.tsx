@@ -1,7 +1,17 @@
 import { useState } from "react";
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
-import { Building2, CheckCircle2, Mail, Phone, Send, User } from "lucide-react";
+import {
+  AlertCircle,
+  Building2,
+  CheckCircle2,
+  ExternalLink,
+  Mail,
+  Phone,
+  Send,
+  User,
+} from "lucide-react";
 import { motion } from "motion/react";
+import { useAppData } from "../Context/DataContext";
 
 /*
  * Contact page
@@ -43,6 +53,9 @@ const INITIAL_FORM_DATA: ContactFormData = {
   subject: "",
   message: "",
 };
+
+const FALLBACK_ERROR_MESSAGE =
+  "The contact form is temporarily unavailable. Please use the fallback contact option below.";
 
 // First two rows are configured data-first to avoid repeating the same input
 // markup four times.
@@ -202,9 +215,11 @@ const MessageInput = ({
 const FormStatus = ({
   submitted,
   error,
+  fallbackHref,
 }: {
   submitted: boolean;
   error: string;
+  fallbackHref?: string;
 }) => (
   <>
     {submitted && (
@@ -217,8 +232,27 @@ const FormStatus = ({
     )}
 
     {error && (
-      <div className="text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-xl md:rounded-2xl text-xs md:text-sm font-medium">
-        {error}
+      <div className="bg-red-50 border border-red-200 px-4 py-3 rounded-xl md:rounded-2xl">
+        <div className="flex items-start gap-2 text-red-700">
+          <AlertCircle className="w-4 h-4 md:w-5 md:h-5 shrink-0 mt-[1px]" />
+          <span className="text-xs md:text-sm font-medium">{error}</span>
+        </div>
+
+        {fallbackHref ? (
+          <a
+            href={fallbackHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-[#0D0D0D] px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#FF6B00]"
+          >
+            Contact on LinkedIn
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        ) : (
+          <p className="mt-2 text-xs text-red-700/80">
+            You can also use the professional links in the footer.
+          </p>
+        )}
       </div>
     )}
   </>
@@ -240,6 +274,7 @@ const ContactForm = ({
   loading,
   submitted,
   error,
+  fallbackHref,
   onChange,
   onSubmit,
 }: {
@@ -247,6 +282,7 @@ const ContactForm = ({
   loading: boolean;
   submitted: boolean;
   error: string;
+  fallbackHref?: string;
   onChange: (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
@@ -272,7 +308,11 @@ const ContactForm = ({
 
       <SubjectInput value={formData.subject} onChange={onChange} />
       <MessageInput value={formData.message} onChange={onChange} />
-      <FormStatus submitted={submitted} error={error} />
+      <FormStatus
+        submitted={submitted}
+        error={error}
+        fallbackHref={fallbackHref}
+      />
       <SubmitButton loading={loading} />
     </form>
   </div>
@@ -299,12 +339,14 @@ const SideInfo = () => (
 // Entry point: hold controlled form state, submit to the configured endpoint,
 // then render the form and desktop side information.
 export default function Contact() {
+  const { data } = useAppData();
   const [formData, setFormData] = useState<ContactFormData>(INITIAL_FORM_DATA);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
 
   const scriptURL = import.meta.env.VITE_CONTACT_FORM_URL;
+  const fallbackLinkedIn = data?.home?.[0]?.links?.linkedin || "";
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -321,6 +363,12 @@ export default function Contact() {
     setError("");
     setSubmitted(false);
 
+    if (!scriptURL) {
+      setError(FALLBACK_ERROR_MESSAGE);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch(scriptURL, {
         method: "POST",
@@ -330,16 +378,20 @@ export default function Contact() {
         body: new URLSearchParams(Object.entries(formData)).toString(),
       });
 
+      if (!response.ok) {
+        throw new Error(`Contact form failed with status ${response.status}`);
+      }
+
       const result = await response.json();
 
       if (result.success) {
         setSubmitted(true);
         setFormData(INITIAL_FORM_DATA);
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(FALLBACK_ERROR_MESSAGE);
       }
     } catch (err) {
-      setError("Submission failed. Please try again.");
+      setError(FALLBACK_ERROR_MESSAGE);
     } finally {
       setLoading(false);
     }
@@ -357,6 +409,7 @@ export default function Contact() {
               loading={loading}
               submitted={submitted}
               error={error}
+              fallbackHref={fallbackLinkedIn}
               onChange={handleChange}
               onSubmit={handleSubmit}
             />
