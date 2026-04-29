@@ -38,8 +38,8 @@ const API_BASE_URL =
   "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec";
 const CACHE_KEY = "appData";
 const DEFAULT_PROFILE: LoaderProfile = {
-  name: "PRERIT PRAMOD",
-  domain: "Engineering Leader",
+  name: "Professional Portfolio",
+  domain: "Portfolio System",
 };
 
 const LOADING_LABELS = ["Loading portfolio", "Preparing data"];
