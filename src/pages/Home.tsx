@@ -335,7 +335,7 @@ const Achievements = ({ achievements }: { achievements?: string }) => {
 // First viewport section: profile identity, primary links, achievements, and
 // responsive portrait placement.
 const HeroSection = ({ home }: { home: HomeProfile }) => (
-  <section className="relative pt-8 md:pt-10 lg:pt-12 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white border-b border-[#E5E7EB]/50">
+  <section className="relative pt-8 md:pt-10 lg:pt-12 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white">
     <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
