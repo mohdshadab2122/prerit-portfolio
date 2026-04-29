@@ -55,7 +55,10 @@ interface EducationSummary {
   degreeDesc?: string;
 }
 
+type PublicationCategory = "Conferences" | "Journals" | "Preprints";
+
 interface PublicationSummary {
+  category?: PublicationCategory;
   year?: string;
   date?: string;
   title?: string;
@@ -100,7 +103,8 @@ const getDriveImage = (link?: string) => {
   return `https://lh3.googleusercontent.com/d/${match[1]}`;
 };
 
-const getProfileImage = (photo?: string) => getDriveImage(photo) || FALLBACK_IMAGE;
+const getProfileImage = (photo?: string) =>
+  getDriveImage(photo) || FALLBACK_IMAGE;
 
 // Keeps very long names from overflowing the hero layout.
 const getNameFontSizeClass = (name: string) => {
@@ -126,7 +130,34 @@ const splitLines = (value?: string) =>
 const getLatestItems = <T,>(items: T[], count: number) =>
   items.slice().reverse().slice(0, count);
 
-const getCompanyKey = (company?: string) => (company || "").trim().toLowerCase();
+const getCompanyKey = (company?: string) =>
+  (company || "").trim().toLowerCase();
+
+// Home cards link to matching anchors on the full pages. Keeping slug creation
+// centralized prevents broken deep links when labels contain spaces or symbols.
+const slugifyAnchor = (value?: string) => {
+  const slug = (value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug || "item";
+};
+
+const buildAnchorId = (prefix: string, value?: string) =>
+  `${prefix}-${slugifyAnchor(value)}`;
+
+const buildAnchorLink = (
+  path: string,
+  prefix: string,
+  value?: string,
+  search = "",
+) => `${path}${search}#${buildAnchorId(prefix, value)}`;
+
+const getPublicationSearch = (category?: PublicationCategory) =>
+  category ? `?category=${encodeURIComponent(category)}` : "";
 
 /*
  * The Home experience preview should represent the latest companies, not just
@@ -155,7 +186,8 @@ const getLatestExperiencesByCompany = (
 };
 
 const getCardGridClass = (cards: string[]) =>
-  CARD_GRID_BY_COUNT[cards.length] || "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  CARD_GRID_BY_COUNT[cards.length] ||
+  "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 
 // The API currently stores each executive card as a single text block where the
 // first line is the heading and the remaining lines are body copy.
@@ -175,6 +207,9 @@ const getEducationInstitution = (education: EducationSummary) =>
 
 const getAwardInstitution = (award: AwardSummary) =>
   award.institution || award.organization || "";
+
+const CARD_LINK_CLASS =
+  "block h-full rounded-2xl no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5CE6] focus-visible:ring-offset-4";
 
 // Simple route-level states. Loader is intentionally plain because App.tsx also
 // owns the main application loader.
@@ -240,7 +275,9 @@ const ProfileImage = ({
       src={getProfileImage(home.photo)}
       alt={home.name || "Profile"}
       className={`w-full h-full object-cover object-[center_top] ${
-        hoverScale ? "transition-transform duration-700 group-hover:scale-105" : ""
+        hoverScale
+          ? "transition-transform duration-700 group-hover:scale-105"
+          : ""
       }`}
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -314,10 +351,7 @@ const HeroSection = ({ home }: { home: HomeProfile }) => (
 
         <HighlightedName name={home.name || ""} />
 
-        <ProfileImage
-          home={home}
-          className="block lg:hidden mb-8 mx-auto"
-        />
+        <ProfileImage home={home} className="block lg:hidden mb-8 mx-auto" />
 
         {home.domain && (
           <h2 className="text-xl md:text-2xl font-bold text-[#0D0D0D]/70 mb-4 tracking-tight">
@@ -352,11 +386,7 @@ const HeroSection = ({ home }: { home: HomeProfile }) => (
         transition={{ duration: 0.7, delay: 0.15 }}
         className="hidden lg:flex justify-center lg:justify-end"
       >
-        <ProfileImage
-          home={home}
-          className="lg:max-w-[440px]"
-          hoverScale
-        />
+        <ProfileImage home={home} className="lg:max-w-[440px]" hoverScale />
       </motion.div>
     </div>
   </section>
@@ -369,7 +399,9 @@ const ExecutiveSummary = ({ cards }: { cards: string[] }) => {
   return (
     <div className="bg-white pb-12 sm:pb-14 lg:pb-20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className={`grid gap-4 sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}>
+        <div
+          className={`grid gap-4 sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}
+        >
           {cards.map((card, index) => {
             const { title, content } = parseExecutiveCard(card);
 
@@ -454,24 +486,36 @@ const ExperienceCard = ({
 }: {
   experience: ExperienceSummary;
   index: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 18 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.45, delay: index * 0.08 }}
-    className="p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
-  >
-    <div className={CARD_LABEL}>{experience.period}</div>
-    <h3 className={`${CARD_TITLE} group-hover:text-[#0A5CE6] transition-colors`}>
-      {experience.role}
-    </h3>
-    <div className={`${CARD_SUBTITLE} mb-4 md:mb-5`}>
-      {experience.company}
-    </div>
-    <BulletList value={experience.roleDesc} />
-  </motion.div>
-);
+}) => {
+  const to = buildAnchorLink("/experience", "experience", experience.company);
+
+  return (
+    <Link
+      to={to}
+      className={CARD_LINK_CLASS}
+      aria-label={`Open ${experience.company || "experience"} details`}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, delay: index * 0.08 }}
+        className="h-full p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+      >
+        <div className={CARD_LABEL}>{experience.period}</div>
+        <h3
+          className={`${CARD_TITLE} group-hover:text-[#0A5CE6] transition-colors`}
+        >
+          {experience.role}
+        </h3>
+        <div className={`${CARD_SUBTITLE} mb-4 md:mb-5`}>
+          {experience.company}
+        </div>
+        <BulletList value={experience.roleDesc} />
+      </motion.div>
+    </Link>
+  );
+};
 
 // Preview card for one selected publication.
 const PublicationCard = ({
@@ -480,21 +524,38 @@ const PublicationCard = ({
 }: {
   publication: PublicationSummary;
   index: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 18 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.45, delay: index * 0.08 }}
-    className="border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl p-5 sm:p-6 lg:p-7 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-  >
-    <div className={CARD_LABEL}>{publication.year || publication.date}</div>
-    <h3 className={CARD_TITLE}>{publication.title}</h3>
-    <div className={CARD_SUBTITLE}>
-      {publication.organization || publication.event || publication.platform}
-    </div>
-  </motion.div>
-);
+}) => {
+  const to = buildAnchorLink(
+    "/publications",
+    "publication",
+    publication.title,
+    getPublicationSearch(publication.category),
+  );
+
+  return (
+    <Link
+      to={to}
+      className={CARD_LINK_CLASS}
+      aria-label={`Open ${publication.title || "publication"} details`}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, delay: index * 0.08 }}
+        className="h-full border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl p-5 sm:p-6 lg:p-7 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+      >
+        <div className={CARD_LABEL}>{publication.year || publication.date}</div>
+        <h3 className={CARD_TITLE}>{publication.title}</h3>
+        <div className={CARD_SUBTITLE}>
+          {publication.organization ||
+            publication.event ||
+            publication.platform}
+        </div>
+      </motion.div>
+    </Link>
+  );
+};
 
 // Preview card for an education record. Some older data uses institution/major
 // while newer data uses university/specialization, so helpers handle both.
@@ -504,56 +565,98 @@ const EducationCard = ({
 }: {
   education: EducationSummary;
   index: number;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 18 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.45, delay: index * 0.08 }}
-    className="p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-  >
-    <div className={CARD_LABEL}>{education.year}</div>
-    <h3 className="text-lg md:text-xl font-bold mb-1 text-[#0A5CE6] leading-tight">
-      {education.degree}
-    </h3>
-    <div className="text-base md:text-lg font-bold text-[#0D0D0D]/80 mb-1">
-      {getEducationMajor(education)}
-    </div>
-    <div className={`${CARD_SUBTITLE} italic mb-4 md:mb-5`}>
-      {education.specialization}
-    </div>
+}) => {
+  const institution = getEducationInstitution(education);
+  const to = buildAnchorLink(
+    "/education",
+    "education",
+    institution || education.degree,
+  );
 
-    <div className="mb-4 md:mb-5">
-      <BulletList value={education.degreeDesc} />
-    </div>
+  return (
+    <Link
+      to={to}
+      className={CARD_LINK_CLASS}
+      aria-label={`Open ${institution || "education"} details`}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, delay: index * 0.08 }}
+        className="h-full p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+      >
+        <div className={CARD_LABEL}>{education.year}</div>
+        <h3 className="text-lg md:text-xl font-bold mb-1 text-[#0A5CE6] leading-tight">
+          {education.degree}
+        </h3>
+        <div className="text-base md:text-lg font-bold text-[#0D0D0D]/80 mb-1">
+          {getEducationMajor(education)}
+        </div>
+        <div className={`${CARD_SUBTITLE} italic mb-4 md:mb-5`}>
+          {education.specialization}
+        </div>
 
-    <div className="pt-4 md:pt-5 border-t border-[#E5E7EB]">
-      <div className="text-xs md:text-sm font-bold text-[#0D0D0D]/65 uppercase tracking-widest">
-        {getEducationInstitution(education)}
-      </div>
-    </div>
-  </motion.div>
-);
+        <div className="mb-4 md:mb-5">
+          <BulletList value={education.degreeDesc} />
+        </div>
+
+        <div className="pt-4 md:pt-5 border-t border-[#E5E7EB]">
+          <div className="text-xs md:text-sm font-bold text-[#0D0D0D]/65 uppercase tracking-widest">
+            {institution}
+          </div>
+        </div>
+      </motion.div>
+    </Link>
+  );
+};
 
 // Preview card for awards and recognitions-like award data.
-const AwardCard = ({ award, index }: { award: AwardSummary; index: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 18 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.45, delay: index * 0.08 }}
-    className="p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-  >
-    <div className={CARD_LABEL}>{award.year}</div>
-    <h3 className={CARD_TITLE}>{award.title}</h3>
-    <div className={`${CARD_SUBTITLE} mb-3`}>{getAwardInstitution(award)}</div>
-    <BulletList value={award.description} />
-  </motion.div>
-);
+const AwardCard = ({
+  award,
+  index,
+}: {
+  award: AwardSummary;
+  index: number;
+}) => {
+  const to = buildAnchorLink(
+    "/awards",
+    "award",
+    award.title,
+    "?category=Awards",
+  );
+
+  return (
+    <Link
+      to={to}
+      className={CARD_LINK_CLASS}
+      aria-label={`Open ${award.title || "award"} details`}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, delay: index * 0.08 }}
+        className="h-full p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+      >
+        <div className={CARD_LABEL}>{award.year}</div>
+        <h3 className={CARD_TITLE}>{award.title}</h3>
+        <div className={`${CARD_SUBTITLE} mb-3`}>
+          {getAwardInstitution(award)}
+        </div>
+        <BulletList value={award.description} />
+      </motion.div>
+    </Link>
+  );
+};
 
 // Home preview sections are intentionally hidden when their data arrays are
 // empty, keeping the page compact if a sheet has no published records.
-const ExperienceSection = ({ experiences }: { experiences: ExperienceSummary[] }) => {
+const ExperienceSection = ({
+  experiences,
+}: {
+  experiences: ExperienceSummary[];
+}) => {
   const featuredExperiences = getLatestExperiencesByCompany(
     experiences,
     MAX_FEATURED_ITEMS,
@@ -690,9 +793,18 @@ export default function Home() {
   // Keep the original behavior: surface one recent item from each publication
   // category instead of mixing all categories into one global sort.
   const publications: PublicationSummary[] = [
-    ...getLatestItems(data.publicationConferences || [], 1),
-    ...getLatestItems(data.publicationJournals || [], 1),
-    ...getLatestItems(data.publicationPreprints || [], 1),
+    ...getLatestItems(data.publicationConferences || [], 1).map((item) => ({
+      ...item,
+      category: "Conferences" as PublicationCategory,
+    })),
+    ...getLatestItems(data.publicationJournals || [], 1).map((item) => ({
+      ...item,
+      category: "Journals" as PublicationCategory,
+    })),
+    ...getLatestItems(data.publicationPreprints || [], 1).map((item) => ({
+      ...item,
+      category: "Preprints" as PublicationCategory,
+    })),
   ];
 
   return (

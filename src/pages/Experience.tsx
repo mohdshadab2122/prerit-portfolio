@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Building2 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
 
 /*
@@ -74,6 +75,34 @@ interface ExperienceStats {
 const FALLBACK_LOGO = "/fallback.png";
 const PRESENT_LABEL = "Present";
 const LEADERSHIP_ROLE_PATTERN = /manager|director|lead|ceo|founder/i;
+
+// Anchor IDs must match Home.tsx links so preview cards can deep-link directly
+// to the company timeline card.
+const slugifyAnchor = (value?: string) => {
+  const slug = (value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug || "item";
+};
+
+const buildAnchorId = (prefix: string, value?: string) =>
+  `${prefix}-${slugifyAnchor(value)}`;
+
+const scrollToHash = (hash: string) => {
+  const targetId = decodeURIComponent(hash.replace("#", ""));
+  if (!targetId) return;
+
+  window.requestAnimationFrame(() => {
+    document.getElementById(targetId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+};
 
 // Drives the four stat cards without duplicating card markup.
 const STAT_CARDS: Array<{
@@ -450,7 +479,10 @@ const CompanySection = ({ company }: { company: Company }) => {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
   return (
-    <div className="relative">
+    <div
+      id={buildAnchorId("experience", company.name)}
+      className="relative scroll-mt-28"
+    >
       <div className="absolute left-[12px] top-8 w-6 h-6 flex items-center justify-center z-20 -translate-x-1/2">
         <div className="w-6 h-6 rounded-full bg-[#FF6B00] flex items-center justify-center shadow-lg shadow-[#FF6B00]/20">
           <Building2 className="w-3 h-3 text-white" />
@@ -619,6 +651,7 @@ const ExperienceTimeline = ({
 // Entry point: read portfolio data, adapt it into view models, then render.
 export default function Experience() {
   const { data, loading } = useAppData();
+  const location = useLocation();
 
   const rawExperiences = (data?.experiences || []) as RawExperienceRow[];
 
@@ -630,6 +663,12 @@ export default function Experience() {
     () => buildCompanyTimeline(rawExperiences),
     [rawExperiences],
   );
+
+  useEffect(() => {
+    if (!loading && companies.length) {
+      scrollToHash(location.hash);
+    }
+  }, [companies, loading, location.hash]);
 
   if (loading) return <LoadingState />;
 

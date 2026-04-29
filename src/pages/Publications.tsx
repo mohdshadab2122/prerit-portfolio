@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ExternalLink, Search } from "lucide-react";
 import { motion } from "motion/react";
+import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
 
 /*
@@ -59,6 +60,42 @@ const CATEGORIES: PublicationCategory[] = [
   "Journals",
   "Preprints",
 ];
+
+// Home.tsx sends publication category in the query string so journal and
+// preprint links open the correct tab before scrolling to the card.
+const getCategoryFromSearch = (search: string): PublicationCategory => {
+  const category = new URLSearchParams(search).get("category");
+  return CATEGORIES.includes(category as PublicationCategory)
+    ? (category as PublicationCategory)
+    : "Conferences";
+};
+
+// Anchor IDs mirror the Home.tsx publication card links.
+const slugifyAnchor = (value?: string) => {
+  const slug = (value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug || "item";
+};
+
+const buildAnchorId = (prefix: string, value?: string) =>
+  `${prefix}-${slugifyAnchor(value)}`;
+
+const scrollToHash = (hash: string) => {
+  const targetId = decodeURIComponent(hash.replace("#", ""));
+  if (!targetId) return;
+
+  window.requestAnimationFrame(() => {
+    document.getElementById(targetId)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  });
+};
 
 // Header stat cards are data-driven so adding another category later is local.
 const STAT_CARDS: Array<{
@@ -331,7 +368,10 @@ const PublicationDate = ({ publication }: { publication: Publication }) => (
 // One publication row/card. The layout stays identical across categories while
 // metadata adapts to conference venue, journal division, or preprint platform.
 const PublicationCard = ({ publication }: { publication: Publication }) => (
-  <div className="bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 md:px-6 py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]">
+  <div
+    id={buildAnchorId("publication", publication.title)}
+    className="scroll-mt-28 bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 md:px-6 py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]"
+  >
     <div className="flex-1 min-w-0">
       <h3 className="text-[15px] md:text-[17px] font-medium text-[#0D0D0D] leading-snug">
         {publication.title}
@@ -390,8 +430,10 @@ const PublicationsList = ({
 // and render the publications archive.
 export default function Publications() {
   const { data, loading } = useAppData();
-  const [activeCategory, setActiveCategory] =
-    useState<PublicationCategory>("Conferences");
+  const location = useLocation();
+  const [activeCategory, setActiveCategory] = useState<PublicationCategory>(
+    () => getCategoryFromSearch(location.search),
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
   const publications = useMemo(
@@ -415,6 +457,16 @@ export default function Publications() {
     () => filterPublications(publications, activeCategory, searchQuery),
     [activeCategory, publications, searchQuery],
   );
+
+  useEffect(() => {
+    setActiveCategory(getCategoryFromSearch(location.search));
+  }, [location.search]);
+
+  useEffect(() => {
+    if (!loading && filteredPublications.length) {
+      scrollToHash(location.hash);
+    }
+  }, [filteredPublications, loading, location.hash]);
 
   if (loading || !data) {
     return <LoadingState />;
