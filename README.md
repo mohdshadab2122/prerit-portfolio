@@ -1,16 +1,16 @@
-# Prerit Pramod - Portfolio
+# Dynamic Professional Portfolio
 
-Personal portfolio website for Prerit Pramod, an engineering executive, inventor, founder, and technology leader. The site presents professional experience, education, publications, patents, awards, recognitions, and contact information through a fast React-based frontend backed by spreadsheet-driven content.
+Reusable professional portfolio website for profile-driven career, education, publication, intellectual property, awards, recognitions, and contact content. The site uses a fast React frontend backed by spreadsheet-managed data, so the displayed profile can change without rebuilding the app.
 
-Live website: https://www.preritpramod.com
+Live website: configure this with your deployed portfolio domain.
 
 ## Overview
 
-This website is built as a modern single-page React application. It uses reusable page components, shared layout/navigation, and a centralized data context so portfolio content can be loaded consistently across the site.
+This website is built as a modern single-page React application. It uses reusable page components, shared layout/navigation, dynamic SEO metadata, and a centralized data context so portfolio content can be loaded consistently across the site.
 
 The portfolio is designed to highlight:
 
-- Engineering leadership and executive experience
+- Professional leadership and career experience
 - Academic background and education history
 - Patents, defensive publications, and trade secrets
 - Publications across conferences, journals, and preprints
@@ -63,9 +63,13 @@ src/
   components/
     Layout.tsx                  Shared navigation, header, and page shell
     Loader.tsx                  Loading state component
+    SeoMeta.tsx                 Dynamic page title, metadata, Open Graph, and schema
 
   Context/
     DataContext.tsx             Central data fetching, formatting, caching, and app data provider
+
+  config/
+    portfolioApi.ts             Shared Google Apps Script API configuration
 
   pages/
     Home.tsx                    Home page
@@ -78,7 +82,6 @@ src/
 
 public/
   _redirects                    SPA routing fallback for static hosting
-  prerit.jpg                    Public profile image
 ```
 
 ## Environment Variables
@@ -166,6 +169,6 @@ npm run build
 
 These checks confirm that the TypeScript code compiles and the production bundle can be generated successfully.
 
-## License
+## Ownership
 
-This is a private portfolio project. All website content, profile data, images, and intellectual property references belong to Prerit Pramod unless otherwise noted.
+This is a private portfolio project. Website content, profile data, images, publications, intellectual property references, and related materials belong to the profile owner or the organization maintaining the connected data source unless otherwise noted.
