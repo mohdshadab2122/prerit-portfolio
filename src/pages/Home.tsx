@@ -92,6 +92,9 @@ const CARD_TITLE =
 const CARD_SUBTITLE = "text-sm text-[#0D0D0D]/55 font-medium";
 const BULLET_DOT = "w-1.5 h-1.5 bg-[#0A5CE6]/40 rounded-full mt-2 shrink-0";
 const BODY_TEXT = "text-sm text-[#0D0D0D]/70 leading-relaxed";
+const MAX_HOME_BULLETS = 2;
+const MAX_BULLET_LENGTH = 120;
+const MAX_EXECUTIVE_CARD_LENGTH = 260;
 
 // Converts a Google Drive share link into an embeddable image URL.
 const getDriveImage = (link?: string) => {
@@ -106,6 +109,14 @@ const getDriveImage = (link?: string) => {
 const getProfileImage = (photo?: string) =>
   getDriveImage(photo) || FALLBACK_IMAGE;
 
+const truncateText = (value: string, maxLength: number) => {
+  if (value.length <= maxLength) return value;
+
+  const trimmed = value.slice(0, maxLength).trim();
+  const lastSpace = trimmed.lastIndexOf(" ");
+  return `${trimmed.slice(0, lastSpace > 0 ? lastSpace : maxLength).trim()}...`;
+};
+
 // Keeps very long names from overflowing the hero layout.
 const getNameFontSizeClass = (name: string) => {
   if (name.length >= 20) {
@@ -116,7 +127,7 @@ const getNameFontSizeClass = (name: string) => {
     return "text-5xl sm:text-6xl md:text-[65px] lg:text-[85px]";
   }
 
-  return "text-6xl sm:text-7xl md:text-[80px] lg:text-[100px]";
+  return "text-5xl sm:text-7xl md:text-[80px] lg:text-[100px]";
 };
 
 const splitLines = (value?: string) =>
@@ -195,7 +206,7 @@ const parseExecutiveCard = (card: string) => {
   const [title, ...contentLines] = card.split("\n");
   return {
     title,
-    content: contentLines.join("\n"),
+    content: truncateText(contentLines.join("\n"), MAX_EXECUTIVE_CARD_LENGTH),
   };
 };
 
@@ -210,6 +221,13 @@ const getAwardInstitution = (award: AwardSummary) =>
 
 const CARD_LINK_CLASS =
   "block h-full rounded-2xl no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5CE6] focus-visible:ring-offset-4";
+
+const CardAction = () => (
+  <div className="mt-auto pt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#0A5CE6]">
+    <span>View details</span>
+    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+  </div>
+);
 
 // Simple route-level states. Loader is intentionally plain because App.tsx also
 // owns the main application loader.
@@ -269,7 +287,7 @@ const ProfileImage = ({
   hoverScale?: boolean;
 }) => (
   <div
-    className={`w-full max-w-[320px] sm:max-w-[400px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-[#E5E7EB] bg-[#F4F4F5] shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative group ${className}`}
+    className={`w-full max-w-[260px] sm:max-w-[360px] md:max-w-[400px] aspect-[4/5] rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden border border-[#E5E7EB] bg-[#F4F4F5] shadow-[0_20px_60px_rgba(0,0,0,0.06)] relative group ${className}`}
   >
     <img
       src={getProfileImage(home.photo)}
@@ -335,8 +353,8 @@ const Achievements = ({ achievements }: { achievements?: string }) => {
 // First viewport section: profile identity, primary links, achievements, and
 // responsive portrait placement.
 const HeroSection = ({ home }: { home: HomeProfile }) => (
-  <section className="relative pt-8 md:pt-10 lg:pt-12 pb-12 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white">
-    <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-12 md:gap-16 lg:gap-20 items-center">
+  <section className="relative pt-6 md:pt-10 lg:pt-12 pb-10 md:pb-16 lg:pb-20 px-4 md:px-6 overflow-hidden bg-white">
+    <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-8 md:gap-16 lg:gap-20 items-center">
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -397,7 +415,7 @@ const ExecutiveSummary = ({ cards }: { cards: string[] }) => {
   if (!cards.length) return null;
 
   return (
-    <div className="bg-white pb-12 sm:pb-14 lg:pb-20">
+    <div className="bg-white pb-10 sm:pb-14 lg:pb-20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div
           className={`grid gap-4 sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}
@@ -420,7 +438,7 @@ const ExecutiveSummary = ({ cards }: { cards: string[] }) => {
                   </h3>
                 )}
                 {content && (
-                  <p className="text-sm leading-[1.85] text-[#0D0D0D]/65 whitespace-pre-line">
+                  <p className="text-sm leading-[1.75] text-[#0D0D0D]/65 whitespace-pre-line">
                     {content}
                   </p>
                 )}
@@ -464,7 +482,9 @@ const SectionHeader = ({
 // Turns multiline spreadsheet text into the compact bullet style used across
 // experience, education, and awards previews.
 const BulletList = ({ value }: { value?: string }) => {
-  const lines = splitLines(value);
+  const lines = splitLines(value)
+    .slice(0, MAX_HOME_BULLETS)
+    .map((line) => truncateText(line, MAX_BULLET_LENGTH));
   if (!lines.length) return null;
 
   return (
@@ -500,7 +520,7 @@ const ExperienceCard = ({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className="h-full p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+        className="h-full flex flex-col p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-lg hover:-translate-y-1 hover:border-[#FF6B00]/50 transition-all duration-300 group cursor-pointer"
       >
         <div className={CARD_LABEL}>{experience.period}</div>
         <h3
@@ -511,7 +531,10 @@ const ExperienceCard = ({
         <div className={`${CARD_SUBTITLE} mb-4 md:mb-5`}>
           {experience.company}
         </div>
-        <BulletList value={experience.roleDesc} />
+        <div className="flex-1">
+          <BulletList value={experience.roleDesc} />
+        </div>
+        <CardAction />
       </motion.div>
     </Link>
   );
@@ -543,15 +566,18 @@ const PublicationCard = ({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className="h-full border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl p-5 sm:p-6 lg:p-7 hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+        className="h-full flex flex-col border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl p-5 sm:p-6 lg:p-7 hover:bg-white hover:shadow-lg hover:-translate-y-1 hover:border-[#FF6B00]/50 transition-all duration-300 group cursor-pointer"
       >
         <div className={CARD_LABEL}>{publication.year || publication.date}</div>
-        <h3 className={CARD_TITLE}>{publication.title}</h3>
+        <h3 className={CARD_TITLE}>
+          {truncateText(publication.title || "", 130)}
+        </h3>
         <div className={CARD_SUBTITLE}>
           {publication.organization ||
             publication.event ||
             publication.platform}
         </div>
+        <CardAction />
       </motion.div>
     </Link>
   );
@@ -584,7 +610,7 @@ const EducationCard = ({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className="h-full p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+        className="h-full flex flex-col p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-lg hover:-translate-y-1 hover:border-[#FF6B00]/50 transition-all duration-300 group cursor-pointer"
       >
         <div className={CARD_LABEL}>{education.year}</div>
         <h3 className="text-lg md:text-xl font-bold mb-1 text-[#0A5CE6] leading-tight">
@@ -597,7 +623,7 @@ const EducationCard = ({
           {education.specialization}
         </div>
 
-        <div className="mb-4 md:mb-5">
+        <div className="mb-4 md:mb-5 flex-1">
           <BulletList value={education.degreeDesc} />
         </div>
 
@@ -606,6 +632,7 @@ const EducationCard = ({
             {institution}
           </div>
         </div>
+        <CardAction />
       </motion.div>
     </Link>
   );
@@ -637,14 +664,17 @@ const AwardCard = ({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.45, delay: index * 0.08 }}
-        className="h-full p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+        className="h-full flex flex-col p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-lg hover:-translate-y-1 hover:border-[#FF6B00]/50 transition-all duration-300 group cursor-pointer"
       >
         <div className={CARD_LABEL}>{award.year}</div>
         <h3 className={CARD_TITLE}>{award.title}</h3>
         <div className={`${CARD_SUBTITLE} mb-3`}>
           {getAwardInstitution(award)}
         </div>
-        <BulletList value={award.description} />
+        <div className="flex-1">
+          <BulletList value={award.description} />
+        </div>
+        <CardAction />
       </motion.div>
     </Link>
   );
@@ -665,7 +695,7 @@ const ExperienceSection = ({
   if (!featuredExperiences.length) return null;
 
   return (
-    <section className="py-12 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
+    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -695,7 +725,7 @@ const PublicationsSection = ({
   if (!publications.length) return null;
 
   return (
-    <section className="py-12 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
+    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -725,7 +755,7 @@ const EducationSection = ({ education }: { education: EducationSummary[] }) => {
   if (!education.length) return null;
 
   return (
-    <section className="py-12 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
+    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -755,7 +785,7 @@ const AwardsSection = ({ awards }: { awards: AwardSummary[] }) => {
   if (!awards.length) return null;
 
   return (
-    <section className="py-12 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
+    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={

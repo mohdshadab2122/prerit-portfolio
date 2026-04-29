@@ -252,11 +252,11 @@ const PublicationsHeader = ({ stats }: { stats: PublicationStats }) => (
     transition={{ duration: 0.6 }}
     className="mb-10 md:mb-16 lg:mb-20"
   >
-    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tighter leading-none mb-4 md:mb-6 md:mb-8">
+    <h1 className="text-[2.5rem] sm:text-5xl lg:text-7xl font-bold tracking-tighter leading-none mb-4 md:mb-8 break-words">
       PUBLICATIONS
     </h1>
 
-    <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-8 md:mb-12">
+    <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-7 md:mb-12">
       A structured archive of conference papers, journal publications, and
       preprints across electric machines, control systems, motion control,
       sensing, and advanced drive systems.
@@ -288,7 +288,7 @@ const CategoryTabs = ({
       <button
         key={category}
         onClick={() => onCategoryChange(category)}
-        className={`px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all ${
+        className={`flex-1 sm:flex-none px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all ${
           activeCategory === category
             ? "bg-black text-white"
             : "bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]"
@@ -333,7 +333,7 @@ const PublicationsToolbar = ({
   onCategoryChange: (category: PublicationCategory) => void;
   onSearchChange: (value: string) => void;
 }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 md:gap-6 mb-8 md:mb-12">
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 md:gap-6 mb-8 md:mb-12">
     <CategoryTabs
       activeCategory={activeCategory}
       onCategoryChange={onCategoryChange}
@@ -370,20 +370,20 @@ const PublicationDate = ({ publication }: { publication: Publication }) => (
 const PublicationCard = ({ publication }: { publication: Publication }) => (
   <div
     id={buildAnchorId("publication", publication.title)}
-    className="scroll-mt-28 bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 md:px-6 py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]"
+    className="scroll-mt-28 bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 md:px-6 py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]"
   >
     <div className="flex-1 min-w-0">
-      <h3 className="text-[15px] md:text-[17px] font-medium text-[#0D0D0D] leading-snug">
+      <h3 className="text-sm sm:text-[15px] md:text-[17px] font-medium text-[#0D0D0D] leading-snug break-words hyphens-auto">
         {publication.title}
       </h3>
 
       <div className="text-xs md:text-sm text-[#0D0D0D]/50 mt-2 flex flex-wrap items-center gap-1.5 md:gap-2">
-        <span>{publication.organization}</span>
+        <span className="break-words">{publication.organization}</span>
 
         {publication.venue && (
           <>
             <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0" />
-            <span>{publication.venue}</span>
+            <span className="break-words">{publication.venue}</span>
           </>
         )}
 
@@ -397,7 +397,7 @@ const PublicationCard = ({ publication }: { publication: Publication }) => (
         href={publication.externalLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm rounded-md border border-[#E5E7EB] transition-all duration-200 hover:bg-black hover:text-white w-fit shrink-0"
+        className="flex w-full sm:w-fit items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm rounded-md border border-[#E5E7EB] transition-all duration-200 hover:bg-black hover:text-white shrink-0"
       >
         Open
         <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4" />

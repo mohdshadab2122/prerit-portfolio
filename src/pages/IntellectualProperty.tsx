@@ -63,7 +63,7 @@ interface PatentStats {
   jurisdictions: number;
 }
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 10;
 const FEATURED_INVENTOR = "prerit pramod";
 
 // Data-driven navigation definitions keep button rendering simple.
@@ -426,7 +426,7 @@ const MobilePatentCard = ({
         </span>
 
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-[#0D0D0D] leading-snug">
+          <p className="text-[13px] font-semibold text-[#0D0D0D] leading-snug break-words hyphens-auto">
             {getPatentDisplayTitle(family, country)}
           </p>
 
@@ -659,7 +659,7 @@ const DefensivePublicationsView = ({
             index % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
           }`}
         >
-          <p className="text-sm font-medium text-[#0D0D0D] mb-2 leading-snug">
+          <p className="text-sm font-medium text-[#0D0D0D] mb-2 leading-snug break-words hyphens-auto">
             {publication.title}
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
@@ -775,39 +775,43 @@ const Pagination = ({
   page: number;
   totalPages: number;
   onPageChange: (page: number | ((currentPage: number) => number)) => void;
-}) => (
-  <div className="flex justify-center items-center gap-1.5 md:gap-2 mt-8 flex-wrap">
-    <button
-      onClick={() =>
-        onPageChange((currentPage) => Math.max(currentPage - 1, 1))
-      }
-      className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
-    >
-      Prev
-    </button>
-    {[...Array(totalPages)].map((_, index) => (
+}) => {
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex justify-center items-center gap-1.5 md:gap-2 mt-8 flex-wrap">
       <button
-        key={index}
-        onClick={() => onPageChange(index + 1)}
-        className={`px-3 py-1 text-sm rounded-md transition-all duration-200 ${
-          page === index + 1
-            ? "bg-black text-white"
-            : "border border-[#E5E7EB] text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
-        }`}
+        onClick={() =>
+          onPageChange((currentPage) => Math.max(currentPage - 1, 1))
+        }
+        className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
       >
-        {index + 1}
+        Prev
       </button>
-    ))}
-    <button
-      onClick={() =>
-        onPageChange((currentPage) => Math.min(currentPage + 1, totalPages))
-      }
-      className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
-    >
-      Next
-    </button>
-  </div>
-);
+      {[...Array(totalPages)].map((_, index) => (
+        <button
+          key={index}
+          onClick={() => onPageChange(index + 1)}
+          className={`px-3 py-1 text-sm rounded-md transition-all duration-200 ${
+            page === index + 1
+              ? "bg-black text-white"
+              : "border border-[#E5E7EB] text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
+          }`}
+        >
+          {index + 1}
+        </button>
+      ))}
+      <button
+        onClick={() =>
+          onPageChange((currentPage) => Math.min(currentPage + 1, totalPages))
+        }
+        className="px-3 py-1 border border-[#E5E7EB] rounded-md text-sm transition-all duration-200 text-gray-600 hover:border-black hover:text-black hover:bg-[#F9F9F9] hover:-translate-y-[1px] hover:shadow-sm"
+      >
+        Next
+      </button>
+    </div>
+  );
+};
 
 // Entry point: read portfolio data from context, apply active filters, paginate
 // the result, then render the matching tab view.
@@ -886,18 +890,18 @@ export default function IntellectualProperty() {
     <div className="bg-white min-h-screen">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 md:pb-16">
         <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-          <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-none mb-5 md:mb-8">
+          <h1 className="text-[2.35rem] sm:text-5xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-none mb-5 md:mb-8 break-words">
             INTELLECTUAL <span className="text-[#FF6B00]">PROPERTY</span>
           </h1>
 
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-8 md:mb-12">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-7 md:mb-12">
             A structured portfolio of patent families, defensive publications,
             and formal trade secrets spanning motion control, power electronics,
             electric drive systems, steer-by-wire, and advanced embedded
             engineering.
           </p>
 
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-16">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-16">
             {STAT_CARDS.map((card) => (
               <StatCard
                 key={card.label}
@@ -909,7 +913,7 @@ export default function IntellectualProperty() {
             ))}
           </div>
 
-          <div className="flex gap-2 md:gap-3 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="-mx-4 px-4 md:mx-0 md:px-0 flex gap-2 md:gap-3 overflow-x-auto pb-1 scrollbar-hide">
             {TABS.map((tab) => (
               <TabButton
                 key={tab}
