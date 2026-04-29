@@ -100,8 +100,7 @@ const getDriveImage = (link?: string) => {
   return `https://lh3.googleusercontent.com/d/${match[1]}`;
 };
 
-const getProfileImage = (photo?: string) =>
-  getDriveImage(photo) || FALLBACK_IMAGE;
+const getProfileImage = (photo?: string) => getDriveImage(photo) || FALLBACK_IMAGE;
 
 // Keeps very long names from overflowing the hero layout.
 const getNameFontSizeClass = (name: string) => {
@@ -127,9 +126,36 @@ const splitLines = (value?: string) =>
 const getLatestItems = <T,>(items: T[], count: number) =>
   items.slice().reverse().slice(0, count);
 
+const getCompanyKey = (company?: string) => (company || "").trim().toLowerCase();
+
+/*
+ * The Home experience preview should represent the latest companies, not just
+ * the latest rows. The sheet can contain multiple roles for one company, so we
+ * walk newest-to-oldest and keep only the first role we see for each company.
+ */
+const getLatestExperiencesByCompany = (
+  experiences: ExperienceSummary[],
+  count: number,
+) => {
+  const selectedCompanies = new Set<string>();
+  const latestCompanyExperiences: ExperienceSummary[] = [];
+
+  experiences
+    .slice()
+    .reverse()
+    .forEach((experience) => {
+      const companyKey = getCompanyKey(experience.company);
+      if (!companyKey || selectedCompanies.has(companyKey)) return;
+
+      selectedCompanies.add(companyKey);
+      latestCompanyExperiences.push(experience);
+    });
+
+  return latestCompanyExperiences.slice(0, count);
+};
+
 const getCardGridClass = (cards: string[]) =>
-  CARD_GRID_BY_COUNT[cards.length] ||
-  "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  CARD_GRID_BY_COUNT[cards.length] || "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 
 // The API currently stores each executive card as a single text block where the
 // first line is the heading and the remaining lines are body copy.
@@ -214,9 +240,7 @@ const ProfileImage = ({
       src={getProfileImage(home.photo)}
       alt={home.name || "Profile"}
       className={`w-full h-full object-cover object-[center_top] ${
-        hoverScale
-          ? "transition-transform duration-700 group-hover:scale-105"
-          : ""
+        hoverScale ? "transition-transform duration-700 group-hover:scale-105" : ""
       }`}
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -290,7 +314,10 @@ const HeroSection = ({ home }: { home: HomeProfile }) => (
 
         <HighlightedName name={home.name || ""} />
 
-        <ProfileImage home={home} className="block lg:hidden mb-8 mx-auto" />
+        <ProfileImage
+          home={home}
+          className="block lg:hidden mb-8 mx-auto"
+        />
 
         {home.domain && (
           <h2 className="text-xl md:text-2xl font-bold text-[#0D0D0D]/70 mb-4 tracking-tight">
@@ -325,7 +352,11 @@ const HeroSection = ({ home }: { home: HomeProfile }) => (
         transition={{ duration: 0.7, delay: 0.15 }}
         className="hidden lg:flex justify-center lg:justify-end"
       >
-        <ProfileImage home={home} className="lg:max-w-[440px]" hoverScale />
+        <ProfileImage
+          home={home}
+          className="lg:max-w-[440px]"
+          hoverScale
+        />
       </motion.div>
     </div>
   </section>
@@ -338,9 +369,7 @@ const ExecutiveSummary = ({ cards }: { cards: string[] }) => {
   return (
     <div className="bg-white pb-12 sm:pb-14 lg:pb-20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div
-          className={`grid gap-4 sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}
-        >
+        <div className={`grid gap-4 sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}>
           {cards.map((card, index) => {
             const { title, content } = parseExecutiveCard(card);
 
@@ -434,12 +463,12 @@ const ExperienceCard = ({
     className="p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-white rounded-2xl hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
   >
     <div className={CARD_LABEL}>{experience.period}</div>
-    <h3
-      className={`${CARD_TITLE} group-hover:text-[#0A5CE6] transition-colors`}
-    >
+    <h3 className={`${CARD_TITLE} group-hover:text-[#0A5CE6] transition-colors`}>
       {experience.role}
     </h3>
-    <div className={`${CARD_SUBTITLE} mb-4 md:mb-5`}>{experience.company}</div>
+    <div className={`${CARD_SUBTITLE} mb-4 md:mb-5`}>
+      {experience.company}
+    </div>
     <BulletList value={experience.roleDesc} />
   </motion.div>
 );
@@ -507,13 +536,7 @@ const EducationCard = ({
 );
 
 // Preview card for awards and recognitions-like award data.
-const AwardCard = ({
-  award,
-  index,
-}: {
-  award: AwardSummary;
-  index: number;
-}) => (
+const AwardCard = ({ award, index }: { award: AwardSummary; index: number }) => (
   <motion.div
     initial={{ opacity: 0, y: 18 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -530,12 +553,13 @@ const AwardCard = ({
 
 // Home preview sections are intentionally hidden when their data arrays are
 // empty, keeping the page compact if a sheet has no published records.
-const ExperienceSection = ({
-  experiences,
-}: {
-  experiences: ExperienceSummary[];
-}) => {
-  if (!experiences.length) return null;
+const ExperienceSection = ({ experiences }: { experiences: ExperienceSummary[] }) => {
+  const featuredExperiences = getLatestExperiencesByCompany(
+    experiences,
+    MAX_FEATURED_ITEMS,
+  );
+
+  if (!featuredExperiences.length) return null;
 
   return (
     <section className="py-12 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
@@ -550,15 +574,9 @@ const ExperienceSection = ({
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-          {getLatestItems(experiences, MAX_FEATURED_ITEMS).map(
-            (experience, index) => (
-              <ExperienceCard
-                key={index}
-                experience={experience}
-                index={index}
-              />
-            ),
-          )}
+          {featuredExperiences.map((experience, index) => (
+            <ExperienceCard key={index} experience={experience} index={index} />
+          ))}
         </div>
       </div>
     </section>
