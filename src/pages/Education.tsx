@@ -145,6 +145,22 @@ const splitLocation = (location?: string) => {
   };
 };
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Some spreadsheet descriptions already begin with the profile name. The UI
+// renders that name in bold, so this removes the duplicate plain-text prefix.
+const removeLeadingOwnerName = (value: string | undefined, ownerName: string) => {
+  const text = (value || "").trim();
+  const name = ownerName.trim();
+
+  if (!text || !name) return text;
+
+  return text
+    .replace(new RegExp(`^${escapeRegExp(name)}\\s*[:,.-]?\\s*`, "i"), "")
+    .trim();
+};
+
 // The API returns one flattened row per education entry. This adapter creates
 // the timeline shape consumed by the visual components below.
 const buildEducationItems = (
@@ -154,6 +170,7 @@ const buildEducationItems = (
   rows.map((row) => {
     const location = splitLocation(row.location);
     const tenure = formatMonthYear(row.year);
+    const ownerDescription = removeLeadingOwnerName(row.preritDesc, ownerName);
 
     return {
       university: row.university || "",
@@ -169,7 +186,8 @@ const buildEducationItems = (
             <strong>{row.university}</strong> {row.universityDesc}
           </p>
           <p className="mt-4">
-            <strong>{ownerName}</strong> {row.preritDesc}
+            <strong>{ownerName}</strong>
+            {ownerDescription && <> {ownerDescription}</>}
           </p>
         </>
       ),
