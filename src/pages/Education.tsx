@@ -1,56 +1,64 @@
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronDown } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
 
 /*
- * Awards page
+ * Education page
  *
- * DataContext exposes awards and recognitions as two separate arrays. This page
- * converts them into one shared item model, uses tabs to choose which group is
- * displayed, and keeps a marquee of all titled items above the list.
+ * The spreadsheet provides one flat education row per degree/institution. This
+ * file adapts that data into an expandable timeline, then renders the timeline
+ * with the same interaction pattern used by the Experience page.
  */
 
-type Category = "Awards" | "Recognitions";
-
-interface RawAward {
-  title?: string;
-  organization?: string;
+// Raw shape supplied by DataContext after Apps Script has formatted the sheet.
+interface RawEducationRow {
+  university?: string;
+  college?: string;
+  mediaLinks?: string[];
+  externalLinks?: string[];
+  location?: string;
   year?: string;
-  summary?: string;
-  description?: string;
+  degree?: string;
+  specialization?: string;
+  gpa?: string;
+  universityDesc?: string;
+  preritDesc?: string;
+  degreeDesc?: string;
 }
 
-interface RawRecognition {
-  title?: string;
-  organization?: string;
-  summary?: string;
-  description?: string;
-}
-
-// Shared UI shape used by cards, tabs, and the marquee.
-interface AwardItem {
-  category: Category;
+// One expandable degree node inside an institution card.
+interface Degree {
   title: string;
-  organization: string;
-  year?: string;
-  summary: string;
-  description: string;
+  tenure: string;
+  duration: string;
+  specialization: string;
+  gpa: string;
+  city: string;
+  country: string;
+  details: string[];
 }
 
-const TABS: Category[] = ["Awards", "Recognitions"];
+// Top-level institution card rendered in the timeline.
+interface EducationItem {
+  university: string;
+  college?: string | null;
+  logo: string;
+  website: string;
+  tenure: string;
+  duration: string;
+  summary: ReactNode;
+  degrees: Degree[];
+  location: string;
+}
 
-// Home.tsx includes the target tab in the query string so deep links can open
-// the right list before scrolling to a specific award card.
-const getCategoryFromSearch = (search: string): Category => {
-  const category = new URLSearchParams(search).get("category");
-  return TABS.includes(category as Category)
-    ? (category as Category)
-    : "Awards";
-};
+const FALLBACK_LOGO = "/fallback.png";
+const COMPLETED_STATUS = "Completed";
 
-// Anchor IDs mirror the Home.tsx award card links.
+// Anchor IDs mirror the Home.tsx education card links, allowing users to jump
+// straight to the matching institution card.
 const slugifyAnchor = (value?: string) => {
   const slug = (value || "")
     .toLowerCase()
@@ -77,124 +85,190 @@ const scrollToHash = (hash: string) => {
   });
 };
 
-// Converts separate source arrays into one typed list while preserving category
-// labels for filtering and marquee badges.
-const buildAwardItems = (data: {
-  awards?: RawAward[];
-  recognitions?: RawRecognition[];
-}): AwardItem[] => [
-  ...(data.awards?.map((item) => ({
-    category: "Awards" as Category,
-    title: item.title || "",
-    organization: item.organization || "",
-    year: item.year,
-    summary: item.summary || "",
-    description: item.description || "",
-  })) || []),
-  ...(data.recognitions?.map((item) => ({
-    category: "Recognitions" as Category,
-    title: item.title || "",
-    organization: item.organization || "",
-    summary: item.summary || "",
-    description: item.description || "",
-  })) || []),
-];
+// Google Drive share links are converted to direct image URLs for logos.
+const getDriveImage = (link?: string) => {
+  if (!link) return null;
 
-// Marquee skips untitled records, then reverses the list to match the original
-// newest-first visual behavior.
-const getMarqueeItems = (items: AwardItem[]) =>
-  items
-    .filter((item) => item.title && item.title.trim() !== "")
-    .slice()
-    .reverse();
+  const match = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return null;
 
-// The tab list uses the same reverse behavior as the original component.
-const getFilteredItems = (items: AwardItem[], active: Category) =>
-  items
-    .filter((item) => item.category === active)
-    .slice()
-    .reverse();
+  return `https://lh3.googleusercontent.com/d/${match[1]}`;
+};
+
+const getLogoUrl = (mediaLinks?: string[]) => {
+  if (!Array.isArray(mediaLinks) || mediaLinks.length === 0) {
+    return FALLBACK_LOGO;
+  }
+
+  return getDriveImage(mediaLinks[0]) || FALLBACK_LOGO;
+};
+
+// Converts date-like sheet values into the uppercase month/year label used by
+// the timeline, for example "MAY 2024".
+const formatMonthYear = (dateStr?: string) => {
+  if (!dateStr) return "";
+
+  const date = new Date(dateStr);
+  return date
+    .toLocaleString("en-US", {
+      month: "long",
+      year: "numeric",
+    })
+    .toUpperCase();
+};
+
+const formatGpa = (gpa?: string) => {
+  if (!gpa) return "";
+
+  const value = Number.parseFloat(gpa);
+  if (Number.isNaN(value)) return gpa;
+
+  return value <= 1 ? `${(value * 100).toFixed(2)}%` : gpa;
+};
+
+// Degree descriptions are authored as multiline text in the sheet.
+const splitDetails = (details?: string) =>
+  (details || "")
+    .split("\n")
+    .map((detail) => detail.trim())
+    .filter(Boolean);
+
+// Location is split for future display needs while preserving the full location
+// string in the card header.
+const splitLocation = (location?: string) => {
+  const parts = (location || "").split(",");
+
+  return {
+    city: parts[0] || "",
+    country: parts.slice(1).join(",") || "",
+  };
+};
+
+// The API returns one flattened row per education entry. This adapter creates
+// the timeline shape consumed by the visual components below.
+const buildEducationItems = (rows: RawEducationRow[]): EducationItem[] =>
+  rows.map((row) => {
+    const location = splitLocation(row.location);
+    const tenure = formatMonthYear(row.year);
+
+    return {
+      university: row.university || "",
+      college: row.college && row.college !== "-" ? row.college : null,
+      logo: getLogoUrl(row.mediaLinks),
+      website: row.externalLinks?.[0] || "#",
+      location: row.location || "",
+      tenure,
+      duration: COMPLETED_STATUS,
+      summary: (
+        <>
+          <p>
+            <strong>{row.university}</strong> {row.universityDesc}
+          </p>
+          <p className="mt-4">
+            <strong>Prerit Pramod</strong> {row.preritDesc}
+          </p>
+        </>
+      ),
+      degrees: [
+        {
+          title: row.degree || "",
+          tenure,
+          duration: COMPLETED_STATUS,
+          specialization: row.specialization || "",
+          gpa: formatGpa(row.gpa),
+          city: location.city,
+          country: location.country,
+          details: splitDetails(row.degreeDesc),
+        },
+      ],
+    };
+  });
 
 const LoadingState = () => <div>Loading...</div>;
 
-const TabButton = ({
-  tab,
-  active,
-  onClick,
-}: {
-  tab: Category;
-  active: Category;
-  onClick: (tab: Category) => void;
-}) => (
-  <button
-    onClick={() => onClick(tab)}
-    className={`px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm font-medium transition-all ${
-      active === tab
-        ? "bg-black text-white"
-        : "bg-white border border-[#E5E7EB] text-[#0D0D0D]/70 hover:bg-[#F9F9F9]"
-    }`}
-  >
-    {tab}
-  </button>
+// Shared expanded content for a degree. It is separate from DegreeNode so the
+// click/animation wrapper stays easy to scan.
+const DegreeDetails = ({ details }: { details: string[] }) => (
+  <div className="bg-white border border-[#E5E7EB] rounded-lg p-4 md:p-5 mt-3">
+    <ul className="space-y-2 md:space-y-3">
+      {details.map((detail, index) => (
+        <li
+          key={index}
+          className="text-sm text-[#0D0D0D]/70 flex items-start gap-3 leading-relaxed"
+        >
+          <div className="w-1.5 h-1.5 rounded-full bg-[#0A5CE6]/30 mt-2 flex-shrink-0" />
+          {detail}
+        </li>
+      ))}
+    </ul>
+  </div>
 );
 
-// One expandable award/recognition card. The summary is always visible, while
-// the longer description is revealed on click.
-const AwardCard = ({ item }: { item: AwardItem }) => {
-  const [open, setOpen] = useState(false);
+// One degree inside an institution card. Clicking the degree reveals the
+// details pulled from degreeDesc.
+const DegreeNode = ({
+  degree,
+  isLast,
+}: {
+  degree: Degree;
+  isLast: boolean;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div
-      id={buildAnchorId("award", item.title)}
-      className="scroll-mt-28 border border-[#E5E7EB] rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-7 lg:p-8 bg-[#F4F4F5] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-    >
-      <div
-        onClick={() => setOpen((current) => !current)}
-        className="cursor-pointer"
-      >
-        <div className="flex justify-between items-start gap-3 md:gap-4">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base sm:text-lg md:text-xl font-semibold text-[#0D0D0D] leading-snug">
-              {item.title}
-            </h3>
+    <div className="relative pl-8 md:pl-10 mb-6 last:mb-0">
+      {!isLast && (
+        <div className="absolute left-[9px] top-6 bottom-[-24px] w-[1.5px] bg-[#E5E7EB]" />
+      )}
 
-            <div className="mt-1.5 md:mt-2 text-xs md:text-sm text-[#0D0D0D]/50 flex flex-wrap items-center gap-1.5 md:gap-2">
-              <span>{item.organization}</span>
-              {item.year && (
-                <>
-                  <span className="opacity-40">{"\u2022"}</span>
-                  <span>{item.year}</span>
-                </>
+      <div className="absolute left-[2px] top-[2px] w-[20px] h-[20px] flex items-center justify-center">
+        <div className="w-2.5 h-2.5 rounded-full border-2 border-[#0A5CE6] bg-white z-10" />
+      </div>
+
+      <div
+        onClick={() => setIsExpanded((current) => !current)}
+        className="cursor-pointer group"
+      >
+        <div className="flex flex-col gap-2 md:gap-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-3">
+            <div className="flex flex-wrap items-start md:items-center gap-2 md:gap-6">
+              <h4 className="text-base md:text-lg font-medium text-[#0D0D0D] group-hover:text-[#0A5CE6] transition-colors leading-tight">
+                {degree.title}
+              </h4>
+
+              <span className="text-xs md:text-sm font-medium text-[#0A5CE6] uppercase">
+                {degree.duration}
+              </span>
+
+              {degree.gpa && (
+                <span className="text-xs md:text-sm text-[#0D0D0D]/45">
+                  {degree.gpa}
+                </span>
               )}
             </div>
 
-            <p className="mt-2 md:mt-3 text-xs md:text-sm text-[#0D0D0D]/65 leading-relaxed">
-              {item.summary}
-            </p>
+            <span className="text-[10px] font-mono text-[#0D0D0D]/40 uppercase tracking-widest md:text-right shrink-0">
+              {degree.tenure}
+            </span>
           </div>
 
-          <motion.div
-            animate={{ rotate: open ? 180 : 0 }}
-            transition={{ duration: 0.25 }}
-            className="text-[#0D0D0D]/40 shrink-0 mt-0.5"
-          >
-            <ChevronDown className="w-4 h-4 md:w-5 md:h-5" />
-          </motion.div>
+          <div className="mt-0.5 md:mt-1.5">
+            <span className="text-sm font-medium text-[#0D0D0D]/60 leading-relaxed">
+              {degree.specialization}
+            </span>
+          </div>
         </div>
 
         <AnimatePresence>
-          {open && (
+          {isExpanded && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               className="overflow-hidden"
             >
-              <div className="mt-4 md:mt-5 pt-4 md:pt-5 border-t border-[#E5E7EB]">
-                <p className="text-xs md:text-sm text-[#0D0D0D]/70 leading-relaxed whitespace-pre-line">
-                  {item.description}
-                </p>
-              </div>
+              <DegreeDetails details={degree.details} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -203,123 +277,176 @@ const AwardCard = ({ item }: { item: AwardItem }) => {
   );
 };
 
-const AwardsHeader = () => (
-  <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
+// Top-level institution card. The institution header expands to show the
+// university and Prerit summary, and degree nodes live below it.
+const EducationCard = ({ item }: { item: EducationItem }) => {
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+
+  return (
+    <div
+      id={buildAnchorId("education", item.university)}
+      className="relative scroll-mt-28"
     >
-      <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#0D0D0D] tracking-tighter leading-none">
-        AWARDS & <span className="text-[#FF6B00]">RECOGNITIONS</span>
-      </h1>
-
-      <p className="mt-3 md:mt-4 text-base sm:text-lg md:text-xl text-[#0D0D0D]/50 max-w-3xl leading-relaxed font-light">
-        A curated record of professional honors, industry recognition, and
-        technical contributions across engineering, research, and innovation.
-      </p>
-    </motion.div>
-  </div>
-);
-
-// The marquee is decorative but data-driven. Duplicating the array creates a
-// seamless loop when paired with the existing marquee CSS.
-const AwardsMarquee = ({ items }: { items: AwardItem[] }) => (
-  <div className="mt-8 md:mt-10 mb-8 md:mb-12 marquee-wrapper">
-    <div className="absolute left-0 top-0 h-full w-12 md:w-20 bg-gradient-to-r from-white to-transparent z-10" />
-    <div className="absolute right-0 top-0 h-full w-12 md:w-20 bg-gradient-to-l from-white to-transparent z-10" />
-
-    <div className="marquee gap-3 md:gap-6">
-      {[...items, ...items].map((item, index) => (
-        <div
-          key={`${item.category}-${item.title}-${index}`}
-          className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap"
-        >
-          <span className="text-xs md:text-sm font-medium text-[#0D0D0D] flex items-center gap-1.5 md:gap-2">
-            <span>{item.category === "Awards" ? "\u{1F3C6}" : "\u2B50"}</span>
-            {item.title}
-          </span>
+      <div className="absolute left-[12px] top-8 w-6 h-6 flex items-center justify-center z-20 -translate-x-1/2">
+        <div className="w-6 h-6 rounded-full bg-[#FF6B00] flex items-center justify-center shadow-lg shadow-[#FF6B00]/20">
+          <Building2 className="w-3 h-3 text-white" />
         </div>
-      ))}
+      </div>
+
+      <div className="ml-10 md:ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] hover:border-[#D1D5DB]">
+        <div
+          onClick={() => setIsSummaryExpanded((current) => !current)}
+          className="group cursor-pointer mb-4 md:mb-6"
+        >
+          <div className="flex flex-col gap-3 md:gap-4">
+            <div className="flex flex-row items-start justify-between gap-3 md:gap-6">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-[#0D0D0D] tracking-tight group-hover:text-[#FF6B00] transition-colors duration-300 leading-tight">
+                  {item.university}
+                </h3>
+
+                {item.college && item.college !== "N/A" && (
+                  <p className="text-xs sm:text-sm text-[#0D0D0D]/55 mt-1.5 md:mt-2">
+                    {item.college}
+                  </p>
+                )}
+
+                <div className="flex flex-wrap items-center gap-2 md:gap-4 mt-1.5 md:mt-2">
+                  <span className="text-[10px] md:text-xs font-mono text-[#0D0D0D]/40 uppercase tracking-[0.2em]">
+                    {item.location}
+                  </span>
+                  <span className="text-[10px] md:text-xs font-mono text-[#0D0D0D]/40 uppercase tracking-[0.2em]">
+                    {item.tenure}
+                  </span>
+                </div>
+              </div>
+
+              <a
+                href={item.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(event) => event.stopPropagation()}
+                className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-2xl bg-white border border-[#E5E7EB] flex items-center justify-center overflow-hidden shrink-0 hover:shadow-md transition-all"
+              >
+                <img
+                  src={item.logo}
+                  alt={item.university}
+                  className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 object-contain"
+                />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {isSummaryExpanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 md:mt-6 p-4 md:p-6 border-l-4 border-[#FF6B00] bg-white rounded-r-xl">
+                <div className="text-[#0D0D0D]/75 text-sm leading-relaxed font-normal">
+                  {item.summary}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="relative mt-4 md:mt-6 pt-4 md:pt-6 border-t border-[#E5E7EB]">
+          <div className="pl-0">
+            {item.degrees.map((degree, index) => (
+              <div key={index} className="mb-6 md:mb-8 last:mb-0">
+                <DegreeNode
+                  degree={degree}
+                  isLast={index === item.degrees.length - 1}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  );
+};
+
+// Page title, subtitle, and the small "Academic Background" divider row.
+const EducationHeader = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    className="mb-10 md:mb-16 lg:mb-20"
+  >
+    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tighter text-[#0D0D0D] mb-4 md:mb-6 leading-none">
+      EDUCATION
+    </h1>
+
+    <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
+      Academic milestones that shaped the engineering, systems, and research
+      foundation behind the journey.
+    </p>
+
+    <div className="mt-6 md:mt-10 flex items-center gap-4">
+      <div className="h-[1px] w-12 bg-[#0A5CE6]" />
+      <span className="text-xs uppercase tracking-[0.2em] text-[#0D0D0D]/40 whitespace-nowrap">
+        Academic Background
+      </span>
+      <div className="h-[1px] flex-1 bg-[#E5E7EB]" />
+    </div>
+  </motion.div>
 );
 
-const AwardsTabs = ({
-  active,
-  onTabChange,
-}: {
-  active: Category;
-  onTabChange: (tab: Category) => void;
-}) => (
-  <div className="flex flex-wrap gap-2 md:gap-3 mb-8 md:mb-10">
-    {TABS.map((tab) => (
-      <TabButton key={tab} tab={tab} active={active} onClick={onTabChange} />
-    ))}
-  </div>
-);
+// Vertical wrapper for all education cards. Individual cards own their own
+// expansion state.
+const EducationTimeline = ({ items }: { items: EducationItem[] }) => (
+  <div className="relative flex flex-col gap-8 md:gap-12">
+    <div className="absolute left-[11px] top-8 h-[calc(100%-250px)] w-[2.2px] bg-[#E5E7EB]" />
 
-const AwardsList = ({ items }: { items: AwardItem[] }) => (
-  <div className="space-y-3 md:space-y-5">
-    {items.map((item) => (
+    {items.map((item, index) => (
       <motion.div
-        key={item.title}
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.35 }}
+        key={index}
+        initial={{ opacity: 0, x: -20 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.5, delay: index * 0.1 }}
+        className="relative"
       >
-        <AwardCard item={item} />
+        <EducationCard item={item} />
       </motion.div>
     ))}
   </div>
 );
 
-// Entry point: normalize awards/recognitions, derive the marquee and active tab
-// lists, then compose the page.
-export default function Awards() {
+// Entry point: read education data from context, adapt it, then render.
+export default function Education() {
   const { data, loading } = useAppData();
   const location = useLocation();
-  const [active, setActive] = useState<Category>(() =>
-    getCategoryFromSearch(location.search),
-  );
 
-  const mappedData = useMemo(
-    () =>
-      data
-        ? buildAwardItems({
-            awards: data.awards as RawAward[],
-            recognitions: data.recognitions as RawRecognition[],
-          })
-        : [],
-    [data],
-  );
-
-  const marqueeItems = useMemo(() => getMarqueeItems(mappedData), [mappedData]);
-  const filteredItems = useMemo(
-    () => getFilteredItems(mappedData, active),
-    [active, mappedData],
+  const educationItems = useMemo(
+    () => buildEducationItems((data?.education || []) as RawEducationRow[]),
+    [data?.education],
   );
 
   useEffect(() => {
-    setActive(getCategoryFromSearch(location.search));
-  }, [location.search]);
-
-  useEffect(() => {
-    if (!loading && filteredItems.length) {
+    if (!loading && educationItems.length) {
       scrollToHash(location.hash);
     }
-  }, [filteredItems, loading, location.hash]);
+  }, [educationItems, loading, location.hash]);
 
-  if (loading || !data) return <LoadingState />;
+  if (loading) return <LoadingState />;
+  if (!data || !data.education) return null;
 
   return (
-    <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
-      <div className="max-w-6xl mx-auto">
-        <AwardsHeader />
-        <AwardsMarquee items={marqueeItems} />
-        <AwardsTabs active={active} onTabChange={setActive} />
-        <AwardsList items={filteredItems} />
+    <div className="w-full bg-white min-h-screen pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
+      <div className="max-w-5xl mx-auto">
+        <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+          <EducationHeader />
+          <EducationTimeline items={educationItems} />
+        </div>
       </div>
     </div>
   );
