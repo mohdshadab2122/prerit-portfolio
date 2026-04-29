@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Search } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { Search } from "lucide-react";
+import { motion } from "motion/react";
 import { useAppData } from "../Context/DataContext";
 
 /*
@@ -390,8 +390,8 @@ const SearchField = ({
   </div>
 );
 
-// Mobile patents use an accordion layout to keep dense jurisdiction data
-// readable without changing the desktop table experience.
+// Mobile patents use stacked cards, matching the publication card rhythm. This
+// keeps every filing visible without requiring a tap to expand each family.
 const MobilePatentCard = ({
   family,
   index,
@@ -405,129 +405,99 @@ const MobilePatentCard = ({
   itemsPerPage: number;
   country: JurisdictionFilter;
 }) => {
-  const [expanded, setExpanded] = useState(false);
   const jurisdictionRows = getJurisdictionRows(family);
   const grantedCount = jurisdictionRows.filter(([, member]) =>
     isGranted(member?.status),
   ).length;
+  const rowNumber = (page - 1) * itemsPerPage + index + 1;
 
   return (
-    <div
-      className={`border border-[#E5E7EB] rounded-2xl overflow-hidden transition-shadow duration-200 ${
-        index % 2 === 0 ? "bg-white" : "bg-[#F9F9F9]"
-      } ${expanded ? "shadow-md border-[#D1D5DB]" : ""}`}
-    >
-      <button
-        onClick={() => setExpanded((value) => !value)}
-        className="w-full text-left p-4 flex items-start gap-3 group"
-      >
-        <span className="text-[11px] text-gray-400 font-mono mt-[3px] shrink-0 w-5 text-right">
-          {(page - 1) * itemsPerPage + index + 1}.
-        </span>
-
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold text-[#0D0D0D] leading-snug break-words hyphens-auto">
-            {getPatentDisplayTitle(family, country)}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-1.5 mt-2">
-            {jurisdictionRows.map(([label]) => (
-              <span
-                key={label}
-                className="text-[10px] px-2 py-[2px] bg-[#F4F4F5] text-[#0D0D0D]/55 rounded-md font-mono"
-              >
-                {label}
-              </span>
-            ))}
-
-            {grantedCount > 0 && (
-              <>
-                <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                <span className="text-[10px] px-2 py-[2px] bg-[#FFF4EB] text-[#FF6B00] rounded-md font-medium">
-                  {grantedCount} Granted
-                </span>
-              </>
-            )}
+    <div className="bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 py-4 flex flex-col gap-3 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[#0D0D0D]/40">
+            <span>{String(rowNumber).padStart(2, "0")}</span>
+            <span className="h-1 w-1 rounded-full bg-[#FF6B00]" />
+            <span>Patent Family</span>
           </div>
+
+          <h3 className="text-sm sm:text-[15px] font-medium text-[#0D0D0D] leading-snug break-words hyphens-auto">
+            {getPatentDisplayTitle(family, country)}
+          </h3>
         </div>
 
-        <span className="shrink-0 mt-[3px] text-gray-400 group-hover:text-[#0A5CE6] transition-colors">
-          {expanded ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </span>
-      </button>
+        {grantedCount > 0 && (
+          <span className="shrink-0 rounded-md bg-[#FFF4EB] px-2 py-[3px] text-[10px] font-medium text-[#FF6B00]">
+            {grantedCount} Granted
+          </span>
+        )}
+      </div>
 
-      <AnimatePresence initial={false}>
-        {expanded && (
-          <motion.div
-            key="body"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="overflow-hidden"
+      <div className="flex flex-wrap items-center gap-1.5">
+        {jurisdictionRows.map(([label]) => (
+          <span
+            key={label}
+            className="text-[10px] px-2 py-[2px] bg-white border border-[#E5E7EB] text-[#0D0D0D]/55 rounded-md font-mono"
           >
-            <div className="px-4 pb-4 border-t border-[#E5E7EB]">
-              <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400 mt-3 mb-2">
-                Family Members
-              </p>
+            {label}
+          </span>
+        ))}
+      </div>
 
-              <div className="space-y-2">
-                {jurisdictionRows.map(([label, member]) => (
-                  <div
-                    key={label}
-                    className="bg-white border border-[#E5E7EB] rounded-xl p-3"
+      <div className="grid gap-2">
+        {jurisdictionRows.map(([label, member]) => (
+          <div
+            key={label}
+            className="rounded-lg border border-[#E5E7EB] bg-white px-3 py-2.5"
+          >
+            <div className="mb-1.5 flex items-center justify-between gap-3">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0D0D0D]/45">
+                {label}
+              </span>
+              <StatusBadge status={member?.status} />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[13px] font-mono font-semibold text-[#0D0D0D] break-words">
+                {member?.number}
+              </span>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {member?.date && (
+                  <span className="text-[11px] text-[#0D0D0D]/45">
+                    {formatDate(member.date)}
+                  </span>
+                )}
+
+                {member?.link && (
+                  <a
+                    href={member.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full sm:w-fit items-center justify-center rounded-md border border-[#E5E7EB] px-3 py-1.5 text-[11px] font-medium text-[#0A5CE6] transition-colors hover:bg-[#F9F9F9]"
                   >
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-[#0D0D0D]/45">
-                        {label}
-                      </span>
-                      <StatusBadge status={member?.status} />
-                    </div>
-
-                    <p className="text-[13px] font-mono text-[#0D0D0D] font-semibold mb-1.5">
-                      {member?.number}
-                    </p>
-
-                    <div className="flex items-center gap-3 flex-wrap">
-                      {member?.date && (
-                        <span className="text-[11px] text-gray-400">
-                          {formatDate(member.date)}
-                        </span>
-                      )}
-                      {member?.link && (
-                        <a
-                          href={member.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[11px] px-2.5 py-[3px] border border-[#E5E7EB] rounded-lg bg-[#F9F9F9] hover:bg-gray-100 text-[#0A5CE6] font-medium transition-colors"
-                        >
-                          View PDF ↗
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-3 pt-3 border-t border-[#E5E7EB]">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-gray-400 mb-1">
-                  Inventors
-                </p>
-                <p className="text-xs text-gray-600 leading-relaxed">
-                  <InventorList
-                    inventors={family.inventors}
-                    featuredClassName="font-semibold text-[#0D0D0D]"
-                  />
-                </p>
+                    View PDF
+                  </a>
+                )}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        ))}
+      </div>
+
+      {family.inventors.length > 0 && (
+        <div className="border-t border-[#E5E7EB] pt-3">
+          <p className="mb-1 text-[10px] font-mono uppercase tracking-widest text-[#0D0D0D]/35">
+            Inventors
+          </p>
+          <p className="text-xs leading-relaxed text-[#0D0D0D]/60">
+            <InventorList
+              inventors={family.inventors}
+              featuredClassName="font-semibold text-[#0D0D0D]"
+            />
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -614,7 +584,7 @@ const PatentDesktopTable = ({
   </div>
 );
 
-// Responsive patent view: mobile uses accordion cards, desktop uses the full
+// Responsive patent view: mobile uses stacked cards, desktop uses the full
 // jurisdiction comparison table.
 const PatentsView = ({
   families,
@@ -626,7 +596,7 @@ const PatentsView = ({
   country: JurisdictionFilter;
 }) => (
   <>
-    <div className="lg:hidden space-y-2 mt-4">
+    <div className="lg:hidden space-y-4 md:space-y-6 mt-4">
       {families.map((family, index) => (
         <MobilePatentCard
           key={index}
@@ -651,35 +621,45 @@ const DefensivePublicationsView = ({
   publications: DefensivePublication[];
 }) => (
   <>
-    <div className="md:hidden mt-4 space-y-3">
+    <div className="md:hidden mt-4 space-y-4 md:space-y-6">
       {publications.map((publication, index) => (
         <div
           key={index}
-          className={`border border-[#E5E7EB] rounded-xl p-4 ${
-            index % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
-          }`}
+          className="bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 py-4 flex flex-col gap-3 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]"
         >
-          <p className="text-sm font-medium text-[#0D0D0D] mb-2 leading-snug break-words hyphens-auto">
-            {publication.title}
-          </p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-            <span>
-              <span className="font-medium text-gray-600">Number:</span>{" "}
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[#0D0D0D]/40">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <span className="h-1 w-1 rounded-full bg-[#FF6B00]" />
+              <span>Defensive Publication</span>
+            </div>
+            <h3 className="text-sm sm:text-[15px] font-medium text-[#0D0D0D] leading-snug break-words hyphens-auto">
+              {publication.title}
+            </h3>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 text-xs text-[#0D0D0D]/60">
+            <span className="rounded-md border border-[#E5E7EB] bg-white px-2 py-1">
               {publication.number}
             </span>
-            <span>
-              <span className="font-medium text-gray-600">Status:</span>{" "}
+            <span className="rounded-md border border-[#E5E7EB] bg-white px-2 py-1">
               {publication.status}
             </span>
-            <span>
-              <span className="font-medium text-gray-600">Date:</span>{" "}
+            <span className="rounded-md border border-[#E5E7EB] bg-white px-2 py-1">
               {formatDate(publication.date)}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            <span className="font-medium text-gray-600">Inventors:</span>{" "}
-            {publication.inventors.join(", ")}
-          </p>
+
+          {publication.inventors.length > 0 && (
+            <div className="border-t border-[#E5E7EB] pt-3">
+              <p className="mb-1 text-[10px] font-mono uppercase tracking-widest text-[#0D0D0D]/35">
+                Inventors
+              </p>
+              <p className="text-xs leading-relaxed text-[#0D0D0D]/60">
+                {publication.inventors.join(", ")}
+              </p>
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -718,27 +698,39 @@ const TradeSecretsView = ({
   tradeSecrets: TradeSecret[];
 }) => (
   <>
-    <div className="sm:hidden mt-4 space-y-3">
+    <div className="sm:hidden mt-4 space-y-4">
       {tradeSecrets.map((tradeSecret, index) => (
         <div
           key={index}
-          className={`border border-[#E5E7EB] rounded-xl p-4 ${
-            index % 2 === 0 ? "bg-white" : "bg-[#F4F4F5]"
-          }`}
+          className="bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 py-4 flex flex-col gap-3 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]"
         >
-          <p className="text-sm font-medium text-[#0D0D0D] mb-2 leading-snug break-words">
-            {tradeSecret.title}
-          </p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
-            <span>
-              <span className="font-medium text-gray-600">Date:</span>{" "}
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.18em] text-[#0D0D0D]/40">
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <span className="h-1 w-1 rounded-full bg-[#FF6B00]" />
+              <span>Trade Secret</span>
+            </div>
+            <h3 className="text-sm sm:text-[15px] font-medium text-[#0D0D0D] leading-snug break-words hyphens-auto">
+              {tradeSecret.title}
+            </h3>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 text-xs text-[#0D0D0D]/60">
+            <span className="rounded-md border border-[#E5E7EB] bg-white px-2 py-1">
               {formatDate(tradeSecret.date)}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            <span className="font-medium text-gray-600">Inventors:</span>{" "}
-            {tradeSecret.inventors.join(", ")}
-          </p>
+
+          {tradeSecret.inventors.length > 0 && (
+            <div className="border-t border-[#E5E7EB] pt-3">
+              <p className="mb-1 text-[10px] font-mono uppercase tracking-widest text-[#0D0D0D]/35">
+                Inventors
+              </p>
+              <p className="text-xs leading-relaxed text-[#0D0D0D]/60">
+                {tradeSecret.inventors.join(", ")}
+              </p>
+            </div>
+          )}
         </div>
       ))}
     </div>
