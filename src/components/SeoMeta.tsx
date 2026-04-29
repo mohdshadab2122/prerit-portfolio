@@ -131,6 +131,18 @@ const upsertCanonical = (href: string) => {
   link.href = href;
 };
 
+const upsertIconLink = (rel: string, href: string) => {
+  let link = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = rel;
+    document.head.appendChild(link);
+  }
+
+  link.href = href;
+};
+
 const upsertStructuredData = (
   home: HomeProfile | undefined,
   canonicalUrl: string,
@@ -193,6 +205,8 @@ export default function SeoMeta() {
 
     document.title = title;
     upsertCanonical(canonicalUrl);
+    upsertIconLink("icon", imageUrl);
+    upsertIconLink("apple-touch-icon", imageUrl);
 
     upsertMeta("name", "description", description);
     upsertMeta("name", "keywords", keywords);
