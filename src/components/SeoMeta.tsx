@@ -25,6 +25,8 @@ interface HomeProfile {
 }
 
 const DEFAULT_TITLE = "Professional Portfolio";
+const DEFAULT_IMAGE = "/social-preview.png";
+const DEFAULT_FAVICON = "/favicon.svg";
 const DEFAULT_DESCRIPTION =
   "A dynamic professional portfolio highlighting experience, education, publications, intellectual property, awards, recognitions, and contact information.";
 const DEFAULT_KEYWORDS = [
@@ -199,14 +201,13 @@ export default function SeoMeta() {
     const description = buildDescription(home);
     const keywords = buildKeywords(home);
     const canonicalUrl = `${window.location.origin}${location.pathname}`;
-    const imageUrl = getAbsoluteUrl(
-      getDriveImage(home?.photo) || "/favicon.png",
-    );
+    const imageUrl = getAbsoluteUrl(getDriveImage(home?.photo) || DEFAULT_IMAGE);
+    const faviconUrl = getAbsoluteUrl(getDriveImage(home?.photo) || DEFAULT_FAVICON);
 
     document.title = title;
     upsertCanonical(canonicalUrl);
-    upsertIconLink("icon", imageUrl);
-    upsertIconLink("apple-touch-icon", imageUrl);
+    upsertIconLink("icon", faviconUrl);
+    upsertIconLink("apple-touch-icon", faviconUrl);
 
     upsertMeta("name", "description", description);
     upsertMeta("name", "keywords", keywords);

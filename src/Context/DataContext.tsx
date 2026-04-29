@@ -314,6 +314,11 @@ interface TradeSecretsResponse {
   tradeSecrets?: ApiTradeSecretRow[];
 }
 
+interface PortfolioSectionResult {
+  sections: Omit<AppDataType, "home">;
+  hasFailures: boolean;
+}
+
 const CACHE_KEY = "appData";
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
@@ -327,6 +332,19 @@ const fetchPage = async <T,>(page: string): Promise<T> => {
   }
 
   return response.json() as Promise<T>;
+};
+
+const fetchOptionalPage = async <T,>(
+  page: string,
+  fallback: T,
+  onFailure: (page: string, error: unknown) => void,
+): Promise<T> => {
+  try {
+    return await fetchPage<T>(page);
+  } catch (error) {
+    onFailure(page, error);
+    return fallback;
+  }
 };
 
 const isCacheExpired = (timestamp: number) =>
@@ -603,7 +621,13 @@ const fetchHomeData = async (): Promise<HomeProfile[]> => {
 
 // Home loads first for perceived speed. The heavier portfolio sections are
 // fetched afterwards and merged into the already-rendered Home shell.
-const fetchPortfolioSections = async (): Promise<Omit<AppDataType, "home">> => {
+const fetchPortfolioSections = async (): Promise<PortfolioSectionResult> => {
+  const failedPages: string[] = [];
+  const handleSectionFailure = (page: string, error: unknown) => {
+    failedPages.push(page);
+    console.error(`PORTFOLIO SECTION FETCH ERROR (${page}):`, error);
+  };
+
   const [
     awardsJson,
     recognitionsJson,
@@ -616,37 +640,68 @@ const fetchPortfolioSections = async (): Promise<Omit<AppDataType, "home">> => {
     defensiveJson,
     tradeJson,
   ] = await Promise.all([
-    fetchPage<AwardsResponse>("awards"),
-    fetchPage<RecognitionsResponse>("recognitions"),
-    fetchPage<ExperienceResponse>("experience"),
-    fetchPage<EducationResponse>("education"),
-    fetchPage<PublicationConferencesResponse>("publication_conferences"),
-    fetchPage<PublicationJournalsResponse>("publication_journals"),
-    fetchPage<PublicationPreprintsResponse>("publication_preprints"),
-    fetchPage<PatentsResponse>("patents"),
-    fetchPage<DefensivePublicationsResponse>("defensive_publications"),
-    fetchPage<TradeSecretsResponse>("trade_secrets"),
+    fetchOptionalPage<AwardsResponse>("awards", {}, handleSectionFailure),
+    fetchOptionalPage<RecognitionsResponse>(
+      "recognitions",
+      {},
+      handleSectionFailure,
+    ),
+    fetchOptionalPage<ExperienceResponse>(
+      "experience",
+      {},
+      handleSectionFailure,
+    ),
+    fetchOptionalPage<EducationResponse>("education", {}, handleSectionFailure),
+    fetchOptionalPage<PublicationConferencesResponse>(
+      "publication_conferences",
+      {},
+      handleSectionFailure,
+    ),
+    fetchOptionalPage<PublicationJournalsResponse>(
+      "publication_journals",
+      {},
+      handleSectionFailure,
+    ),
+    fetchOptionalPage<PublicationPreprintsResponse>(
+      "publication_preprints",
+      {},
+      handleSectionFailure,
+    ),
+    fetchOptionalPage<PatentsResponse>("patents", {}, handleSectionFailure),
+    fetchOptionalPage<DefensivePublicationsResponse>(
+      "defensive_publications",
+      {},
+      handleSectionFailure,
+    ),
+    fetchOptionalPage<TradeSecretsResponse>(
+      "trade_secrets",
+      {},
+      handleSectionFailure,
+    ),
   ]);
 
   return {
-    patents: formatPatents(asArray(patentsJson.patents)),
-    defensivePublications: formatDefensivePublications(
-      asArray(defensiveJson.defensivePublications),
-    ),
-    tradeSecrets: formatTradeSecrets(asArray(tradeJson.tradeSecrets)),
-    experiences: formatExperiences(asArray(experienceJson.experiences)),
-    education: formatEducation(asArray(educationJson.education)),
-    publicationConferences: formatConferences(
-      asArray(publicationJson.publicationConferences),
-    ),
-    publicationJournals: formatJournals(
-      asArray(journalsJson.publicationJournals),
-    ),
-    publicationPreprints: formatPreprints(
-      asArray(preprintsJson.publicationPreprints),
-    ),
-    awards: formatAwards(asArray(awardsJson.awards)),
-    recognitions: formatRecognitions(asArray(recognitionsJson.recognitions)),
+    sections: {
+      patents: formatPatents(asArray(patentsJson.patents)),
+      defensivePublications: formatDefensivePublications(
+        asArray(defensiveJson.defensivePublications),
+      ),
+      tradeSecrets: formatTradeSecrets(asArray(tradeJson.tradeSecrets)),
+      experiences: formatExperiences(asArray(experienceJson.experiences)),
+      education: formatEducation(asArray(educationJson.education)),
+      publicationConferences: formatConferences(
+        asArray(publicationJson.publicationConferences),
+      ),
+      publicationJournals: formatJournals(
+        asArray(journalsJson.publicationJournals),
+      ),
+      publicationPreprints: formatPreprints(
+        asArray(preprintsJson.publicationPreprints),
+      ),
+      awards: formatAwards(asArray(awardsJson.awards)),
+      recognitions: formatRecognitions(asArray(recognitionsJson.recognitions)),
+    },
+    hasFailures: failedPages.length > 0,
   };
 };
 
@@ -674,7 +729,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
 
         try {
-          const sections = await fetchPortfolioSections();
+          const { sections, hasFailures } = await fetchPortfolioSections();
           if (cancelled) return;
 
           const completeData = {
@@ -682,7 +737,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
             home,
           };
 
-          writeCachedData(completeData);
+          if (!hasFailures) {
+            writeCachedData(completeData);
+          }
+
           setData(completeData);
         } catch (sectionError) {
           console.error("BACKGROUND DATA FETCH ERROR:", sectionError);

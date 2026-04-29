@@ -75,7 +75,7 @@ interface AwardSummary {
   description?: string;
 }
 
-const FALLBACK_IMAGE = "/fallback.png";
+const FALLBACK_IMAGE = "/fallback.svg";
 const MAX_FEATURED_ITEMS = 3;
 
 // Executive summary cards can be 1, 2, or 3 columns depending on the sheet data.

@@ -54,7 +54,7 @@ interface EducationItem {
   location: string;
 }
 
-const FALLBACK_LOGO = "/fallback.png";
+const FALLBACK_LOGO = "/fallback.svg";
 const COMPLETED_STATUS = "Completed";
 const DEFAULT_OWNER_NAME = "Portfolio Owner";
 

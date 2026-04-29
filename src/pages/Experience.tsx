@@ -72,7 +72,7 @@ interface ExperienceStats {
   leadershipRoles: number;
 }
 
-const FALLBACK_LOGO = "/fallback.png";
+const FALLBACK_LOGO = "/fallback.svg";
 const PRESENT_LABEL = "Present";
 const LEADERSHIP_ROLE_PATTERN = /manager|director|lead|ceo|founder/i;
 const DEFAULT_OWNER_NAME = "Portfolio Owner";
