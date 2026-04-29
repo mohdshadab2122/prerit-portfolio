@@ -1,7 +1,10 @@
 import { motion } from 'motion/react';
 import { Settings, Code, Monitor, Zap } from 'lucide-react';
+import { useAppData } from '../Context/DataContext';
 
 export default function Skills() {
+  const { data } = useAppData();
+  const ownerName = data?.home?.[0]?.name || 'Professional Portfolio';
   const categories = [
     {
       title: 'Engineering Disciplines',
@@ -185,7 +188,7 @@ export default function Skills() {
             </div>
           </div>
           <p className="text-[#0D0D0D]/20 text-[10px] font-mono uppercase tracking-widest">
-            © PRERIT PRAMOD // TECHNICAL INVENTORY v2.0
+            © {ownerName.toUpperCase()} // TECHNICAL INVENTORY v2.0
           </p>
         </motion.div>
       </div>

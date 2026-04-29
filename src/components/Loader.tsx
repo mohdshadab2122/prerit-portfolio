@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
+import { buildPortfolioPageUrl } from "../config/portfolioApi";
 
 /*
  * Loader
@@ -34,8 +35,6 @@ interface LoaderProfile {
   domain: string;
 }
 
-const API_BASE_URL =
-  "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec";
 const CACHE_KEY = "appData";
 const DEFAULT_PROFILE: LoaderProfile = {
   name: "Professional Portfolio",
@@ -70,7 +69,7 @@ const readProfileFromCache = (): LoaderProfile | null => {
 // The Home endpoint is small, so the loader can safely fetch only that tab
 // without waiting for every portfolio section to finish.
 const fetchProfileFromHomeTab = async (): Promise<LoaderProfile | null> => {
-  const response = await fetch(`${API_BASE_URL}?page=home`);
+  const response = await fetch(buildPortfolioPageUrl("home"));
   if (!response.ok) return null;
 
   const payload = (await response.json()) as HomeResponse;

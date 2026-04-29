@@ -56,6 +56,7 @@ interface EducationItem {
 
 const FALLBACK_LOGO = "/fallback.png";
 const COMPLETED_STATUS = "Completed";
+const DEFAULT_OWNER_NAME = "Portfolio Owner";
 
 // Anchor IDs mirror the Home.tsx education card links, allowing users to jump
 // straight to the matching institution card.
@@ -146,7 +147,10 @@ const splitLocation = (location?: string) => {
 
 // The API returns one flattened row per education entry. This adapter creates
 // the timeline shape consumed by the visual components below.
-const buildEducationItems = (rows: RawEducationRow[]): EducationItem[] =>
+const buildEducationItems = (
+  rows: RawEducationRow[],
+  ownerName: string,
+): EducationItem[] =>
   rows.map((row) => {
     const location = splitLocation(row.location);
     const tenure = formatMonthYear(row.year);
@@ -165,7 +169,7 @@ const buildEducationItems = (rows: RawEducationRow[]): EducationItem[] =>
             <strong>{row.university}</strong> {row.universityDesc}
           </p>
           <p className="mt-4">
-            <strong>Prerit Pramod</strong> {row.preritDesc}
+            <strong>{ownerName}</strong> {row.preritDesc}
           </p>
         </>
       ),
@@ -425,10 +429,15 @@ const EducationTimeline = ({ items }: { items: EducationItem[] }) => (
 export default function Education() {
   const { data, loading } = useAppData();
   const location = useLocation();
+  const ownerName = data?.home?.[0]?.name || DEFAULT_OWNER_NAME;
 
   const educationItems = useMemo(
-    () => buildEducationItems((data?.education || []) as RawEducationRow[]),
-    [data?.education],
+    () =>
+      buildEducationItems(
+        (data?.education || []) as RawEducationRow[],
+        ownerName,
+      ),
+    [data?.education, ownerName],
   );
 
   useEffect(() => {

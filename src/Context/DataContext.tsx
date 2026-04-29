@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { buildPortfolioPageUrl } from "../config/portfolioApi";
 
 /*
  * DataContext
@@ -313,17 +314,13 @@ interface TradeSecretsResponse {
   tradeSecrets?: ApiTradeSecretRow[];
 }
 
-const API_BASE_URL =
-  "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec";
 const CACHE_KEY = "appData";
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 const DataContext = createContext<DataContextValue | null>(null);
 
-const buildPageUrl = (page: string) => `${API_BASE_URL}?page=${page}`;
-
 const fetchPage = async <T,>(page: string): Promise<T> => {
-  const response = await fetch(buildPageUrl(page));
+  const response = await fetch(buildPortfolioPageUrl(page));
 
   if (!response.ok) {
     throw new Error(`Failed to fetch ${page}: ${response.status}`);

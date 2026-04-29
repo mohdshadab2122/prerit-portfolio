@@ -86,10 +86,11 @@ public/
 Create a `.env` file in the project root when running locally.
 
 ```env
+VITE_PORTFOLIO_API_URL=your_portfolio_apps_script_endpoint
 VITE_CONTACT_FORM_URL=your_contact_form_endpoint
 ```
 
-`VITE_CONTACT_FORM_URL` is used by the contact page to submit form data. The portfolio data endpoint is configured in the app data layer.
+`VITE_PORTFOLIO_API_URL` is used by the shared portfolio API config for all spreadsheet reads. `VITE_CONTACT_FORM_URL` is used by the contact page to submit form data.
 
 ## Getting Started
 

@@ -75,6 +75,7 @@ interface ExperienceStats {
 const FALLBACK_LOGO = "/fallback.png";
 const PRESENT_LABEL = "Present";
 const LEADERSHIP_ROLE_PATTERN = /manager|director|lead|ceo|founder/i;
+const DEFAULT_OWNER_NAME = "Portfolio Owner";
 
 // Anchor IDs must match Home.tsx links so preview cards can deep-link directly
 // to the company timeline card.
@@ -248,15 +249,15 @@ const groupByCompany = (rows: RawExperienceRow[]): CompanyGroup[] => {
   return Array.from(companyMap.values());
 };
 
-const buildCompanySummary = (company: CompanyGroup) => (
+const buildCompanySummary = (company: CompanyGroup, ownerName: string) => (
   <>
     <p>
       <strong>{company.name}</strong>{" "}
       {removeLeadingName(company.companyDesc, company.name)}
     </p>
     <p className="mt-4">
-      <strong>Prerit Pramod</strong>{" "}
-      {removeLeadingName(company.contribution, "Prerit Pramod")}
+      <strong>{ownerName}</strong>{" "}
+      {removeLeadingName(company.contribution, ownerName)}
     </p>
   </>
 );
@@ -268,6 +269,7 @@ const buildCompanySummary = (company: CompanyGroup) => (
 // - sorts companies by their latest role date
 const buildCompanyTimeline = (
   rows: RawExperienceRow[],
+  ownerName: string,
 ): CompanyTimelineItem[] =>
   groupByCompany(rows)
     .map((company) => {
@@ -289,7 +291,7 @@ const buildCompanyTimeline = (
         website: company.website,
         tenure: `${company.location} \u2022 ${tenure}`,
         duration: calculateDuration(`${start} - ${end}`),
-        summary: buildCompanySummary(company),
+        summary: buildCompanySummary(company, ownerName),
         roles: rolesSorted.map((role) => ({
           title: role.role || "",
           type: role.type || "",
@@ -652,6 +654,7 @@ const ExperienceTimeline = ({
 export default function Experience() {
   const { data, loading } = useAppData();
   const location = useLocation();
+  const ownerName = data?.home?.[0]?.name || DEFAULT_OWNER_NAME;
 
   const rawExperiences = (data?.experiences || []) as RawExperienceRow[];
 
@@ -660,8 +663,8 @@ export default function Experience() {
     [rawExperiences],
   );
   const companies = useMemo(
-    () => buildCompanyTimeline(rawExperiences),
-    [rawExperiences],
+    () => buildCompanyTimeline(rawExperiences, ownerName),
+    [ownerName, rawExperiences],
   );
 
   useEffect(() => {

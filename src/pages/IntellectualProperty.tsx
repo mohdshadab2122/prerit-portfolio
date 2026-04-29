@@ -64,7 +64,6 @@ interface PatentStats {
 }
 
 const ITEMS_PER_PAGE = 10;
-const FEATURED_INVENTOR = "prerit pramod";
 
 // Data-driven navigation definitions keep button rendering simple.
 const TABS: IntellectualPropertyTab[] = [
@@ -119,6 +118,8 @@ const STAT_CARDS: Array<{
 ];
 
 const normalizeText = (value: string) => value.toLowerCase();
+
+const normalizePersonName = (value?: string) => normalizeText(value || "").trim();
 
 const isGranted = (status?: string) => status?.toLowerCase() === "grant";
 
@@ -259,24 +260,35 @@ const filterTradeSecrets = (tradeSecrets: TradeSecret[], search: string) => {
 // across patent cards and tables.
 const InventorList = ({
   inventors,
+  featuredInventor,
   featuredClassName = "font-semibold",
 }: {
   inventors: string[];
+  featuredInventor?: string;
   featuredClassName?: string;
-}) => (
-  <>
-    {inventors.map((inventor, index) => (
-      <span key={index}>
-        {inventor.toLowerCase() === FEATURED_INVENTOR ? (
-          <span className={featuredClassName}>Prerit Pramod</span>
-        ) : (
-          inventor
-        )}
-        {index !== inventors.length - 1 && ", "}
-      </span>
-    ))}
-  </>
-);
+}) => {
+  const featuredName = normalizePersonName(featuredInventor);
+
+  return (
+    <>
+      {inventors.map((inventor, index) => {
+        const isFeatured =
+          featuredName && normalizePersonName(inventor) === featuredName;
+
+        return (
+          <span key={index}>
+            {isFeatured ? (
+              <span className={featuredClassName}>{featuredInventor}</span>
+            ) : (
+              inventor
+            )}
+            {index !== inventors.length - 1 && ", "}
+          </span>
+        );
+      })}
+    </>
+  );
+};
 
 // Shared filing status badge. "Grant" uses the orange success treatment; all
 // other statuses retain the blue in-progress style.
@@ -398,12 +410,14 @@ const MobilePatentCard = ({
   page,
   itemsPerPage,
   country,
+  featuredInventor,
 }: {
   family: PatentFamily;
   index: number;
   page: number;
   itemsPerPage: number;
   country: JurisdictionFilter;
+  featuredInventor?: string;
 }) => {
   const [expanded, setExpanded] = useState(false);
   const jurisdictionRows = getJurisdictionRows(family);
@@ -520,6 +534,7 @@ const MobilePatentCard = ({
                 <p className="text-xs text-gray-600 leading-relaxed">
                   <InventorList
                     inventors={family.inventors}
+                    featuredInventor={featuredInventor}
                     featuredClassName="font-semibold text-[#0D0D0D]"
                   />
                 </p>
@@ -569,10 +584,12 @@ const PatentDesktopTable = ({
   families,
   page,
   country,
+  featuredInventor,
 }: {
   families: PatentFamily[];
   page: number;
   country: JurisdictionFilter;
+  featuredInventor?: string;
 }) => (
   <div className="hidden lg:block mt-4 border border-[#E5E7EB] rounded-xl overflow-hidden">
     <div className="grid grid-cols-[40px_2fr_1.6fr_1.6fr_1.6fr_1.6fr_2fr] gap-x-6 px-6 py-4 text-xs text-gray-500 border-b border-[#E5E7EB]">
@@ -606,7 +623,10 @@ const PatentDesktopTable = ({
             <PatentJurisdictionCell key={memberIndex} member={member} />
           ))}
           <div className="text-[13px]">
-            <InventorList inventors={family.inventors} />
+            <InventorList
+              inventors={family.inventors}
+              featuredInventor={featuredInventor}
+            />
           </div>
         </div>
       );
@@ -620,10 +640,12 @@ const PatentsView = ({
   families,
   page,
   country,
+  featuredInventor,
 }: {
   families: PatentFamily[];
   page: number;
   country: JurisdictionFilter;
+  featuredInventor?: string;
 }) => (
   <>
     <div className="lg:hidden space-y-2 mt-4">
@@ -635,11 +657,17 @@ const PatentsView = ({
           page={page}
           itemsPerPage={ITEMS_PER_PAGE}
           country={country}
+          featuredInventor={featuredInventor}
         />
       ))}
     </div>
 
-    <PatentDesktopTable families={families} page={page} country={country} />
+    <PatentDesktopTable
+      families={families}
+      page={page}
+      country={country}
+      featuredInventor={featuredInventor}
+    />
   </>
 );
 
@@ -818,6 +846,7 @@ export default function IntellectualProperty() {
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState<JurisdictionFilter>("ALL");
   const [page, setPage] = useState(1);
+  const ownerName = data?.home?.[0]?.name || "";
 
   const patentFamilies = (data?.patents || []) as PatentFamily[];
   const defensivePublications = (data?.defensivePublications ||
@@ -947,6 +976,7 @@ export default function IntellectualProperty() {
             families={paginated as PatentFamily[]}
             page={page}
             country={country}
+            featuredInventor={ownerName}
           />
         )}
 
