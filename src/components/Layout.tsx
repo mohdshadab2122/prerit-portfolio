@@ -12,13 +12,15 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useAppData } from "../Context/DataContext";
+import SeoMeta from "./SeoMeta";
 
 /*
  * Layout component
  *
  * This component owns the shared page frame: sticky navigation, mobile menu,
- * routed page content, and footer. Page-specific content is rendered through
- * <Outlet />, while profile/social links are read from DataContext.
+ * dynamic SEO metadata, routed page content, and footer. Page-specific content
+ * is rendered through <Outlet />, while profile/social links are read from
+ * DataContext.
  */
 
 interface NavLinkItem {
@@ -38,7 +40,8 @@ interface HomeLinks {
   patents?: string;
 }
 
-const BUSINESS_SITE_URL = "https://inspiredinnovation.in/";
+const BUSINESS_SITE_URL = import.meta.env.VITE_BUSINESS_SITE_URL || "";
+const DEFAULT_SITE_NAME = "Professional Portfolio";
 
 const NAV_LINKS: NavLinkItem[] = [
   { name: "Home", path: "/" },
@@ -73,30 +76,34 @@ const buildSocialLinks = (links: HomeLinks): SocialLinkItem[] => [
 const isActivePath = (currentPath: string, linkPath: string) =>
   currentPath === linkPath;
 
-const BrandLink = () => (
+const BrandLink = ({ name }: { name: string }) => (
   <Link
     to="/"
     className="text-base lg:text-xl font-bold tracking-tight shrink-0"
   >
-    PRERIT PRAMOD
+    {name.toUpperCase()}
   </Link>
 );
 
-const BusinessSiteLink = ({ mobile = false }: { mobile?: boolean }) => (
-  <a
-    href={BUSINESS_SITE_URL}
-    target="_blank"
-    rel="noopener noreferrer"
-    className={
-      mobile
-        ? "mt-2 inline-flex items-center gap-2 bg-near-black text-white px-4 py-2.5 text-sm font-medium hover:bg-near-black/90 transition-colors rounded-lg w-fit"
-        : "hidden lg:inline-flex items-center gap-1.5 xl:gap-2 bg-near-black text-white px-3 xl:px-5 py-2 xl:py-2.5 text-[13px] xl:text-sm font-medium hover:bg-near-black/90 transition-colors whitespace-nowrap"
-    }
-  >
-    Visit Business Site
-    <ExternalLink className={mobile ? "w-4 h-4" : "w-3 h-3 xl:w-4 xl:h-4"} />
-  </a>
-);
+const BusinessSiteLink = ({ mobile = false }: { mobile?: boolean }) => {
+  if (!BUSINESS_SITE_URL) return null;
+
+  return (
+    <a
+      href={BUSINESS_SITE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={
+        mobile
+          ? "mt-2 inline-flex items-center gap-2 bg-near-black text-white px-4 py-2.5 text-sm font-medium hover:bg-near-black/90 transition-colors rounded-lg w-fit"
+          : "hidden lg:inline-flex items-center gap-1.5 xl:gap-2 bg-near-black text-white px-3 xl:px-5 py-2 xl:py-2.5 text-[13px] xl:text-sm font-medium hover:bg-near-black/90 transition-colors whitespace-nowrap"
+      }
+    >
+      Visit Business Site
+      <ExternalLink className={mobile ? "w-4 h-4" : "w-3 h-3 xl:w-4 xl:h-4"} />
+    </a>
+  );
+};
 
 const DesktopNav = ({ pathname }: { pathname: string }) => (
   <nav className="hidden lg:flex items-center gap-3 xl:gap-8">
@@ -180,15 +187,17 @@ const Header = ({
   menuOpen,
   onToggleMenu,
   onCloseMenu,
+  profileName,
 }: {
   pathname: string;
   menuOpen: boolean;
   onToggleMenu: () => void;
   onCloseMenu: () => void;
+  profileName: string;
 }) => (
   <header className="sticky top-0 z-50 bg-soft-grey/90 backdrop-blur-md border-b border-black/5">
     <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 lg:h-20 flex items-center justify-between">
-      <BrandLink />
+      <BrandLink name={profileName} />
       <DesktopNav pathname={pathname} />
 
       <div className="flex items-center gap-3">
@@ -201,12 +210,18 @@ const Header = ({
   </header>
 );
 
-const Footer = ({ socialLinks }: { socialLinks: SocialLinkItem[] }) => (
+const Footer = ({
+  profileName,
+  socialLinks,
+}: {
+  profileName: string;
+  socialLinks: SocialLinkItem[];
+}) => (
   <footer className="bg-near-black text-white py-12 lg:py-16">
     <div className="max-w-[1400px] mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8">
       <div className="text-center md:text-left">
         <h2 className="text-xl lg:text-2xl font-bold tracking-tight mb-2">
-          PRERIT PRAMOD
+          {profileName.toUpperCase()}
         </h2>
         <p className="text-white/60 text-base lg:text-lg italic">
           "Think deeper. Build bolder. Learn without limits."
@@ -246,22 +261,26 @@ export default function Layout() {
   const { data } = useAppData();
 
   const homeData = data?.home?.[0];
+  const profileName = homeData?.name || DEFAULT_SITE_NAME;
   const socialLinks = buildSocialLinks(homeData?.links || {});
 
   return (
     <div className="min-h-screen flex flex-col bg-soft-grey text-near-black">
+      <SeoMeta />
+
       <Header
         pathname={location.pathname}
         menuOpen={menuOpen}
         onToggleMenu={() => setMenuOpen((current) => !current)}
         onCloseMenu={() => setMenuOpen(false)}
+        profileName={profileName}
       />
 
       <main className="flex-grow">
         <Outlet />
       </main>
 
-      <Footer socialLinks={socialLinks} />
+      <Footer profileName={profileName} socialLinks={socialLinks} />
     </div>
   );
 }
