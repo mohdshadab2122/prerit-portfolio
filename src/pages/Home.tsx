@@ -94,7 +94,6 @@ const BULLET_DOT = "w-1.5 h-1.5 bg-[#0A5CE6]/40 rounded-full mt-2 shrink-0";
 const BODY_TEXT = "text-sm text-[#0D0D0D]/70 leading-relaxed";
 const MAX_HOME_BULLETS = 2;
 const MAX_BULLET_LENGTH = 120;
-const MAX_EXECUTIVE_CARD_LENGTH = 260;
 
 // Converts a Google Drive share link into an embeddable image URL.
 const getDriveImage = (link?: string) => {
@@ -206,7 +205,7 @@ const parseExecutiveCard = (card: string) => {
   const [title, ...contentLines] = card.split("\n");
   return {
     title,
-    content: truncateText(contentLines.join("\n"), MAX_EXECUTIVE_CARD_LENGTH),
+    content: contentLines.join("\n"),
   };
 };
 
