@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
+import { getPageIntro } from "../config/pageContent";
 
 /*
  * Awards page
@@ -203,7 +204,7 @@ const AwardCard = ({ item }: { item: AwardItem }) => {
   );
 };
 
-const AwardsHeader = () => (
+const AwardsHeader = ({ intro }: { intro: string }) => (
   <div className="pt-6 md:pt-12 pb-8 md:pb-12">
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -215,8 +216,7 @@ const AwardsHeader = () => (
       </h1>
 
       <p className="mt-3 md:mt-4 text-base sm:text-lg md:text-xl text-[#0D0D0D]/50 max-w-3xl leading-relaxed font-light">
-        A curated record of professional honors, industry recognition, and
-        technical contributions across engineering, research, and innovation.
+        {intro}
       </p>
     </motion.div>
   </div>
@@ -280,6 +280,7 @@ const AwardsList = ({ items }: { items: AwardItem[] }) => (
 export default function Awards() {
   const { data, loading } = useAppData();
   const location = useLocation();
+  const intro = getPageIntro(data?.pageContent, "awards");
   const [active, setActive] = useState<Category>(() =>
     getCategoryFromSearch(location.search),
   );
@@ -316,7 +317,7 @@ export default function Awards() {
   return (
     <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
-        <AwardsHeader />
+        <AwardsHeader intro={intro} />
         <AwardsMarquee items={marqueeItems} />
         <AwardsTabs active={active} onTabChange={setActive} />
         <AwardsList items={filteredItems} />

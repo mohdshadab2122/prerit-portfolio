@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Building2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
+import { getPageIntro } from "../config/pageContent";
 
 /*
  * Experience page
@@ -608,7 +609,13 @@ const ExperienceStatsGrid = ({ stats }: { stats: ExperienceStats | null }) => {
 };
 
 // Page headline and stat summary.
-const ExperienceHeader = ({ stats }: { stats: ExperienceStats | null }) => (
+const ExperienceHeader = ({
+  intro,
+  stats,
+}: {
+  intro: string;
+  stats: ExperienceStats | null;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -619,8 +626,7 @@ const ExperienceHeader = ({ stats }: { stats: ExperienceStats | null }) => (
       EXPERIENCE
     </h1>
     <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
-      A visual map of engineering leadership, research, and product innovation
-      across two levels of progression.
+      {intro}
     </p>
 
     <ExperienceStatsGrid stats={stats} />
@@ -655,6 +661,7 @@ export default function Experience() {
   const { data, loading } = useAppData();
   const location = useLocation();
   const ownerName = data?.home?.[0]?.name || DEFAULT_OWNER_NAME;
+  const intro = getPageIntro(data?.pageContent, "experience");
 
   const rawExperiences = (data?.experiences || []) as RawExperienceRow[];
 
@@ -679,7 +686,7 @@ export default function Experience() {
     <div className="w-full bg-white min-h-screen pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-5xl mx-auto">
         <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-          <ExperienceHeader stats={stats} />
+          <ExperienceHeader intro={intro} stats={stats} />
           <ExperienceTimeline companies={companies} />
         </div>
       </div>

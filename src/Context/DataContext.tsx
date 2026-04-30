@@ -134,6 +134,13 @@ interface ApiRecognitionRow {
   description?: string;
 }
 
+interface ApiPageContentRow {
+  pageKey?: string;
+  blockKey?: string;
+  title?: string;
+  body?: string;
+}
+
 interface PatentMember {
   jurisdiction: "US" | "DE" | "CN" | "EP";
   number: string;
@@ -246,6 +253,13 @@ interface RecognitionItem {
   description?: string;
 }
 
+interface PageContentBlock {
+  pageKey?: string;
+  blockKey?: string;
+  title?: string;
+  body?: string;
+}
+
 export interface AppDataType {
   patents: PatentFamily[];
   defensivePublications: DefensivePublicationItem[];
@@ -257,6 +271,7 @@ export interface AppDataType {
   publicationPreprints: PublicationPreprint[];
   awards: AwardItem[];
   recognitions: RecognitionItem[];
+  pageContent: PageContentBlock[];
   home: HomeProfile[];
 }
 
@@ -314,12 +329,16 @@ interface TradeSecretsResponse {
   tradeSecrets?: ApiTradeSecretRow[];
 }
 
+interface PageContentResponse {
+  pageContent?: ApiPageContentRow[];
+}
+
 interface PortfolioSectionResult {
   sections: Omit<AppDataType, "home">;
   hasFailures: boolean;
 }
 
-const CACHE_KEY = "appData";
+const CACHE_KEY = "appData_v2";
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -584,6 +603,14 @@ const formatRecognitions = (rows: ApiRecognitionRow[]): RecognitionItem[] =>
     description: row.description,
   }));
 
+const formatPageContent = (rows: ApiPageContentRow[]): PageContentBlock[] =>
+  rows.map((row) => ({
+    pageKey: row.pageKey,
+    blockKey: row.blockKey,
+    title: row.title,
+    body: row.body,
+  }));
+
 const formatHome = (rows: ApiHomeRow[]): HomeProfile[] =>
   rows.map((row) => ({
     name: row.name || "",
@@ -611,6 +638,7 @@ const createEmptyAppData = (home: HomeProfile[] = []): AppDataType => ({
   publicationPreprints: [],
   awards: [],
   recognitions: [],
+  pageContent: [],
   home,
 });
 
@@ -639,6 +667,7 @@ const fetchPortfolioSections = async (): Promise<PortfolioSectionResult> => {
     patentsJson,
     defensiveJson,
     tradeJson,
+    pageContentJson,
   ] = await Promise.all([
     fetchOptionalPage<AwardsResponse>("awards", {}, handleSectionFailure),
     fetchOptionalPage<RecognitionsResponse>(
@@ -678,6 +707,11 @@ const fetchPortfolioSections = async (): Promise<PortfolioSectionResult> => {
       {},
       handleSectionFailure,
     ),
+    fetchOptionalPage<PageContentResponse>(
+      "page_content",
+      {},
+      handleSectionFailure,
+    ),
   ]);
 
   return {
@@ -700,6 +734,7 @@ const fetchPortfolioSections = async (): Promise<PortfolioSectionResult> => {
       ),
       awards: formatAwards(asArray(awardsJson.awards)),
       recognitions: formatRecognitions(asArray(recognitionsJson.recognitions)),
+      pageContent: formatPageContent(asArray(pageContentJson.pageContent)),
     },
     hasFailures: failedPages.length > 0,
   };

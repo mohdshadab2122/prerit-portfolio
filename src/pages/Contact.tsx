@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useAppData } from "../Context/DataContext";
+import { getContactSideInfo, getPageIntro } from "../config/pageContent";
 
 /*
  * Contact page
@@ -104,22 +105,7 @@ const CONTACT_FIELD_ROWS: TextInputConfig[][] = [
   ],
 ];
 
-const SIDE_INFO_CARDS: SideInfoCard[] = [
-  {
-    title: "Professional Inquiries",
-    body: "Open to engineering consulting, product strategy, innovation advisory, patent and IP discussions, research collaborations, and speaking engagements.",
-  },
-  {
-    title: "Response Window",
-    body: "Most professional inquiries are typically reviewed within 2\u20135 business days.",
-  },
-  {
-    title: "Advisory & Collaboration",
-    body: "Particularly relevant for mobility, electric motors, steering systems, autonomous sensing, deep-tech innovation, and IP strategy.",
-  },
-];
-
-const ContactHeader = () => (
+const ContactHeader = ({ intro }: { intro: string }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -130,8 +116,7 @@ const ContactHeader = () => (
       GET IN <span className="text-[#FF6B00]">TOUCH</span>
     </h1>
     <p className="text-base sm:text-lg md:text-xl text-[#0D0D0D]/50 max-w-3xl leading-relaxed font-light">
-      For consulting, technical advisory, collaboration, speaking opportunities,
-      or professional inquiries, use the form below.
+      {intro}
     </p>
   </motion.div>
 );
@@ -318,9 +303,9 @@ const ContactForm = ({
   </div>
 );
 
-const SideInfo = () => (
+const SideInfo = ({ cards }: { cards: SideInfoCard[] }) => (
   <div className="hidden md:flex md:flex-col space-y-3 md:space-y-5">
-    {SIDE_INFO_CARDS.map((card, index) => (
+    {cards.map((card, index) => (
       <div
         key={index}
         className="border border-[#E5E7EB] rounded-2xl md:rounded-3xl p-5 md:p-7 bg-[#FAFAFA]"
@@ -347,6 +332,8 @@ export default function Contact() {
 
   const scriptURL = import.meta.env.VITE_CONTACT_FORM_URL;
   const fallbackLinkedIn = data?.home?.[0]?.links?.linkedin || "";
+  const intro = getPageIntro(data?.pageContent, "contact");
+  const sideInfoCards = getContactSideInfo(data?.pageContent);
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -401,7 +388,7 @@ export default function Contact() {
     <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-          <ContactHeader />
+          <ContactHeader intro={intro} />
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] lg:grid-cols-[1fr_420px] gap-6 md:gap-10 items-start">
             <ContactForm
@@ -413,7 +400,7 @@ export default function Contact() {
               onChange={handleChange}
               onSubmit={handleSubmit}
             />
-            <SideInfo />
+            <SideInfo cards={sideInfoCards} />
           </div>
         </div>
       </div>

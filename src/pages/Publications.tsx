@@ -3,6 +3,7 @@ import { ExternalLink, Search } from "lucide-react";
 import { motion } from "motion/react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
+import { getPageIntro } from "../config/pageContent";
 
 /*
  * Publications page
@@ -250,7 +251,13 @@ const StatCard = ({
 
 // Page header and category stats. Stats summarize the full publications set,
 // not only the active tab.
-const PublicationsHeader = ({ stats }: { stats: PublicationStats }) => (
+const PublicationsHeader = ({
+  intro,
+  stats,
+}: {
+  intro: string;
+  stats: PublicationStats;
+}) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -262,9 +269,7 @@ const PublicationsHeader = ({ stats }: { stats: PublicationStats }) => (
     </h1>
 
     <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-7 md:mb-12">
-      A structured archive of conference papers, journal publications, and
-      preprints across electric machines, control systems, motion control,
-      sensing, and advanced drive systems.
+      {intro}
     </p>
 
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
@@ -439,6 +444,7 @@ export default function Publications() {
     () => getCategoryFromSearch(location.search),
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const intro = getPageIntro(data?.pageContent, "publications");
 
   const publications = useMemo(
     () =>
@@ -480,7 +486,7 @@ export default function Publications() {
     <div className="w-full bg-white min-h-screen pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-          <PublicationsHeader stats={stats} />
+          <PublicationsHeader intro={intro} stats={stats} />
           <PublicationsToolbar
             activeCategory={activeCategory}
             searchQuery={searchQuery}

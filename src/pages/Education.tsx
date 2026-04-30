@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Building2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Context/DataContext";
+import { getPageIntro } from "../config/pageContent";
 
 /*
  * Education page
@@ -396,7 +397,7 @@ const EducationCard = ({ item }: { item: EducationItem }) => {
 };
 
 // Page title, subtitle, and the small "Academic Background" divider row.
-const EducationHeader = () => (
+const EducationHeader = ({ intro }: { intro: string }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -408,8 +409,7 @@ const EducationHeader = () => (
     </h1>
 
     <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-3xl leading-relaxed font-light">
-      Academic milestones that shaped the engineering, systems, and research
-      foundation behind the journey.
+      {intro}
     </p>
 
     <div className="mt-6 md:mt-10 flex items-center gap-4">
@@ -448,6 +448,7 @@ export default function Education() {
   const { data, loading } = useAppData();
   const location = useLocation();
   const ownerName = data?.home?.[0]?.name || DEFAULT_OWNER_NAME;
+  const intro = getPageIntro(data?.pageContent, "education");
 
   const educationItems = useMemo(
     () =>
@@ -471,7 +472,7 @@ export default function Education() {
     <div className="w-full bg-white min-h-screen pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-5xl mx-auto">
         <div className="pt-6 md:pt-12 pb-8 md:pb-12">
-          <EducationHeader />
+          <EducationHeader intro={intro} />
           <EducationTimeline items={educationItems} />
         </div>
       </div>

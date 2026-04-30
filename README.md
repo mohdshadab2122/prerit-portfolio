@@ -70,6 +70,7 @@ src/
 
   config/
     portfolioApi.ts             Shared Google Apps Script API configuration
+    pageContent.ts              Spreadsheet-driven page intro and side-card copy helpers
 
   pages/
     Home.tsx                    Home page
@@ -149,6 +150,8 @@ The app is a client-side React SPA, so production hosting must route all page re
 ## Content Maintenance
 
 Most portfolio updates should be made in the connected Google Sheets source. Keep publish flags accurate so only approved rows are shown on the public website.
+
+The `Page Content` sheet controls reusable page-level copy. Use `pageKey` for the page, `blockKey` for the content slot, and keep `Publish Flag` set to `TRUE` for public text. Current blocks include page `intro` rows plus Contact side-card rows such as `professional_inquiries`, `response_window`, and `advisory_collaboration`.
 
 When adding a new content section:
 

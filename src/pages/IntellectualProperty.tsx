@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useAppData } from "../Context/DataContext";
+import { getPageIntro } from "../config/pageContent";
 
 /*
  * Intellectual Property page
@@ -846,6 +847,7 @@ export default function IntellectualProperty() {
   const [search, setSearch] = useState("");
   const [country, setCountry] = useState<JurisdictionFilter>("ALL");
   const [page, setPage] = useState(1);
+  const intro = getPageIntro(data?.pageContent, "intellectual_property");
   const ownerName = data?.home?.[0]?.name || "";
 
   const patentFamilies = (data?.patents || []) as PatentFamily[];
@@ -920,10 +922,7 @@ export default function IntellectualProperty() {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-[#0D0D0D]/40 max-w-4xl leading-relaxed font-light mb-8 md:mb-12">
-            A structured portfolio of patent families, defensive publications,
-            and formal trade secrets spanning motion control, power electronics,
-            electric drive systems, steer-by-wire, and advanced embedded
-            engineering.
+            {intro}
           </p>
 
           <div className="grid grid-cols-[repeat(2,minmax(0,1fr))] lg:grid-cols-4 gap-3 md:gap-4 mb-10 md:mb-16">
