@@ -244,7 +244,13 @@ const AwardsHeader = ({ intro }: { intro: string }) => (
 
 // The marquee duplicates the data array for a seamless loop. Each pill is also
 // a deep link to its matching record below.
-const AwardsMarquee = ({ items }: { items: AwardItem[] }) => (
+const AwardsMarquee = ({
+  items,
+  onCategorySelect,
+}: {
+  items: AwardItem[];
+  onCategorySelect: (category: Category) => void;
+}) => (
   <div className="mt-8 md:mt-10 mb-8 md:mb-12 marquee-wrapper">
     <div className="absolute left-0 top-0 h-full w-12 md:w-20 bg-gradient-to-r from-white to-transparent z-10" />
     <div className="absolute right-0 top-0 h-full w-12 md:w-20 bg-gradient-to-l from-white to-transparent z-10" />
@@ -254,6 +260,7 @@ const AwardsMarquee = ({ items }: { items: AwardItem[] }) => (
         <Link
           key={`${item.category}-${item.title}-${index}`}
           to={buildAwardLink(item)}
+          onClick={() => onCategorySelect(item.category)}
           aria-label={`Open ${item.title} details`}
           className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap transition-all duration-200 hover:border-[#FF6B00]/50 hover:bg-white hover:text-[#0A5CE6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5CE6] focus-visible:ring-offset-2"
         >
@@ -309,8 +316,9 @@ export default function Awards() {
   const { data, loading } = useAppData();
   const location = useLocation();
   const intro = getPageIntro(data?.pageContent, "awards");
+  const targetCategory = getCategoryFromSearch(location.search);
   const [active, setActive] = useState<Category>(() =>
-    getCategoryFromSearch(location.search),
+    targetCategory,
   );
 
   const mappedData = useMemo(
@@ -331,18 +339,18 @@ export default function Awards() {
   );
   const highlightedId = useHashHighlight(
     location.hash,
-    !loading && filteredItems.length > 0,
+    !loading && active === targetCategory && filteredItems.length > 0,
   );
 
   useEffect(() => {
-    setActive(getCategoryFromSearch(location.search));
-  }, [location.search]);
+    setActive(targetCategory);
+  }, [targetCategory]);
 
   useEffect(() => {
-    if (!loading && filteredItems.length) {
+    if (!loading && active === targetCategory && filteredItems.length) {
       scrollToHash(location.hash);
     }
-  }, [filteredItems, loading, location.hash]);
+  }, [active, filteredItems, loading, location.hash, targetCategory]);
 
   if (loading || !data) return <LoadingState />;
 
@@ -350,7 +358,10 @@ export default function Awards() {
     <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
         <AwardsHeader intro={intro} />
-        <AwardsMarquee items={marqueeItems} />
+        <AwardsMarquee
+          items={marqueeItems}
+          onCategorySelect={setActive}
+        />
         <AwardsTabs active={active} onTabChange={setActive} />
         <AwardsList items={filteredItems} highlightedId={highlightedId} />
       </div>
