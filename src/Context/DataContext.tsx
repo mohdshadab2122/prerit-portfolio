@@ -748,10 +748,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     let cancelled = false;
 
     const cachedData = readCachedData();
+    const hasWarmCache = Boolean(cachedData);
+
     if (cachedData) {
       setData(cachedData);
       setLoading(false);
-      return;
     }
 
     const loadData = async () => {
@@ -759,8 +760,17 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         const home = await fetchHomeData();
         if (cancelled) return;
 
-        const initialData = createEmptyAppData(home);
-        setData(initialData);
+        // Cached data should render immediately, then be refreshed in the
+        // background. Without this, valid localStorage can hide spreadsheet
+        // edits until the full cache TTL expires.
+        if (!hasWarmCache) {
+          setData(createEmptyAppData(home));
+        } else {
+          setData((currentData) =>
+            currentData ? { ...currentData, home } : createEmptyAppData(home),
+          );
+        }
+
         setLoading(false);
 
         try {
@@ -782,7 +792,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         }
       } catch (err) {
         console.error("DATA FETCH ERROR:", err);
-        if (!cancelled) {
+        if (!cancelled && !hasWarmCache) {
           setData(createEmptyAppData());
           setLoading(false);
         }
