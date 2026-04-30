@@ -338,7 +338,7 @@ interface PortfolioSectionResult {
   hasFailures: boolean;
 }
 
-const CACHE_KEY = "appData_v2";
+const CACHE_KEY = "appData";
 const CACHE_TTL_MS = 60 * 60 * 1000;
 
 const DataContext = createContext<DataContextValue | null>(null);
