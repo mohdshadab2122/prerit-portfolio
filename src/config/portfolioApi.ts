@@ -2,15 +2,17 @@
  * Shared portfolio API configuration.
  *
  * Both the main data provider and the loader need to call the same Apps Script
- * deployment. Keeping the URL in one place prevents the two fetch paths from
- * drifting when the spreadsheet deployment changes.
+ * deployment. The URL is intentionally required through environment config so
+ * cloned deployments cannot accidentally point at someone else's spreadsheet.
  */
 
-const DEFAULT_PORTFOLIO_API_URL =
-  "https://script.google.com/macros/s/AKfycbx_4dB3V7MHMCxNWSmFy_oIzHKC9bSsfxQfhdKymk3v-fkudJq_QC7FedHd_bgTsj2R/exec";
-
 export const PORTFOLIO_API_BASE_URL =
-  import.meta.env.VITE_PORTFOLIO_API_URL || DEFAULT_PORTFOLIO_API_URL;
+  import.meta.env.VITE_PORTFOLIO_API_URL?.trim() || "";
 
-export const buildPortfolioPageUrl = (page: string) =>
-  `${PORTFOLIO_API_BASE_URL}?page=${encodeURIComponent(page)}`;
+export const buildPortfolioPageUrl = (page: string) => {
+  if (!PORTFOLIO_API_BASE_URL) {
+    throw new Error("Missing required environment variable: VITE_PORTFOLIO_API_URL");
+  }
+
+  return `${PORTFOLIO_API_BASE_URL}?page=${encodeURIComponent(page)}`;
+};

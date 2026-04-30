@@ -93,7 +93,7 @@ VITE_PORTFOLIO_API_URL=your_portfolio_apps_script_endpoint
 VITE_CONTACT_FORM_URL=your_contact_form_endpoint
 ```
 
-`VITE_PORTFOLIO_API_URL` is used by the shared portfolio API config for all spreadsheet reads. `VITE_CONTACT_FORM_URL` is used by the contact page to submit form data.
+`VITE_PORTFOLIO_API_URL` is required by the shared portfolio API config for all spreadsheet reads. The app does not include a production data fallback because each deployment should point to its own spreadsheet API. `VITE_CONTACT_FORM_URL` is used by the contact page to submit form data.
 
 ## Getting Started
 

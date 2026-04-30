@@ -53,25 +53,35 @@ const NAV_LINKS: NavLinkItem[] = [
   { name: "Contact", path: "/contact" },
 ];
 
-// Social links are driven by the Home sheet. Missing links gracefully fall back
-// to "#", matching the original component behavior.
-const buildSocialLinks = (links: HomeLinks): SocialLinkItem[] => [
-  {
-    href: links.linkedin || "#",
-    icon: <Linkedin className="w-5 h-5 lg:w-6 lg:h-6" />,
-    label: "LinkedIn",
-  },
-  {
-    href: links.scholar || "#",
-    icon: <GraduationCap className="w-5 h-5 lg:w-6 lg:h-6" />,
-    label: "Google Scholar",
-  },
-  {
-    href: links.patents || "#",
-    icon: <FileText className="w-5 h-5 lg:w-6 lg:h-6" />,
-    label: "Google Patents",
-  },
-];
+// Social links are driven by the Home sheet. Missing links are omitted so the
+// footer never renders inert "#" links.
+const buildSocialLinks = (links: HomeLinks): SocialLinkItem[] => {
+  const socialLinks: Array<SocialLinkItem | null> = [
+    links.linkedin
+      ? {
+          href: links.linkedin,
+          icon: <Linkedin className="w-5 h-5 lg:w-6 lg:h-6" />,
+          label: "LinkedIn",
+        }
+      : null,
+    links.scholar
+      ? {
+          href: links.scholar,
+          icon: <GraduationCap className="w-5 h-5 lg:w-6 lg:h-6" />,
+          label: "Google Scholar",
+        }
+      : null,
+    links.patents
+      ? {
+          href: links.patents,
+          icon: <FileText className="w-5 h-5 lg:w-6 lg:h-6" />,
+          label: "Google Patents",
+        }
+      : null,
+  ];
+
+  return socialLinks.filter((link): link is SocialLinkItem => link !== null);
+};
 
 const isActivePath = (currentPath: string, linkPath: string) =>
   currentPath === linkPath;
