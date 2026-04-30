@@ -471,7 +471,7 @@ export default function Education() {
   return (
     <div className="w-full bg-white min-h-screen pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-5xl mx-auto">
-        <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+        <div className="pt-3 md:pt-8 pb-8 md:pb-12">
           <EducationHeader intro={intro} />
           <EducationTimeline items={educationItems} />
         </div>

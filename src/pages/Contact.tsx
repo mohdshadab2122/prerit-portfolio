@@ -387,7 +387,7 @@ export default function Contact() {
   return (
     <div className="w-full min-h-screen bg-white pt-8 md:pt-12 pb-12 md:pb-16 px-4 md:px-6 font-sans">
       <div className="max-w-6xl mx-auto">
-        <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+        <div className="pt-3 md:pt-8 pb-8 md:pb-12">
           <ContactHeader intro={intro} />
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_380px] lg:grid-cols-[1fr_420px] gap-6 md:gap-10 items-start">

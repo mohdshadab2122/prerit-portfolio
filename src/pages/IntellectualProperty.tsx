@@ -916,7 +916,7 @@ export default function IntellectualProperty() {
   return (
     <div className="bg-white min-h-screen">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 pt-8 md:pt-12 pb-12 md:pb-16">
-        <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+        <div className="pt-3 md:pt-8 pb-8 md:pb-12">
           <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-7xl font-bold tracking-tighter leading-none mb-5 md:mb-8">
             INTELLECTUAL <span className="text-[#FF6B00]">PROPERTY</span>
           </h1>

@@ -205,7 +205,7 @@ const AwardCard = ({ item }: { item: AwardItem }) => {
 };
 
 const AwardsHeader = ({ intro }: { intro: string }) => (
-  <div className="pt-6 md:pt-12 pb-8 md:pb-12">
+  <div className="pt-3 md:pt-8 pb-8 md:pb-12">
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
