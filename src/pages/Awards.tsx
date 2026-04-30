@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
 import {
@@ -69,6 +69,12 @@ const slugifyAnchor = (value?: string) => {
 
 const buildAnchorId = (prefix: string, value?: string) =>
   `${prefix}-${slugifyAnchor(value)}`;
+
+const buildAwardLink = (item: AwardItem) =>
+  `/awards?category=${encodeURIComponent(item.category)}#${buildAnchorId(
+    "award",
+    item.title,
+  )}`;
 
 const scrollToHash = (hash: string) => {
   const targetId = decodeURIComponent(hash.replace("#", ""));
@@ -236,8 +242,8 @@ const AwardsHeader = ({ intro }: { intro: string }) => (
   </div>
 );
 
-// The marquee is decorative but data-driven. Duplicating the array creates a
-// seamless loop when paired with the existing marquee CSS.
+// The marquee duplicates the data array for a seamless loop. Each pill is also
+// a deep link to its matching record below.
 const AwardsMarquee = ({ items }: { items: AwardItem[] }) => (
   <div className="mt-8 md:mt-10 mb-8 md:mb-12 marquee-wrapper">
     <div className="absolute left-0 top-0 h-full w-12 md:w-20 bg-gradient-to-r from-white to-transparent z-10" />
@@ -245,15 +251,17 @@ const AwardsMarquee = ({ items }: { items: AwardItem[] }) => (
 
     <div className="marquee gap-3 md:gap-6">
       {[...items, ...items].map((item, index) => (
-        <div
+        <Link
           key={`${item.category}-${item.title}-${index}`}
-          className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap"
+          to={buildAwardLink(item)}
+          aria-label={`Open ${item.title} details`}
+          className="flex items-center gap-2 md:gap-3 px-3 md:px-5 py-1.5 md:py-2 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] shadow-sm whitespace-nowrap transition-all duration-200 hover:border-[#FF6B00]/50 hover:bg-white hover:text-[#0A5CE6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5CE6] focus-visible:ring-offset-2"
         >
           <span className="text-xs md:text-sm font-medium text-[#0D0D0D] flex items-center gap-1.5 md:gap-2">
             <span>{item.category === "Awards" ? "\u{1F3C6}" : "\u2B50"}</span>
             {item.title}
           </span>
-        </div>
+        </Link>
       ))}
     </div>
   </div>
