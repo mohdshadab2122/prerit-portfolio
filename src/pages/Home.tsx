@@ -199,6 +199,11 @@ const getCardGridClass = (cards: string[]) =>
   CARD_GRID_BY_COUNT[cards.length] ||
   "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 
+// Mobile home sections use horizontal snap rows so the page feels shorter and
+// easier to scan, while tablet/desktop layouts keep their existing grids.
+const MOBILE_CARD_ROW_CLASS =
+  "-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0";
+
 // The API currently stores each executive card as a single text block where the
 // first line is the heading and the remaining lines are body copy.
 const parseExecutiveCard = (card: string) => {
@@ -219,7 +224,7 @@ const getAwardInstitution = (award: AwardSummary) =>
   award.institution || award.organization || "";
 
 const CARD_LINK_CLASS =
-  "block h-full rounded-2xl no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5CE6] focus-visible:ring-offset-4";
+  "block h-full w-[min(84vw,22rem)] shrink-0 snap-start rounded-2xl no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0A5CE6] focus-visible:ring-offset-4 sm:w-auto";
 
 const CardAction = () => (
   <div className="mt-auto pt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-[#0A5CE6]">
@@ -417,7 +422,7 @@ const ExecutiveSummary = ({ cards }: { cards: string[] }) => {
     <div className="bg-white pb-10 sm:pb-14 lg:pb-20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div
-          className={`grid gap-4 sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}
+          className={`${MOBILE_CARD_ROW_CLASS} sm:gap-6 lg:gap-8 ${getCardGridClass(cards)}`}
         >
           {cards.map((card, index) => {
             const { title, content } = parseExecutiveCard(card);
@@ -429,7 +434,7 @@ const ExecutiveSummary = ({ cards }: { cards: string[] }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.45, delay: index * 0.08 }}
-                className="p-5 sm:p-6 lg:p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+                className="w-[min(84vw,22rem)] shrink-0 snap-start p-5 sm:w-auto sm:shrink sm:p-6 lg:p-8 border border-[#E5E7EB] bg-[#F4F4F5]/60 rounded-2xl hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
               >
                 {title && (
                   <h3 className="text-sm font-bold uppercase tracking-[0.1em] text-[#0D0D0D] mb-3">
@@ -462,7 +467,7 @@ const SectionHeader = ({
   to: string;
   linkLabel: string;
 }) => (
-  <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 md:gap-8 mb-8 md:mb-10 lg:mb-14">
+  <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 md:gap-8 mb-6 md:mb-10 lg:mb-14">
     <div className="flex items-center gap-3 md:gap-4">
       {icon}
       <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-[#0D0D0D]">
@@ -694,7 +699,7 @@ const ExperienceSection = ({
   if (!featuredExperiences.length) return null;
 
   return (
-    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
+    <section className="py-8 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -705,7 +710,7 @@ const ExperienceSection = ({
           linkLabel="View All Experience"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className={`${MOBILE_CARD_ROW_CLASS} sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 lg:gap-8`}>
           {featuredExperiences.map((experience, index) => (
             <ExperienceCard key={index} experience={experience} index={index} />
           ))}
@@ -724,7 +729,7 @@ const PublicationsSection = ({
   if (!publications.length) return null;
 
   return (
-    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
+    <section className="py-8 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -735,7 +740,7 @@ const PublicationsSection = ({
           linkLabel="View All Publications"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <div className={`${MOBILE_CARD_ROW_CLASS} sm:grid-cols-2 lg:grid-cols-3 sm:gap-5 lg:gap-6`}>
           {publications.map((publication, index) => (
             <PublicationCard
               key={index}
@@ -754,7 +759,7 @@ const EducationSection = ({ education }: { education: EducationSummary[] }) => {
   if (!education.length) return null;
 
   return (
-    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
+    <section className="py-8 sm:py-14 lg:py-20 px-4 md:px-6 bg-[#F4F4F5]">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -765,7 +770,7 @@ const EducationSection = ({ education }: { education: EducationSummary[] }) => {
           linkLabel="View Full Education"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div className={`${MOBILE_CARD_ROW_CLASS} sm:grid-cols-2 sm:gap-6 lg:gap-8`}>
           {getLatestItems(education, 2).map((educationItem, index) => (
             <EducationCard
               key={index}
@@ -784,7 +789,7 @@ const AwardsSection = ({ awards }: { awards: AwardSummary[] }) => {
   if (!awards.length) return null;
 
   return (
-    <section className="py-10 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
+    <section className="py-8 sm:py-14 lg:py-20 px-4 md:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <SectionHeader
           icon={
@@ -795,7 +800,7 @@ const AwardsSection = ({ awards }: { awards: AwardSummary[] }) => {
           linkLabel="View All Achievements"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
+        <div className={`${MOBILE_CARD_ROW_CLASS} sm:grid-cols-2 lg:grid-cols-3 sm:gap-5 lg:gap-6`}>
           {getLatestItems(awards, MAX_FEATURED_ITEMS).map((award, index) => (
             <AwardCard key={index} award={award} index={index} />
           ))}
