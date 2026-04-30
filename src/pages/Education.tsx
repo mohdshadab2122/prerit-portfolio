@@ -5,6 +5,10 @@ import { Building2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
+import {
+  HASH_HIGHLIGHT_CLASS,
+  useHashHighlight,
+} from "../utils/hashHighlight";
 
 /*
  * Education page
@@ -302,21 +306,30 @@ const DegreeNode = ({
 
 // Top-level institution card. The institution header expands to show the
 // university and Prerit summary, and degree nodes live below it.
-const EducationCard = ({ item }: { item: EducationItem }) => {
+const EducationCard = ({
+  item,
+  highlightedId,
+}: {
+  item: EducationItem;
+  highlightedId: string;
+}) => {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const anchorId = buildAnchorId("education", item.university);
+  const isHighlighted = highlightedId === anchorId;
 
   return (
-    <div
-      id={buildAnchorId("education", item.university)}
-      className="relative scroll-mt-28"
-    >
+    <div id={anchorId} className="relative scroll-mt-28">
       <div className="absolute left-[12px] top-8 w-6 h-6 flex items-center justify-center z-20 -translate-x-1/2">
         <div className="w-6 h-6 rounded-full bg-[#FF6B00] flex items-center justify-center shadow-lg shadow-[#FF6B00]/20">
           <Building2 className="w-3 h-3 text-white" />
         </div>
       </div>
 
-      <div className="ml-10 md:ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] hover:border-[#D1D5DB]">
+      <div
+        className={`ml-10 md:ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] hover:border-[#D1D5DB] ${
+          isHighlighted ? HASH_HIGHLIGHT_CLASS : ""
+        }`}
+      >
         <div
           onClick={() => setIsSummaryExpanded((current) => !current)}
           className="group cursor-pointer mb-4 md:mb-6"
@@ -424,7 +437,13 @@ const EducationHeader = ({ intro }: { intro: string }) => (
 
 // Vertical wrapper for all education cards. Individual cards own their own
 // expansion state.
-const EducationTimeline = ({ items }: { items: EducationItem[] }) => (
+const EducationTimeline = ({
+  items,
+  highlightedId,
+}: {
+  items: EducationItem[];
+  highlightedId: string;
+}) => (
   <div className="relative flex flex-col gap-8 md:gap-12">
     <div className="absolute left-[11px] top-8 h-[calc(100%-250px)] w-[2.2px] bg-[#E5E7EB]" />
 
@@ -437,7 +456,7 @@ const EducationTimeline = ({ items }: { items: EducationItem[] }) => (
         transition={{ duration: 0.5, delay: index * 0.1 }}
         className="relative"
       >
-        <EducationCard item={item} />
+        <EducationCard item={item} highlightedId={highlightedId} />
       </motion.div>
     ))}
   </div>
@@ -458,6 +477,10 @@ export default function Education() {
       ),
     [data?.education, ownerName],
   );
+  const highlightedId = useHashHighlight(
+    location.hash,
+    !loading && educationItems.length > 0,
+  );
 
   useEffect(() => {
     if (!loading && educationItems.length) {
@@ -473,7 +496,10 @@ export default function Education() {
       <div className="max-w-5xl mx-auto">
         <div className="pt-3 md:pt-8 pb-8 md:pb-12">
           <EducationHeader intro={intro} />
-          <EducationTimeline items={educationItems} />
+          <EducationTimeline
+            items={educationItems}
+            highlightedId={highlightedId}
+          />
         </div>
       </div>
     </div>

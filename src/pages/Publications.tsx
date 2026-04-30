@@ -4,6 +4,10 @@ import { motion } from "motion/react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
+import {
+  HASH_HIGHLIGHT_CLASS,
+  useHashHighlight,
+} from "../utils/hashHighlight";
 
 /*
  * Publications page
@@ -376,49 +380,64 @@ const PublicationDate = ({ publication }: { publication: Publication }) => (
 
 // One publication row/card. The layout stays identical across categories while
 // metadata adapts to conference venue, journal division, or preprint platform.
-const PublicationCard = ({ publication }: { publication: Publication }) => (
-  <div
-    id={buildAnchorId("publication", publication.title)}
-    className="scroll-mt-28 bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 md:px-6 py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px]"
-  >
-    <div className="flex-1 min-w-0">
-      <h3 className="text-sm sm:text-[15px] md:text-[17px] font-medium text-[#0D0D0D] leading-snug break-words hyphens-auto">
-        {publication.title}
-      </h3>
+const PublicationCard = ({
+  publication,
+  highlightedId,
+}: {
+  publication: Publication;
+  highlightedId: string;
+}) => {
+  const anchorId = buildAnchorId("publication", publication.title);
+  const isHighlighted = highlightedId === anchorId;
 
-      <div className="text-xs md:text-sm text-[#0D0D0D]/50 mt-2 flex flex-wrap items-center gap-1.5 md:gap-2">
-        <span className="break-words">{publication.organization}</span>
+  return (
+    <div
+      id={anchorId}
+      className={`scroll-mt-28 bg-[#F4F4F5] border border-[#E5E7EB] rounded-xl px-4 sm:px-5 md:px-6 py-4 md:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 transition-all duration-200 hover:bg-white hover:shadow-md hover:-translate-y-[2px] ${
+        isHighlighted ? HASH_HIGHLIGHT_CLASS : ""
+      }`}
+    >
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm sm:text-[15px] md:text-[17px] font-medium text-[#0D0D0D] leading-snug break-words hyphens-auto">
+          {publication.title}
+        </h3>
 
-        {publication.venue && (
-          <>
-            <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0" />
-            <span className="break-words">{publication.venue}</span>
-          </>
-        )}
+        <div className="text-xs md:text-sm text-[#0D0D0D]/50 mt-2 flex flex-wrap items-center gap-1.5 md:gap-2">
+          <span className="break-words">{publication.organization}</span>
 
-        <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0" />
-        <PublicationDate publication={publication} />
+          {publication.venue && (
+            <>
+              <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0" />
+              <span className="break-words">{publication.venue}</span>
+            </>
+          )}
+
+          <span className="w-1 h-1 bg-gray-400 rounded-full flex-shrink-0" />
+          <PublicationDate publication={publication} />
+        </div>
       </div>
-    </div>
 
-    {publication.externalLink && (
-      <a
-        href={publication.externalLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex w-full sm:w-fit items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm rounded-md border border-[#E5E7EB] transition-all duration-200 hover:bg-black hover:text-white shrink-0"
-      >
-        Open
-        <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4" />
-      </a>
-    )}
-  </div>
-);
+      {publication.externalLink && (
+        <a
+          href={publication.externalLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full sm:w-fit items-center justify-center gap-2 px-3 md:px-4 py-2 md:py-2.5 text-xs md:text-sm rounded-md border border-[#E5E7EB] transition-all duration-200 hover:bg-black hover:text-white shrink-0"
+        >
+          Open
+          <ExternalLink className="w-3.5 h-3.5 md:w-4 md:h-4" />
+        </a>
+      )}
+    </div>
+  );
+};
 
 const PublicationsList = ({
   publications,
+  highlightedId,
 }: {
   publications: Publication[];
+  highlightedId: string;
 }) => (
   <div className="space-y-4 md:space-y-6">
     {publications.map((publication, index) => (
@@ -429,7 +448,10 @@ const PublicationsList = ({
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.35, delay: index * 0.03 }}
       >
-        <PublicationCard publication={publication} />
+        <PublicationCard
+          publication={publication}
+          highlightedId={highlightedId}
+        />
       </motion.div>
     ))}
   </div>
@@ -467,6 +489,10 @@ export default function Publications() {
     () => filterPublications(publications, activeCategory, searchQuery),
     [activeCategory, publications, searchQuery],
   );
+  const highlightedId = useHashHighlight(
+    location.hash,
+    !loading && filteredPublications.length > 0,
+  );
 
   useEffect(() => {
     setActiveCategory(getCategoryFromSearch(location.search));
@@ -497,7 +523,10 @@ export default function Publications() {
             count={filteredPublications.length}
             activeCategory={activeCategory}
           />
-          <PublicationsList publications={filteredPublications} />
+          <PublicationsList
+            publications={filteredPublications}
+            highlightedId={highlightedId}
+          />
         </div>
       </div>
     </div>

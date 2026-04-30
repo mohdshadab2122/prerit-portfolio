@@ -4,6 +4,10 @@ import { ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
+import {
+  HASH_HIGHLIGHT_CLASS,
+  useHashHighlight,
+} from "../utils/hashHighlight";
 
 /*
  * Awards page
@@ -141,13 +145,23 @@ const TabButton = ({
 
 // One expandable award/recognition card. The summary is always visible, while
 // the longer description is revealed on click.
-const AwardCard = ({ item }: { item: AwardItem }) => {
+const AwardCard = ({
+  item,
+  highlightedId,
+}: {
+  item: AwardItem;
+  highlightedId: string;
+}) => {
   const [open, setOpen] = useState(false);
+  const anchorId = buildAnchorId("award", item.title);
+  const isHighlighted = highlightedId === anchorId;
 
   return (
     <div
-      id={buildAnchorId("award", item.title)}
-      className="scroll-mt-28 border border-[#E5E7EB] rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-7 lg:p-8 bg-[#F4F4F5] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+      id={anchorId}
+      className={`scroll-mt-28 border border-[#E5E7EB] rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-7 lg:p-8 bg-[#F4F4F5] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 ${
+        isHighlighted ? HASH_HIGHLIGHT_CLASS : ""
+      }`}
     >
       <div
         onClick={() => setOpen((current) => !current)}
@@ -259,7 +273,13 @@ const AwardsTabs = ({
   </div>
 );
 
-const AwardsList = ({ items }: { items: AwardItem[] }) => (
+const AwardsList = ({
+  items,
+  highlightedId,
+}: {
+  items: AwardItem[];
+  highlightedId: string;
+}) => (
   <div className="space-y-3 md:space-y-5">
     {items.map((item) => (
       <motion.div
@@ -269,7 +289,7 @@ const AwardsList = ({ items }: { items: AwardItem[] }) => (
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.35 }}
       >
-        <AwardCard item={item} />
+        <AwardCard item={item} highlightedId={highlightedId} />
       </motion.div>
     ))}
   </div>
@@ -301,6 +321,10 @@ export default function Awards() {
     () => getFilteredItems(mappedData, active),
     [active, mappedData],
   );
+  const highlightedId = useHashHighlight(
+    location.hash,
+    !loading && filteredItems.length > 0,
+  );
 
   useEffect(() => {
     setActive(getCategoryFromSearch(location.search));
@@ -320,7 +344,7 @@ export default function Awards() {
         <AwardsHeader intro={intro} />
         <AwardsMarquee items={marqueeItems} />
         <AwardsTabs active={active} onTabChange={setActive} />
-        <AwardsList items={filteredItems} />
+        <AwardsList items={filteredItems} highlightedId={highlightedId} />
       </div>
     </div>
   );

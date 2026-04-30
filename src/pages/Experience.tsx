@@ -5,6 +5,10 @@ import { Building2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
+import {
+  HASH_HIGHLIGHT_CLASS,
+  useHashHighlight,
+} from "../utils/hashHighlight";
 
 /*
  * Experience page
@@ -478,21 +482,30 @@ const RoleNode = ({ role, isLast }: { role: Role; isLast: boolean }) => {
 
 // Top-level company card. The header expands to show company and personal
 // contribution summary, while roles are always visible below it.
-const CompanySection = ({ company }: { company: Company }) => {
+const CompanySection = ({
+  company,
+  highlightedId,
+}: {
+  company: Company;
+  highlightedId: string;
+}) => {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
+  const anchorId = buildAnchorId("experience", company.name);
+  const isHighlighted = highlightedId === anchorId;
 
   return (
-    <div
-      id={buildAnchorId("experience", company.name)}
-      className="relative scroll-mt-28"
-    >
+    <div id={anchorId} className="relative scroll-mt-28">
       <div className="absolute left-[12px] top-8 w-6 h-6 flex items-center justify-center z-20 -translate-x-1/2">
         <div className="w-6 h-6 rounded-full bg-[#FF6B00] flex items-center justify-center shadow-lg shadow-[#FF6B00]/20">
           <Building2 className="w-3 h-3 text-white" />
         </div>
       </div>
 
-      <div className="ml-10 md:ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] hover:border-[#D1D5DB]">
+      <div
+        className={`ml-10 md:ml-12 bg-[#F4F4F5] border border-[#E5E7EB] rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] hover:border-[#D1D5DB] ${
+          isHighlighted ? HASH_HIGHLIGHT_CLASS : ""
+        }`}
+      >
         <div
           onClick={() => setIsSummaryExpanded((current) => !current)}
           className="group cursor-pointer mb-4 md:mb-6"
@@ -636,8 +649,10 @@ const ExperienceHeader = ({
 // Vertical timeline wrapper. Individual cards handle their own expansion state.
 const ExperienceTimeline = ({
   companies,
+  highlightedId,
 }: {
   companies: CompanyTimelineItem[];
+  highlightedId: string;
 }) => (
   <div className="relative flex flex-col gap-8 md:gap-12">
     <div className="absolute left-[11px] top-8 h-[calc(100%-250px)] w-[2px] bg-[#E5E7EB]" />
@@ -650,7 +665,7 @@ const ExperienceTimeline = ({
         transition={{ duration: 0.5, delay: index * 0.1 }}
         className="relative"
       >
-        <CompanySection company={company} />
+        <CompanySection company={company} highlightedId={highlightedId} />
       </motion.div>
     ))}
   </div>
@@ -673,6 +688,10 @@ export default function Experience() {
     () => buildCompanyTimeline(rawExperiences, ownerName),
     [ownerName, rawExperiences],
   );
+  const highlightedId = useHashHighlight(
+    location.hash,
+    !loading && companies.length > 0,
+  );
 
   useEffect(() => {
     if (!loading && companies.length) {
@@ -687,7 +706,10 @@ export default function Experience() {
       <div className="max-w-5xl mx-auto">
         <div className="pt-3 md:pt-8 pb-8 md:pb-12">
           <ExperienceHeader intro={intro} stats={stats} />
-          <ExperienceTimeline companies={companies} />
+          <ExperienceTimeline
+            companies={companies}
+            highlightedId={highlightedId}
+          />
         </div>
       </div>
     </div>
