@@ -135,8 +135,8 @@ npm run lint
 | `npm run dev`     | Starts the Vite development server                       |
 | `npm run build`   | Builds the production application                        |
 | `npm run preview` | Serves the production build locally                      |
-| `npm run lint`    | Runs ESLint checks                                       |
-| `npm run clean`   | Removes generated build artifacts and dependency folders |
+| `npm run lint`    | Runs TypeScript checks                                   |
+| `npm run clean`   | Removes generated `dist` build output                    |
 
 ## Deployment Notes
 

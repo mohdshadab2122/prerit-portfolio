@@ -350,7 +350,13 @@ const fetchPage = async <T,>(page: string): Promise<T> => {
     throw new Error(`Failed to fetch ${page}: ${response.status}`);
   }
 
-  return response.json() as Promise<T>;
+  const payload = (await response.json()) as T & { error?: string };
+
+  if (payload && typeof payload === "object" && payload.error) {
+    throw new Error(`Failed to fetch ${page}: ${payload.error}`);
+  }
+
+  return payload as T;
 };
 
 const fetchOptionalPage = async <T,>(
