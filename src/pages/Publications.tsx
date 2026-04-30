@@ -50,6 +50,7 @@ interface Publication {
 }
 
 interface PublicationStats {
+  total: number;
   Conferences: number;
   Journals: number;
   Preprints: number;
@@ -99,26 +100,29 @@ const scrollToHash = (hash: string) => {
 
 // Header stat cards are data-driven so adding another category later is local.
 const STAT_CARDS: Array<{
-  category: PublicationCategory;
+  statKey: keyof PublicationStats;
   label: string;
   subLabel: string;
-  className?: string;
 }> = [
   {
-    category: "Conferences",
+    statKey: "total",
+    label: "Total Publications",
+    subLabel: "Published Works",
+  },
+  {
+    statKey: "Conferences",
     label: "Conferences",
     subLabel: "Research Papers",
   },
   {
-    category: "Journals",
+    statKey: "Journals",
     label: "Journals",
     subLabel: "Journal Articles",
   },
   {
-    category: "Preprints",
+    statKey: "Preprints",
     label: "Preprints",
     subLabel: "Early Research",
-    className: "col-span-2 md:col-span-1",
   },
 ];
 
@@ -175,6 +179,7 @@ const calculateStats = (publications: Publication[]): PublicationStats =>
       [publication.category]: stats[publication.category] + 1,
     }),
     {
+      total: publications.length,
       Conferences: 0,
       Journals: 0,
       Preprints: 0,
@@ -262,14 +267,13 @@ const PublicationsHeader = ({ stats }: { stats: PublicationStats }) => (
       sensing, and advanced drive systems.
     </p>
 
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
       {STAT_CARDS.map((card) => (
         <StatCard
-          key={card.category}
+          key={card.statKey}
           label={card.label}
-          value={stats[card.category]}
+          value={stats[card.statKey]}
           subLabel={card.subLabel}
-          className={card.className}
         />
       ))}
     </div>
