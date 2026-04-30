@@ -11,7 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 import SeoMeta from "./SeoMeta";
 
 /*

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 
 /*
  * SeoMeta

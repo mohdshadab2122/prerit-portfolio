@@ -10,7 +10,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 
 /*
  * Home page

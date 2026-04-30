@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
 
 /*

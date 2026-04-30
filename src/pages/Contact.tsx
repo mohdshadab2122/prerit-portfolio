@@ -11,7 +11,7 @@ import {
   User,
 } from "lucide-react";
 import { motion } from "motion/react";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 import { getContactSideInfo, getPageIntro } from "../config/pageContent";
 
 /*

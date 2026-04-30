@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ExternalLink, Search } from "lucide-react";
 import { motion } from "motion/react";
 import { useLocation } from "react-router-dom";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
 
 /*

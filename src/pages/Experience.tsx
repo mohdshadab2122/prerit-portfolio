@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Building2 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
 
 /*

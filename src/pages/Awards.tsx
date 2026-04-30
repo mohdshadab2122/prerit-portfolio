@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ChevronDown } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import { useAppData } from "../Context/DataContext";
+import { useAppData } from "../context/DataContext";
 import { getPageIntro } from "../config/pageContent";
 
 /*

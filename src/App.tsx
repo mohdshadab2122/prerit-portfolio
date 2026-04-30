@@ -12,7 +12,7 @@ import Publications from "./pages/Publications";
 import Awards from "./pages/Awards";
 import IntellectualProperty from "./pages/IntellectualProperty";
 import Contact from "./pages/Contact";
-import { useAppData } from "./Context/DataContext";
+import { useAppData } from "./context/DataContext";
 import Loader from "./components/Loader";
 
 export default function App() {
