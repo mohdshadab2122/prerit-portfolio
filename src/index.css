@@ -11,9 +11,33 @@
   --font-mono: "DM Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+:root {
+  --app-bg: #F4F4F5;
+  --app-page: #FFFFFF;
+  --app-surface: #FFFFFF;
+  --app-surface-muted: #F4F4F5;
+  --app-surface-soft: #F9FAFB;
+  --app-border: #E5E7EB;
+  --app-text: #0D0D0D;
+  --app-text-muted: rgb(13 13 13 / 0.65);
+  --app-text-subtle: rgb(13 13 13 / 0.45);
+}
+
+html[data-theme="dark"] {
+  --app-bg: #0B0D10;
+  --app-page: #0B0D10;
+  --app-surface: #151A21;
+  --app-surface-muted: #11151B;
+  --app-surface-soft: #1B222B;
+  --app-border: #2A3340;
+  --app-text: #F5F7FA;
+  --app-text-muted: rgb(245 247 250 / 0.68);
+  --app-text-subtle: rgb(245 247 250 / 0.48);
+}
+
 body {
-  background-color: var(--color-soft-grey);
-  color: var(--color-near-black);
+  background-color: var(--app-bg);
+  color: var(--app-text);
   font-family: var(--font-sans);
   line-height: 1.6;
 }
@@ -44,4 +68,104 @@ h1, h2, h3, h4, h5, h6 {
 
 .marquee:hover {
   animation-play-state: paused;
+}
+
+html[data-theme="dark"] ::selection {
+  background: rgb(255 107 0 / 0.28);
+}
+
+/* Dark mode is applied through shared utility overrides because most page
+   components intentionally use direct Tailwind color utilities. */
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .hover\:bg-white:hover {
+  background-color: var(--app-surface);
+}
+
+html[data-theme="dark"] .bg-\[\#F4F4F5\],
+html[data-theme="dark"] .bg-soft-grey {
+  background-color: var(--app-bg);
+}
+
+html[data-theme="dark"] .bg-\[\#F4F4F5\]\/60,
+html[data-theme="dark"] .bg-\[\#F9FAFB\],
+html[data-theme="dark"] .bg-\[\#F9F9F9\],
+html[data-theme="dark"] .bg-\[\#FAFAFA\],
+html[data-theme="dark"] .hover\:bg-\[\#F4F4F5\]:hover,
+html[data-theme="dark"] .hover\:bg-\[\#F9F9F9\]:hover,
+html[data-theme="dark"] .hover\:bg-gray-100:hover {
+  background-color: var(--app-surface-soft);
+}
+
+html[data-theme="dark"] .bg-soft-grey\/90 {
+  background-color: rgb(11 13 16 / 0.9);
+}
+
+html[data-theme="dark"] .bg-soft-grey\/98 {
+  background-color: rgb(11 13 16 / 0.98);
+}
+
+html[data-theme="dark"] .bg-\[\#FFF4EB\] {
+  background-color: rgb(255 107 0 / 0.14);
+}
+
+html[data-theme="dark"] .bg-\[\#EEF2FF\] {
+  background-color: rgb(37 99 235 / 0.16);
+}
+
+html[data-theme="dark"] .text-near-black,
+html[data-theme="dark"] .text-\[\#0D0D0D\],
+html[data-theme="dark"] .text-black,
+html[data-theme="dark"] .hover\:text-near-black:hover,
+html[data-theme="dark"] .hover\:text-black:hover {
+  color: var(--app-text);
+}
+
+html[data-theme="dark"] .text-near-black\/70,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/55,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/60,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/65,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/70,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/75,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/80,
+html[data-theme="dark"] .text-gray-500,
+html[data-theme="dark"] .text-gray-600 {
+  color: var(--app-text-muted);
+}
+
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/35,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/40,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/45,
+html[data-theme="dark"] .text-\[\#0D0D0D\]\/50,
+html[data-theme="dark"] .text-gray-400 {
+  color: var(--app-text-subtle);
+}
+
+html[data-theme="dark"] .border-\[\#E5E7EB\],
+html[data-theme="dark"] .border-\[\#E5E7EB\]\/70,
+html[data-theme="dark"] .border-\[\#D1D5DB\],
+html[data-theme="dark"] .border-black\/5,
+html[data-theme="dark"] .border-black\/10,
+html[data-theme="dark"] .hover\:border-\[\#D1D5DB\]:hover {
+  border-color: var(--app-border);
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  color: var(--app-text);
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+  color: var(--app-text-subtle);
+}
+
+html[data-theme="dark"] .from-white {
+  --tw-gradient-from: var(--app-page) var(--tw-gradient-from-position);
+  --tw-gradient-to: rgb(11 13 16 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+html[data-theme="dark"] .ring-offset-white {
+  --tw-ring-offset-color: var(--app-bg);
 }

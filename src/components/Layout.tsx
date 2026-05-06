@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import {
+  Check,
   ExternalLink,
   FileText,
   GraduationCap,
   Linkedin,
   Mail,
   Menu,
+  Monitor,
+  Moon,
+  Sun,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -40,8 +44,18 @@ interface HomeLinks {
   patents?: string;
 }
 
+type ThemePreference = "light" | "dark" | "system";
+type EffectiveTheme = "light" | "dark";
+
 const BUSINESS_SITE_URL = import.meta.env.VITE_BUSINESS_SITE_URL || "";
 const DEFAULT_SITE_NAME = "Professional Portfolio";
+const THEME_STORAGE_KEY = "portfolioTheme";
+
+const THEME_OPTIONS: Array<{ label: string; value: ThemePreference }> = [
+  { label: "Light", value: "light" },
+  { label: "Dark", value: "dark" },
+  { label: "System", value: "system" },
+];
 
 const NAV_LINKS: NavLinkItem[] = [
   { name: "Home", path: "/" },
@@ -85,6 +99,31 @@ const buildSocialLinks = (links: HomeLinks): SocialLinkItem[] => {
 
 const isActivePath = (currentPath: string, linkPath: string) =>
   currentPath === linkPath;
+
+const isThemePreference = (value: string | null): value is ThemePreference =>
+  value === "light" || value === "dark" || value === "system";
+
+const getSystemTheme = (): EffectiveTheme => {
+  if (typeof window === "undefined" || !window.matchMedia) return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+
+const getStoredThemePreference = (): ThemePreference => {
+  if (typeof window === "undefined") return "system";
+  const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+  return isThemePreference(storedTheme) ? storedTheme : "system";
+};
+
+const renderThemeIcon = (
+  theme: ThemePreference | EffectiveTheme,
+  className = "h-4 w-4",
+) => {
+  if (theme === "dark") return <Moon className={className} />;
+  if (theme === "system") return <Monitor className={className} />;
+  return <Sun className={className} />;
+};
 
 const BrandLink = ({ name }: { name: string }) => (
   <Link
@@ -149,16 +188,134 @@ const MobileMenuButton = ({
   </button>
 );
 
+const ThemeOptionButton = ({
+  option,
+  selected,
+  onSelect,
+  mobile = false,
+}: {
+  option: { label: string; value: ThemePreference };
+  selected: boolean;
+  onSelect: (theme: ThemePreference) => void;
+  mobile?: boolean;
+}) => (
+  <button
+    type="button"
+    onClick={() => onSelect(option.value)}
+    className={
+      mobile
+        ? `flex items-center justify-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors ${
+            selected
+              ? "border-primary-orange bg-primary-orange/10 text-primary-orange"
+              : "border-[#E5E7EB] bg-white text-near-black/70 hover:text-near-black"
+          }`
+        : `flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            selected
+              ? "bg-primary-orange/10 text-primary-orange"
+              : "text-near-black/70 hover:bg-black/5 hover:text-near-black"
+          }`
+    }
+  >
+    <span className="flex items-center gap-2">
+      {renderThemeIcon(option.value, mobile ? "h-3.5 w-3.5" : "h-4 w-4")}
+      {option.label}
+    </span>
+    {!mobile && selected && <Check className="h-4 w-4" />}
+  </button>
+);
+
+const ThemeMenu = ({
+  themePreference,
+  onThemeChange,
+}: {
+  themePreference: ThemePreference;
+  onThemeChange: (theme: ThemePreference) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative hidden lg:block">
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-black/5 bg-white text-near-black/70 transition-colors hover:text-near-black"
+        aria-label="Change appearance"
+        aria-expanded={open}
+      >
+        {renderThemeIcon(themePreference)}
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.16, ease: "easeOut" }}
+            className="absolute right-0 top-12 z-50 w-48 rounded-2xl border border-[#E5E7EB] bg-white p-2 shadow-xl shadow-black/10"
+          >
+            <p className="px-3 pb-1.5 pt-1 text-[10px] font-mono uppercase tracking-[0.2em] text-[#0D0D0D]/45">
+              Appearance
+            </p>
+            <div className="space-y-1">
+              {THEME_OPTIONS.map((option) => (
+                <ThemeOptionButton
+                  key={option.value}
+                  option={option}
+                  selected={themePreference === option.value}
+                  onSelect={(theme) => {
+                    onThemeChange(theme);
+                    setOpen(false);
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const MobileThemeMenu = ({
+  themePreference,
+  onThemeChange,
+}: {
+  themePreference: ThemePreference;
+  onThemeChange: (theme: ThemePreference) => void;
+}) => (
+  <div className="mt-3 border-t border-black/5 pt-3">
+    <p className="px-3 text-[10px] font-mono uppercase tracking-[0.2em] text-[#0D0D0D]/45">
+      Appearance
+    </p>
+    <div className="mt-2 grid grid-cols-3 gap-2 px-3">
+      {THEME_OPTIONS.map((option) => (
+        <ThemeOptionButton
+          key={option.value}
+          option={option}
+          selected={themePreference === option.value}
+          onSelect={onThemeChange}
+          mobile
+        />
+      ))}
+    </div>
+  </div>
+);
+
 // Mobile menu is animated separately from the header so the sticky nav height
 // can collapse cleanly after a route is selected.
 const MobileNav = ({
   pathname,
   menuOpen,
   onClose,
+  themePreference,
+  onThemeChange,
 }: {
   pathname: string;
   menuOpen: boolean;
   onClose: () => void;
+  themePreference: ThemePreference;
+  onThemeChange: (theme: ThemePreference) => void;
 }) => (
   <AnimatePresence>
     {menuOpen && (
@@ -185,6 +342,11 @@ const MobileNav = ({
             </Link>
           ))}
 
+          <MobileThemeMenu
+            themePreference={themePreference}
+            onThemeChange={onThemeChange}
+          />
+
           <BusinessSiteLink mobile />
         </nav>
       </motion.div>
@@ -198,12 +360,16 @@ const Header = ({
   onToggleMenu,
   onCloseMenu,
   profileName,
+  themePreference,
+  onThemeChange,
 }: {
   pathname: string;
   menuOpen: boolean;
   onToggleMenu: () => void;
   onCloseMenu: () => void;
   profileName: string;
+  themePreference: ThemePreference;
+  onThemeChange: (theme: ThemePreference) => void;
 }) => (
   <header className="sticky top-0 z-50 bg-soft-grey/90 backdrop-blur-md border-b border-black/5">
     <div className="max-w-[1400px] mx-auto px-4 md:px-6 h-16 lg:h-20 flex items-center justify-between">
@@ -211,12 +377,22 @@ const Header = ({
       <DesktopNav pathname={pathname} />
 
       <div className="flex items-center gap-3">
+        <ThemeMenu
+          themePreference={themePreference}
+          onThemeChange={onThemeChange}
+        />
         <BusinessSiteLink />
         <MobileMenuButton menuOpen={menuOpen} onToggle={onToggleMenu} />
       </div>
     </div>
 
-    <MobileNav pathname={pathname} menuOpen={menuOpen} onClose={onCloseMenu} />
+    <MobileNav
+      pathname={pathname}
+      menuOpen={menuOpen}
+      onClose={onCloseMenu}
+      themePreference={themePreference}
+      onThemeChange={onThemeChange}
+    />
   </header>
 );
 
@@ -268,11 +444,37 @@ const Footer = ({
 export default function Layout() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [themePreference, setThemePreference] = useState<ThemePreference>(
+    getStoredThemePreference,
+  );
+  const [systemTheme, setSystemTheme] =
+    useState<EffectiveTheme>(getSystemTheme);
   const { data } = useAppData();
 
   const homeData = data?.home?.[0];
   const profileName = homeData?.name || DEFAULT_SITE_NAME;
   const socialLinks = buildSocialLinks(homeData?.links || {});
+  const effectiveTheme =
+    themePreference === "system" ? systemTheme : themePreference;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateSystemTheme = () =>
+      setSystemTheme(mediaQuery.matches ? "dark" : "light");
+
+    updateSystemTheme();
+    mediaQuery.addEventListener("change", updateSystemTheme);
+    return () => mediaQuery.removeEventListener("change", updateSystemTheme);
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(THEME_STORAGE_KEY, themePreference);
+  }, [themePreference]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = effectiveTheme;
+    document.documentElement.style.colorScheme = effectiveTheme;
+  }, [effectiveTheme]);
 
   return (
     <div className="min-h-screen flex flex-col bg-soft-grey text-near-black">
@@ -284,6 +486,8 @@ export default function Layout() {
         onToggleMenu={() => setMenuOpen((current) => !current)}
         onCloseMenu={() => setMenuOpen(false)}
         profileName={profileName}
+        themePreference={themePreference}
+        onThemeChange={setThemePreference}
       />
 
       <main className="flex-grow">
